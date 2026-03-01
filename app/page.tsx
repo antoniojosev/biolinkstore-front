@@ -1,18 +1,27 @@
-import { CartProvider } from "@/components/cart-context"
-import { StoreHeader } from "@/components/store-header"
-import { ProductGrid } from "@/components/product-grid"
-import { CartButton } from "@/components/cart-button"
-import { CartSheet } from "@/components/cart-sheet"
+import { Navbar } from "@/components/landing/navbar"
+import { HeroSection } from "@/components/landing/hero-section"
+import { StatsSection } from "@/components/landing/stats-section"
+import { FeaturesSection } from "@/components/landing/features-section"
+import { HowItWorksSection } from "@/components/landing/how-it-works-section"
+import { PricingSection } from "@/components/landing/pricing-section"
+import { TestimonialsSection } from "@/components/landing/testimonials-section"
+import { CtaSection } from "@/components/landing/cta-section"
+import { Footer } from "@/components/landing/footer"
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <CartProvider>
-      <main className="min-h-screen max-w-lg mx-auto">
-        <StoreHeader />
-        <ProductGrid />
-        <CartButton />
-        <CartSheet />
+    <div className="min-h-screen gradient-background text-foreground">
+      <Navbar />
+      <main>
+        <HeroSection />
+        <StatsSection />
+        <FeaturesSection />
+        <HowItWorksSection />
+        <PricingSection />
+        <TestimonialsSection />
+        <CtaSection />
       </main>
-    </CartProvider>
+      <Footer />
+    </div>
   )
 }

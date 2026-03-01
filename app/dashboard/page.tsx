@@ -114,16 +114,27 @@ export default function DashboardPage() {
             {copied ? <Check className="w-3.5 h-3.5 mr-1.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
             {copied ? "Copiado" : "Copiar"}
           </Button>
-          <Button
-            size="sm"
-            className="h-8 text-xs bg-[#33b380] hover:bg-[#2a9a6d] text-white"
-            asChild
-          >
-            <Link href={`/${storeSlug}`} target="_blank">
+          {storeSlug ? (
+            <Button
+              size="sm"
+              className="h-8 text-xs bg-[#33b380] hover:bg-[#2a9a6d] text-white"
+              asChild
+            >
+              <Link href={`/${storeSlug}`} target="_blank">
+                <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
+                Abrir
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              className="h-8 text-xs bg-[#33b380]/50 text-white/60 cursor-not-allowed"
+              disabled
+            >
               <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
               Abrir
-            </Link>
-          </Button>
+            </Button>
+          )}
         </div>
       </div>
 
