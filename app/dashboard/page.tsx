@@ -15,6 +15,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useAuth } from "@/contexts/auth-context"
 
 const stats = [
   {
@@ -80,11 +81,17 @@ function getStatusStyle(status: string) {
 }
 
 export default function DashboardPage() {
+  const { store } = useAuth()
   const [copied, setCopied] = useState(false)
-  const storeUrl = "instaorder.app/modalatina"
+  const storeSlug = store?.slug || ''
+  const origin = typeof window !== 'undefined' ? window.location.origin : ''
+  const host = typeof window !== 'undefined' ? window.location.host : ''
+  const storeUrl = storeSlug && origin ? `${origin}/${storeSlug}` : ''
+  const displayUrl = storeSlug && host ? `${host}/${storeSlug}` : 'Cargando...'
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(`https://${storeUrl}`)
+    if (!storeUrl) return
+    navigator.clipboard.writeText(storeUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -95,7 +102,7 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-xl bg-[#33b380]/10 border border-[#33b380]/20">
         <div className="flex-1 min-w-0">
           <p className="text-xs text-[#6ee490] font-medium mb-0.5">Tu link de tienda</p>
-          <p className="text-sm text-white font-mono truncate">{storeUrl}</p>
+          <p className="text-sm text-white font-mono truncate">{displayUrl}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -112,7 +119,7 @@ export default function DashboardPage() {
             className="h-8 text-xs bg-[#33b380] hover:bg-[#2a9a6d] text-white"
             asChild
           >
-            <Link href="/" target="_blank">
+            <Link href={`/${storeSlug}`} target="_blank">
               <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
               Abrir
             </Link>
