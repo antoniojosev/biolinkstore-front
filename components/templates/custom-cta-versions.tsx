@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { MessageCircle, Mail, Sparkles, ArrowRight, X, Send, ChevronRight } from "lucide-react"
+import { MessageCircle, Mail, Sparkles, ArrowRight, X, Send, ChevronRight, Banknote } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -10,11 +10,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
+import { PaymentReportForm } from "@/components/dashboard/payment-report-form"
 
-const WA_DESIGN_NUMBER = '5491100000000'   // número del equipo InstaOrder
-const DESIGN_EMAIL     = 'diseno@instaorder.com'
+const WA_DESIGN_NUMBER = '5491100000000'   // número del equipo Bio Link Store
+const DESIGN_EMAIL     = 'diseno@biolinkstore.com'
 
-type ContactMethod = 'whatsapp' | 'email'
+type ContactMethod = 'whatsapp' | 'email' | 'transfer'
 
 // ── Modal de contacto ─────────────────────────────────────────────────────────
 
@@ -22,12 +23,14 @@ function ContactModal({
   open,
   onClose,
   storeName,
+  storeId,
   defaultWhatsapp,
   defaultEmail,
 }: {
   open: boolean
   onClose: () => void
   storeName: string
+  storeId: string
   defaultWhatsapp: string
   defaultEmail: string
 }) {
@@ -41,14 +44,14 @@ function ContactModal({
         `Hola! Soy "${storeName}" y me interesa un diseño exclusivo para mi tienda.\nMe pueden contactar al: ${whatsapp}`
       )
       window.open(`https://wa.me/${WA_DESIGN_NUMBER}?text=${msg}`, '_blank')
-    } else {
+    } else if (method === 'email') {
       const subject = encodeURIComponent(`Diseño exclusivo — ${storeName}`)
       const body = encodeURIComponent(
-        `Hola!\n\nSoy "${storeName}" y me interesa un diseño exclusivo para mi tienda en InstaOrder.\n\nPueden contactarme al email: ${email}`
+        `Hola!\n\nSoy "${storeName}" y me interesa un diseño exclusivo para mi tienda en Bio Link Store.\n\nPueden contactarme al email: ${email}`
       )
       window.open(`mailto:${DESIGN_EMAIL}?subject=${subject}&body=${body}`, '_blank')
     }
-    onClose()
+    if (method !== 'transfer') onClose()
   }
 
   return (
@@ -68,90 +71,113 @@ function ContactModal({
 
         <div className="px-6 pb-6 space-y-5">
           {/* Selector de método */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => setMethod('whatsapp')}
               className={cn(
-                "flex flex-col items-center gap-2 p-3.5 rounded-xl border transition-all",
+                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
                 method === 'whatsapp'
                   ? "border-[#25D366] bg-[#25D366]/8 text-white"
                   : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
               )}
             >
               <MessageCircle className={cn("w-5 h-5", method === 'whatsapp' ? "text-[#25D366]" : "")} />
-              <span className="text-xs font-medium">WhatsApp</span>
+              <span className="text-[11px] font-medium">WhatsApp</span>
             </button>
             <button
               onClick={() => setMethod('email')}
               className={cn(
-                "flex flex-col items-center gap-2 p-3.5 rounded-xl border transition-all",
+                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
                 method === 'email'
                   ? "border-[#327be2] bg-[#327be2]/8 text-white"
                   : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
               )}
             >
               <Mail className={cn("w-5 h-5", method === 'email' ? "text-[#327be2]" : "")} />
-              <span className="text-xs font-medium">Email</span>
-            </button>
-          </div>
-
-          {/* Campo editable */}
-          {method === 'whatsapp' ? (
-            <div className="space-y-1.5">
-              <label className="text-xs text-white/40 font-medium">
-                Tu número de WhatsApp
-              </label>
-              <input
-                type="tel"
-                value={whatsapp}
-                onChange={(e) => setWhatsapp(e.target.value)}
-                placeholder="+54 9 11 XXXX XXXX"
-                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#25D366]/50 focus:bg-white/8 transition-all"
-              />
-              <p className="text-[11px] text-white/25">
-                Te contactaremos a este número para coordinar el diseño.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              <label className="text-xs text-white/40 font-medium">
-                Tu email de contacto
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@email.com"
-                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#327be2]/50 focus:bg-white/8 transition-all"
-              />
-              <p className="text-[11px] text-white/25">
-                Te escribiremos a este email para coordinar el diseño.
-              </p>
-            </div>
-          )}
-
-          {/* Botones */}
-          <div className="flex gap-2 pt-1">
-            <button
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl border border-white/10 text-sm text-white/50 hover:text-white hover:border-white/20 transition-all"
-            >
-              Cancelar
+              <span className="text-[11px] font-medium">Email</span>
             </button>
             <button
-              onClick={handleSend}
-              disabled={method === 'whatsapp' ? !whatsapp.trim() : !email.trim()}
+              onClick={() => setMethod('transfer')}
               className={cn(
-                "flex-[2] flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-all",
-                method === 'whatsapp'
-                  ? "bg-[#25D366] hover:bg-[#20bb5a] disabled:opacity-40 disabled:cursor-not-allowed"
-                  : "bg-[#327be2] hover:bg-[#2a6acc] disabled:opacity-40 disabled:cursor-not-allowed"
+                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
+                method === 'transfer'
+                  ? "border-[#f59e0b] bg-[#f59e0b]/8 text-white"
+                  : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
               )}
             >
-              <Send className="w-3.5 h-3.5" />
-              Enviar solicitud
+              <Banknote className={cn("w-5 h-5", method === 'transfer' ? "text-[#f59e0b]" : "")} />
+              <span className="text-[11px] font-medium">Reportar pago</span>
             </button>
           </div>
+
+          {method === 'transfer' ? (
+            <PaymentReportForm
+              storeId={storeId}
+              type="DESIGN"
+              onSuccess={onClose}
+              onCancel={() => setMethod('whatsapp')}
+            />
+          ) : (
+            <>
+              {/* Campo editable */}
+              {method === 'whatsapp' ? (
+                <div className="space-y-1.5">
+                  <label className="text-xs text-white/40 font-medium">
+                    Tu número de WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    value={whatsapp}
+                    onChange={(e) => setWhatsapp(e.target.value)}
+                    placeholder="+54 9 11 XXXX XXXX"
+                    className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#25D366]/50 focus:bg-white/8 transition-all"
+                  />
+                  <p className="text-[11px] text-white/25">
+                    Te contactaremos a este número para coordinar el diseño.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <label className="text-xs text-white/40 font-medium">
+                    Tu email de contacto
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="tu@email.com"
+                    className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#327be2]/50 focus:bg-white/8 transition-all"
+                  />
+                  <p className="text-[11px] text-white/25">
+                    Te escribiremos a este email para coordinar el diseño.
+                  </p>
+                </div>
+              )}
+
+              {/* Botones */}
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={onClose}
+                  className="flex-1 py-2.5 rounded-xl border border-white/10 text-sm text-white/50 hover:text-white hover:border-white/20 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSend}
+                  disabled={method === 'whatsapp' ? !whatsapp.trim() : !email.trim()}
+                  className={cn(
+                    "flex-[2] flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-all",
+                    method === 'whatsapp'
+                      ? "bg-[#25D366] hover:bg-[#20bb5a] disabled:opacity-40 disabled:cursor-not-allowed"
+                      : "bg-[#327be2] hover:bg-[#2a6acc] disabled:opacity-40 disabled:cursor-not-allowed"
+                  )}
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  Enviar solicitud
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
@@ -162,11 +188,13 @@ function ContactModal({
 
 export function CustomDesignBar({
   storeName,
+  storeId,
   defaultWhatsapp = '',
   defaultEmail = '',
   noSidebar = false,
 }: {
   storeName: string
+  storeId: string
   defaultWhatsapp?: string
   defaultEmail?: string
   noSidebar?: boolean
@@ -243,6 +271,7 @@ export function CustomDesignBar({
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         storeName={storeName}
+        storeId={storeId}
         defaultWhatsapp={defaultWhatsapp}
         defaultEmail={defaultEmail}
       />

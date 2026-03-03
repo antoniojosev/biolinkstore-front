@@ -1,10 +1,12 @@
 'use client'
 
-import Image from 'next/image'
 import { useState } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Heart, Plus, Check } from 'lucide-react'
 import type { Product } from '@/lib/types'
 import { useCart } from '@/lib/cart-context'
+import { useStore } from '@/lib/store-context'
 
 interface Props {
   product: Product
@@ -12,7 +14,10 @@ interface Props {
 }
 
 export function LuxoraProductCard({ product, currency = 'ARS' }: Props) {
+  const { store } = useStore()
   const { addItem, setIsOpen } = useCart()
+  const searchParams = useSearchParams()
+  const preview = searchParams.get('preview')
   const [added, setAdded] = useState(false)
   const [liked, setLiked] = useState(false)
 
@@ -25,7 +30,9 @@ export function LuxoraProductCard({ product, currency = 'ARS' }: Props) {
 
   const image = product.images?.[0] ?? product.image ?? '/placeholder.svg'
 
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     if (!product.inStock) return
     addItem({
       id: product.id,
@@ -39,21 +46,25 @@ export function LuxoraProductCard({ product, currency = 'ARS' }: Props) {
     setTimeout(() => setAdded(false), 1800)
   }
 
-  return (
+  const handleLike = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setLiked((v) => !v)
+  }
+
+  const card = (
     <div className="group flex flex-col gap-2">
       {/* Image container */}
       <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#EFEFEB]">
-        <Image
+        <img
           src={image}
           alt={product.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes="(max-width: 640px) 45vw, 200px"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
         {/* Like button */}
         <button
-          onClick={() => setLiked((v) => !v)}
+          onClick={handleLike}
           className="absolute top-2.5 right-2.5 transition-transform active:scale-90"
           aria-label="Me gusta"
         >
@@ -113,4 +124,15 @@ export function LuxoraProductCard({ product, currency = 'ARS' }: Props) {
       </div>
     </div>
   )
+
+  if (product.slug) {
+    const href = `/${store.slug}/${product.slug}${preview ? `?preview=${preview}` : ''}`
+    return (
+      <Link href={href} className="block">
+        {card}
+      </Link>
+    )
+  }
+
+  return card
 }

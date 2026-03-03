@@ -15,6 +15,7 @@ export interface TemplateData {
   description: string
   plan: TemplatePlan
   tags: string[]
+  preview?: string
   colors: {
     bg: string
     header: string
@@ -33,6 +34,7 @@ export const TEMPLATES: TemplateData[] = [
       'Diseño oscuro con acentos teal. Grid de productos destacado, ideal para moda, tecnología y lifestyle.',
     plan: 'free',
     tags: ['Moderno', 'Oscuro', 'Vibrante'],
+    preview: '/templates/vitrina-preview.png',
     colors: {
       bg: '#0d1a2d',
       header: '#0a1220',
@@ -49,6 +51,7 @@ export const TEMPLATES: TemplateData[] = [
       'Estilo minimalista con fondo claro. Lista de productos espaciada y tipografía refinada. Perfecto para artesanías y productos premium.',
     plan: 'free',
     tags: ['Minimalista', 'Claro', 'Elegante'],
+    preview: '/templates/luxora-preview.png',
     colors: {
       bg: '#FAFAF8',
       header: '#F0EFEC',
@@ -65,6 +68,7 @@ export const TEMPLATES: TemplateData[] = [
       'Fondo negro profundo con acentos dorados. Layout editorial de pantalla completa para marcas de lujo y alta moda.',
     plan: 'pro',
     tags: ['Lujo', 'Oscuro', 'Editorial'],
+    preview: '/templates/noir-preview.png',
     colors: {
       bg: '#0A0A0A',
       header: '#111111',

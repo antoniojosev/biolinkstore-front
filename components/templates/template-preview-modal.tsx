@@ -47,7 +47,11 @@ export function TemplatePreviewModal({
       <DialogContent className="max-w-md p-0 overflow-hidden">
         {/* Large preview */}
         <div className="relative overflow-hidden" style={{ height: 400 }}>
-          {Preview && <Preview scale={1.55} />}
+          {template.preview ? (
+            <img src={template.preview} alt={template.name} className="w-full h-full object-cover object-top" />
+          ) : (
+            Preview && <Preview scale={1.55} />
+          )}
 
           {/* Locked overlay */}
           {isLocked && (

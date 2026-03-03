@@ -284,7 +284,11 @@ export function TemplateCard({ template, isSelected, isLocked: locked, onClick }
     >
       {/* Phone preview */}
       <div className="relative overflow-hidden">
-        {Preview && <Preview scale={1} />}
+        {template.preview ? (
+          <img src={template.preview} alt={template.name} className="w-full h-[430px] object-cover object-top" />
+        ) : (
+          Preview && <Preview scale={1} />
+        )}
 
         {/* PRO badge */}
         {template.plan !== 'free' && (

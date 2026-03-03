@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useState, useMemo } from 'react'
 import { Instagram, Search, SlidersHorizontal, ShoppingBag, X } from 'lucide-react'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
@@ -50,27 +49,38 @@ export function LuxoraTemplate() {
       <header className="relative">
         {cover ? (
           <div className="relative h-64 w-full overflow-hidden">
-            <Image src={cover} alt={store.name} fill className="object-cover" priority />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#FAFAF8]" />
+            <img src={cover} alt={store.name} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+            {/* Social links */}
+            {store.instagramUrl && (
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                <a
+                  href={store.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center hover:bg-black/50 transition-colors"
+                >
+                  <Instagram className="h-4 w-4 text-white" />
+                </a>
+              </div>
+            )}
             {/* Store name overlaid */}
-            <div className="absolute bottom-6 left-5 right-5">
-              <h1 className="text-4xl font-black text-white leading-none tracking-tight drop-shadow-md">
+            <div className="absolute bottom-5 left-5 right-5">
+              <h1 className="text-3xl font-black text-white leading-tight tracking-tight drop-shadow-md">
                 {store.name}
               </h1>
-              {store.username && (
-                <p className="text-white/80 text-sm mt-1">{store.username}</p>
+              {store.bio && (
+                <p className="text-white/80 text-sm mt-1 line-clamp-2 drop-shadow-sm">{store.bio}</p>
               )}
             </div>
           </div>
         ) : (
           <div className="bg-[#FAFAF8] pt-10 px-5 pb-4">
             <div className="flex items-center gap-3">
-              <Image
+              <img
                 src={avatar}
                 alt={store.name}
-                width={48}
-                height={48}
-                className="rounded-full border border-[#E5E5E0] object-cover"
+                className="w-12 h-12 rounded-full border border-[#E5E5E0] object-cover"
               />
               <div>
                 <h1 className="text-2xl font-black text-[#1A1A1A] leading-tight">{store.name}</h1>

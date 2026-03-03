@@ -14,7 +14,7 @@ export interface CartLineItem {
 
 export interface CheckoutPayload {
   items: CartLineItem[]
-  customer: CustomerInfo
+  customer?: CustomerInfo
   total: number
   currency: string
   storeSlug: string

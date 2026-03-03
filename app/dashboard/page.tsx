@@ -1,99 +1,99 @@
 "use client"
 
+import { useState, useEffect, useMemo } from "react"
 import {
   Package,
   ShoppingCart,
-  Eye,
-  TrendingUp,
+  Users,
   ArrowUpRight,
-  ArrowDownRight,
   ExternalLink,
   Copy,
   Check,
+  MessageCircle,
 } from "lucide-react"
-import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
-
-const stats = [
-  {
-    label: "Productos activos",
-    value: "24",
-    change: "+3",
-    trend: "up" as const,
-    icon: Package,
-    color: "#33b380",
-  },
-  {
-    label: "Pedidos este mes",
-    value: "142",
-    change: "+18%",
-    trend: "up" as const,
-    icon: ShoppingCart,
-    color: "#327be2",
-  },
-  {
-    label: "Visitas hoy",
-    value: "389",
-    change: "-5%",
-    trend: "down" as const,
-    icon: Eye,
-    color: "#6ee490",
-  },
-  {
-    label: "Tasa de conversion",
-    value: "4.2%",
-    change: "+0.8%",
-    trend: "up" as const,
-    icon: TrendingUp,
-    color: "#33b380",
-  },
-]
-
-const recentOrders = [
-  { id: "#1024", customer: "Maria Lopez", items: 3, total: 12500, status: "Nuevo", time: "Hace 5 min" },
-  { id: "#1023", customer: "Carlos Ruiz", items: 1, total: 4500, status: "Enviado", time: "Hace 2h" },
-  { id: "#1022", customer: "Ana Torres", items: 2, total: 7800, status: "Entregado", time: "Hace 5h" },
-  { id: "#1021", customer: "Pedro Garcia", items: 4, total: 15200, status: "Nuevo", time: "Hace 8h" },
-  { id: "#1020", customer: "Laura Diaz", items: 1, total: 2800, status: "Enviado", time: "Hace 1d" },
-]
-
-const topProducts = [
-  { name: "Vestido Floral Verano", sold: 38, revenue: 171000 },
-  { name: "Jean Mom Fit", sold: 27, revenue: 113400 },
-  { name: "Blusa Elegante Saten", sold: 22, revenue: 61600 },
-  { name: "Vestido Midi Negro", sold: 19, revenue: 110200 },
-]
-
-function getStatusStyle(status: string) {
-  switch (status) {
-    case "Nuevo":
-      return "bg-[#327be2]/15 text-[#327be2]"
-    case "Enviado":
-      return "bg-[#33b380]/15 text-[#6ee490]"
-    case "Entregado":
-      return "bg-white/10 text-white/60"
-    default:
-      return "bg-white/10 text-white/60"
-  }
-}
+import { OrdersHttpRepository } from "@/lib/orders-api"
+import type { StoreStats, OrderResponse } from "@/lib/orders-api"
 
 export default function DashboardPage() {
-  const { store } = useAuth()
+  const { store, http } = useAuth()
   const [copied, setCopied] = useState(false)
+  const [stats, setStats] = useState<StoreStats | null>(null)
+  const [recentOrders, setRecentOrders] = useState<OrderResponse[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const ordersRepo = useMemo(() => new OrdersHttpRepository(http), [http])
+
   const storeSlug = store?.slug || ''
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
   const host = typeof window !== 'undefined' ? window.location.host : ''
   const storeUrl = storeSlug && origin ? `${origin}/${storeSlug}` : ''
   const displayUrl = storeSlug && host ? `${host}/${storeSlug}` : 'Cargando...'
 
+  useEffect(() => {
+    if (!store?.id) return
+    setLoading(true)
+    Promise.all([
+      ordersRepo.getStats(store.id).catch(() => null),
+      ordersRepo.getOrders(store.id, { page: 1, limit: 5 }).catch(() => null),
+    ]).then(([statsData, ordersData]) => {
+      if (statsData) setStats(statsData)
+      if (ordersData) setRecentOrders(ordersData.data)
+      setLoading(false)
+    })
+  }, [store?.id, ordersRepo])
+
   const handleCopy = () => {
     if (!storeUrl) return
     navigator.clipboard.writeText(storeUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const statCards = [
+    {
+      label: "Productos activos",
+      value: "—",
+      icon: Package,
+      color: "#33b380",
+    },
+    {
+      label: "Cotizaciones este mes",
+      value: stats ? String(stats.newQuotesCount) : "—",
+      icon: ShoppingCart,
+      color: "#327be2",
+    },
+    {
+      label: "Visitantes únicos",
+      value: stats ? String(stats.uniqueVisitors) : "—",
+      icon: Users,
+      color: "#6ee490",
+    },
+  ]
+
+  function getStatusStyle(status: string) {
+    switch (status) {
+      case "PENDING":
+        return "bg-[#327be2]/15 text-[#327be2]"
+      case "CONTACTED":
+        return "bg-[#33b380]/15 text-[#6ee490]"
+      case "ACCEPTED":
+        return "bg-[#6ee490]/15 text-[#6ee490]"
+      case "REJECTED":
+        return "bg-red-500/15 text-red-400"
+      default:
+        return "bg-white/10 text-white/60"
+    }
+  }
+
+  const statusLabel: Record<string, string> = {
+    PENDING: 'Pendiente',
+    CONTACTED: 'Contactado',
+    ACCEPTED: 'Aceptado',
+    REJECTED: 'Rechazado',
   }
 
   return (
@@ -139,8 +139,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {statCards.map((stat) => (
           <Card key={stat.label} className="bg-[#0d1218] border-white/5">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
@@ -150,20 +150,13 @@ export default function DashboardPage() {
                 >
                   <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
                 </div>
-                <div
-                  className={`flex items-center gap-0.5 text-xs font-medium ${
-                    stat.trend === "up" ? "text-[#6ee490]" : "text-red-400"
-                  }`}
-                >
-                  {stat.trend === "up" ? (
-                    <ArrowUpRight className="w-3 h-3" />
-                  ) : (
-                    <ArrowDownRight className="w-3 h-3" />
-                  )}
-                  {stat.change}
-                </div>
+                {loading && (
+                  <div className="w-6 h-3 bg-white/5 rounded animate-pulse" />
+                )}
               </div>
-              <p className="text-2xl font-bold text-white">{stat.value}</p>
+              <p className="text-2xl font-bold text-white">
+                {loading ? <span className="inline-block w-12 h-7 bg-white/5 rounded animate-pulse" /> : stat.value}
+              </p>
               <p className="text-xs text-white/50 mt-0.5">{stat.label}</p>
             </CardContent>
           </Card>
@@ -172,75 +165,92 @@ export default function DashboardPage() {
 
       {/* Bottom grid */}
       <div className="grid lg:grid-cols-5 gap-6">
-        {/* Recent orders */}
+        {/* Recent quotes */}
         <Card className="lg:col-span-3 bg-[#0d1218] border-white/5">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-semibold text-white">
-                Pedidos recientes
+                Cotizaciones recientes
               </CardTitle>
               <Button variant="ghost" size="sm" className="text-xs text-[#33b380] hover:text-[#6ee490] hover:bg-transparent h-auto p-0" asChild>
-                <Link href="/dashboard/pedidos">Ver todos</Link>
+                <Link href="/dashboard/cotizaciones">Ver todos</Link>
               </Button>
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="divide-y divide-white/5">
-              {recentOrders.map((order) => (
-                <div
-                  key={order.id}
-                  className="flex items-center justify-between px-6 py-3 hover:bg-white/[0.02] transition-colors"
-                >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <span className="text-xs font-mono text-white/40">{order.id}</span>
-                    <div className="min-w-0">
-                      <p className="text-sm text-white truncate">{order.customer}</p>
-                      <p className="text-xs text-white/40">
-                        {order.items} {order.items === 1 ? "producto" : "productos"} &middot; {order.time}
-                      </p>
+            {loading ? (
+              <div className="px-6 py-8 text-center">
+                <div className="w-5 h-5 border-2 border-white/10 border-t-[#33b380] rounded-full animate-spin mx-auto" />
+              </div>
+            ) : recentOrders.length === 0 ? (
+              <div className="px-6 py-8 text-center text-white/30 text-sm">
+                No hay cotizaciones aún
+              </div>
+            ) : (
+              <div className="divide-y divide-white/5">
+                {recentOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between px-6 py-3 hover:bg-white/[0.02] transition-colors"
+                  >
+                    <div className="flex items-center gap-4 min-w-0">
+                      <span className="text-xs font-mono text-white/40">{order.id.slice(0, 8)}</span>
+                      <div className="min-w-0">
+                        <p className="text-sm text-white truncate">{order.customerName || 'Sin nombre'}</p>
+                        <p className="text-xs text-white/40">
+                          {order.items.length} {order.items.length === 1 ? "producto" : "productos"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-white">
+                        ${order.total.toLocaleString('es-AR')}
+                      </span>
+                      <span
+                        className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${getStatusStyle(order.status)}`}
+                      >
+                        {statusLabel[order.status] || order.status}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-white">
-                      ${order.total.toLocaleString()}
-                    </span>
-                    <span
-                      className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${getStatusStyle(
-                        order.status
-                      )}`}
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Top products */}
+        {/* Stats summary */}
         <Card className="lg:col-span-2 bg-[#0d1218] border-white/5">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-semibold text-white">
-                Top productos
+                Vistas por categoría
               </CardTitle>
               <span className="text-xs text-white/40">Este mes</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {topProducts.map((product, idx) => (
-              <div key={product.name} className="flex items-center gap-3">
-                <span className="text-xs font-bold text-white/30 w-4">{idx + 1}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white truncate">{product.name}</p>
-                  <p className="text-xs text-white/40">{product.sold} vendidos</p>
-                </div>
-                <span className="text-sm font-medium text-[#6ee490]">
-                  ${product.revenue.toLocaleString()}
-                </span>
+            {loading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-6 bg-white/5 rounded animate-pulse" />
+                ))}
               </div>
-            ))}
+            ) : stats && stats.viewsByCategory.length > 0 ? (
+              stats.viewsByCategory.slice(0, 5).map((cat) => (
+                <div key={cat.categoryName} className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white truncate">{cat.categoryName}</p>
+                    <p className="text-xs text-white/40">{cat.views} vistas</p>
+                  </div>
+                  <span className="text-sm font-medium text-[#6ee490]">
+                    {cat.views}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-white/30 text-center py-4">Sin datos aún</p>
+            )}
           </CardContent>
         </Card>
       </div>

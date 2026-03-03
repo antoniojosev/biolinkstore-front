@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useState, useMemo } from 'react'
 import { Instagram, Search, X, ShoppingBag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -49,12 +48,10 @@ export function VitrinaTemplate() {
         {/* Cover image or gradient */}
         <div className="relative h-32 w-full overflow-hidden">
           {cover ? (
-            <Image
+            <img
               src={cover}
               alt={`${store.name} cover`}
-              fill
-              className="object-cover"
-              priority
+              className="absolute inset-0 w-full h-full object-cover"
             />
           ) : (
             <div className="h-full w-full gradient-background opacity-80" />
@@ -66,12 +63,10 @@ export function VitrinaTemplate() {
         <div className="relative px-4 pb-4 -mt-10 flex flex-col items-center text-center">
           <div className="relative mb-3">
             <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-primary via-secondary to-accent opacity-60 blur-sm" />
-            <Image
+            <img
               src={avatar}
               alt={store.name}
-              width={80}
-              height={80}
-              className="relative rounded-full border-2 border-background object-cover"
+              className="relative w-20 h-20 rounded-full border-2 border-background object-cover"
             />
           </div>
 

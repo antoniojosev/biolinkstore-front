@@ -1,6 +1,7 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
+import { trackEvent } from '@/lib/analytics'
 import type { CartItem } from './types'
 
 interface CartContextValue {
@@ -17,9 +18,50 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null)
 
-export function CartProvider({ children }: { children: ReactNode }) {
+function getStorageKey(storeSlug?: string) {
+  return `igstore-cart${storeSlug ? `-${storeSlug}` : ''}`
+}
+
+function loadCart(storeSlug?: string): CartItem[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(getStorageKey(storeSlug))
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+function saveCart(items: CartItem[], storeSlug?: string) {
+  try {
+    if (items.length === 0) {
+      localStorage.removeItem(getStorageKey(storeSlug))
+    } else {
+      localStorage.setItem(getStorageKey(storeSlug), JSON.stringify(items))
+    }
+  } catch {
+    // Storage full or unavailable — silently ignore
+  }
+}
+
+export function CartProvider({ children, storeSlug }: { children: ReactNode; storeSlug?: string }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isOpen, setIsOpen] = useState(false)
+  const [hydrated, setHydrated] = useState(false)
+
+  // Hydrate from localStorage on mount
+  useEffect(() => {
+    setItems(loadCart(storeSlug))
+    setHydrated(true)
+  }, [storeSlug])
+
+  // Persist to localStorage on change (skip initial render before hydration)
+  useEffect(() => {
+    if (!hydrated) return
+    saveCart(items, storeSlug)
+  }, [items, storeSlug, hydrated])
 
   const addItem = useCallback((item: Omit<CartItem, 'quantity'>) => {
     setItems((prev) => {
@@ -29,7 +71,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...item, quantity: 1 }]
     })
-  }, [])
+    if (storeSlug) {
+      trackEvent(storeSlug, 'ADD_TO_CART', item.productId)
+    }
+  }, [storeSlug])
 
   const removeItem = useCallback((id: string) => {
     setItems((prev) => prev.filter((i) => i.id !== id))

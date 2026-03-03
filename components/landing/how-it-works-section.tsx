@@ -23,15 +23,15 @@ export function HowItWorksSection() {
     {
       icon: MessageCircle,
       step: "4",
-      title: "Recibe pedidos",
-      description: "Los pedidos llegan a tu WhatsApp listos para confirmar y enviar.",
+      title: "Recibe cotizaciones",
+      description: "Las cotizaciones llegan a tu WhatsApp listas para confirmar y enviar.",
     },
   ]
 
   return (
-    <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8">
+    <section id="how-it-works" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <p className="text-sm text-[#6ee490] font-semibold mb-2">Cómo funciona</p>
           <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-balance text-white">De 0 a vendiendo en 5 minutos</h2>
           <p className="text-white/80 max-w-2xl mx-auto">
@@ -39,16 +39,16 @@ export function HowItWorksSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-8 md:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
           {steps.map((item, index) => (
             <div key={index} className="flex flex-col items-center text-center">
               {/* Círculo con número e icono combinados */}
-              <div className="relative mb-6">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#33b380] to-[#327be2] flex items-center justify-center shadow-lg shadow-[#33b380]/30">
-                  <item.icon className="h-8 w-8 text-white" />
+              <div className="relative mb-4 sm:mb-6">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#33b380] to-[#327be2] flex items-center justify-center shadow-lg shadow-[#33b380]/30">
+                  <item.icon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
                 {/* Número en esquina */}
-                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white text-[#0f1419] font-bold text-sm flex items-center justify-center shadow-md">
+                <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white text-[#0f1419] font-bold text-xs sm:text-sm flex items-center justify-center shadow-md">
                   {item.step}
                 </div>
 
@@ -59,8 +59,8 @@ export function HowItWorksSection() {
               </div>
 
               {/* Contenido */}
-              <h3 className="text-lg font-semibold mb-2 text-white">{item.title}</h3>
-              <p className="text-sm text-white/70 leading-relaxed max-w-[200px]">{item.description}</p>
+              <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-white">{item.title}</h3>
+              <p className="text-xs sm:text-sm text-white/70 leading-relaxed max-w-[200px]">{item.description}</p>
             </div>
           ))}
         </div>

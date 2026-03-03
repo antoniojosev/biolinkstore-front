@@ -25,7 +25,9 @@ export interface ProductResponse {
 export interface ProductAttributeResponse {
   id: string
   name: string
+  type: string
   options: string[]
+  optionsMeta?: Record<string, any>
   sortOrder: number
 }
 
@@ -57,7 +59,9 @@ export interface CreateProductDto {
 
 export interface ProductAttributeDto {
   name: string
+  type?: string
   options: string[]
+  optionsMeta?: Record<string, any>
   sortOrder?: number
 }
 

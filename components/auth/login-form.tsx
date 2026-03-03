@@ -5,7 +5,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, ShoppingBag, Loader2, AlertCircle } from "lucide-react"
+import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
+import { LogoIcon } from "@/components/brand/logo"
 import { useAuth } from "@/contexts/auth-context"
 
 export function LoginForm() {
@@ -33,12 +34,10 @@ export function LoginForm() {
       <div className="glass-panel rounded-2xl border border-white/10 p-8 shadow-2xl">
         {/* Logo */}
         <div className="flex flex-col items-center gap-3 mb-8">
-          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-[#33b380]">
-            <ShoppingBag className="w-7 h-7 text-white" />
-          </div>
+          <LogoIcon size={72} />
           <div className="text-center">
             <h1 className="text-2xl font-bold text-white">Bienvenido de vuelta</h1>
-            <p className="text-sm text-white/60 mt-1">Inicia sesion en tu cuenta de InstaOrder</p>
+            <p className="text-sm text-white/60 mt-1">Inicia sesion en tu cuenta de biolinkstore</p>
           </div>
         </div>
 

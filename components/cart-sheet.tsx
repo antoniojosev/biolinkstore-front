@@ -25,7 +25,7 @@ export function CartSheet() {
       .map((item) => `• ${item.name} (x${item.quantity}) - ${formatPrice(item.price * item.quantity)}`)
       .join("\n")
 
-    const message = `¡Hola! 👋 Me gustaría hacer un pedido:\n\n${itemsList}\n\n*Total: ${formatPrice(totalPrice)}*\n\n¿Está disponible?`
+    const message = `¡Hola! 👋 Me gustaría hacer una cotización:\n\n${itemsList}\n\n*Total: ${formatPrice(totalPrice)}*\n\n¿Está disponible?`
 
     return encodeURIComponent(message)
   }
@@ -49,7 +49,7 @@ export function CartSheet() {
               <MessageCircle className="h-8 w-8 text-muted-foreground" />
             </div>
             <p className="text-muted-foreground">Tu carrito está vacío</p>
-            <p className="text-sm text-muted-foreground mt-1">Agrega productos para hacer tu pedido</p>
+            <p className="text-sm text-muted-foreground mt-1">Agrega productos para hacer tu cotización</p>
           </div>
         ) : (
           <>

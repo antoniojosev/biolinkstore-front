@@ -12,6 +12,19 @@ export interface DashboardStore {
   coverImage?: string
   bio?: string
   instagramUrl?: string
+  showBranding?: boolean
+  subscription?: { plan: 'FREE' | 'PRO' | 'BUSINESS' }
+  // Extra fields from backend
+  logo?: string
+  banner?: string
+  description?: string
+  instagramHandle?: string
+  facebookUrl?: string
+  tiktokUrl?: string
+  email?: string
+  address?: string
+  customDomain?: string
+  domainVerified?: boolean
 }
 
 export interface CreateStoreDto {
@@ -19,14 +32,22 @@ export interface CreateStoreDto {
   whatsappNumbers: string[]
 }
 
+/**
+ * Maps to backend UpdateStoreDto.
+ * Uses backend field names (logo, banner, description, instagramHandle).
+ */
 export interface UpdateStoreDto {
   name?: string
-  bio?: string
+  description?: string
+  logo?: string
+  banner?: string
   template?: TemplateId
   primaryColor?: string
-  currency?: string
   whatsappNumbers?: string[]
-  avatar?: string
-  coverImage?: string
-  instagramUrl?: string
+  instagramHandle?: string
+  facebookUrl?: string
+  tiktokUrl?: string
+  email?: string
+  address?: string
+  showBranding?: boolean
 }

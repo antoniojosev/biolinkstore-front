@@ -1,16 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, ExternalLink } from "lucide-react"
+import { useAuth } from "@/contexts/auth-context"
 import { TEMPLATES, isTemplateLocked } from "./template-data"
 import { TemplateCard } from "./template-card"
 import { TemplatePreviewModal } from "./template-preview-modal"
 import type { TemplateData, TemplatePlan } from "./template-data"
 import type { TemplateId } from "@/lib/types"
 import type { IStoreRepository } from "@/lib/stores-api/store.repository"
-
-// Hardcoded for MVP — swap for store.subscription?.plan when available
-const USER_PLAN: TemplatePlan = 'free'
 
 interface TemplateGalleryProps {
   mode: 'onboarding' | 'dashboard'
@@ -27,6 +25,9 @@ export function TemplateGallery({
   storeRepo,
   onSuccess,
 }: TemplateGalleryProps) {
+  const { store: authStore } = useAuth()
+  const userPlan: TemplatePlan = (authStore?.subscription?.plan?.toLowerCase() as TemplatePlan) ?? 'free'
+  const storeSlug = authStore?.slug
   const [activeTemplate, setActiveTemplate] = useState<TemplateId>(currentTemplate)
   const [previewTemplate, setPreviewTemplate] = useState<TemplateData | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -76,15 +77,25 @@ export function TemplateGallery({
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {TEMPLATES.map((template) => {
-          const locked = isTemplateLocked(template.plan, USER_PLAN)
+          const locked = isTemplateLocked(template.plan, userPlan)
           return (
-            <TemplateCard
-              key={template.id}
-              template={template}
-              isSelected={activeTemplate === template.id}
-              isLocked={locked}
-              onClick={() => handleCardClick(template)}
-            />
+            <div key={template.id} className="space-y-2">
+              <TemplateCard
+                template={template}
+                isSelected={activeTemplate === template.id}
+                isLocked={locked}
+                onClick={() => handleCardClick(template)}
+              />
+              {storeSlug && (
+                <button
+                  onClick={() => window.open(`/${storeSlug}?preview=${template.id}`, '_blank')}
+                  className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  Previsualizar
+                </button>
+              )}
+            </div>
           )
         })}
       </div>
@@ -108,7 +119,7 @@ export function TemplateGallery({
         open={modalOpen}
         onClose={closeModal}
         isSelected={previewTemplate ? activeTemplate === previewTemplate.id : false}
-        isLocked={previewTemplate ? isTemplateLocked(previewTemplate.plan, USER_PLAN) : false}
+        isLocked={previewTemplate ? isTemplateLocked(previewTemplate.plan, userPlan) : false}
         onSelect={() => previewTemplate && handleSelect(previewTemplate.id)}
         isLoading={isPicking}
       />

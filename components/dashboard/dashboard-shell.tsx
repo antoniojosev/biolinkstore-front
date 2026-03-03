@@ -1,11 +1,10 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
-  ShoppingBag,
   LayoutDashboard,
   Package,
   ClipboardList,
@@ -19,15 +18,18 @@ import {
   Crown,
   Sparkles,
   Palette,
+  Tags,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
+import { LogoFull } from "@/components/brand/logo"
+import { OrdersHttpRepository } from "@/lib/orders-api"
 
 const navItems = [
   { label: "Resumen", href: "/dashboard", icon: LayoutDashboard },
   { label: "Productos", href: "/dashboard/productos", icon: Package },
-  { label: "Pedidos", href: "/dashboard/pedidos", icon: ClipboardList },
+  { label: "Categorias", href: "/dashboard/categorias", icon: Tags },
+  { label: "Cotizaciones", href: "/dashboard/cotizaciones", icon: ClipboardList, badgeKey: "quotes" as const },
   { label: "Estadisticas", href: "/dashboard/estadisticas", icon: BarChart3 },
   { label: "Diseño", href: "/dashboard/diseno", icon: Palette },
   { label: "Configuracion", href: "/dashboard/configuracion", icon: Settings },
@@ -38,7 +40,24 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { user, store, isLoading, logout } = useAuth()
+  const { user, store, isLoading, logout, http } = useAuth()
+  const [newQuotesCount, setNewQuotesCount] = useState(0)
+
+  const ordersRepo = useMemo(() => new OrdersHttpRepository(http), [http])
+
+  // Fetch new quotes count
+  const fetchBadge = useCallback(() => {
+    if (!store?.id) return
+    ordersRepo.getStats(store.id)
+      .then((stats) => setNewQuotesCount(stats.newQuotesCount))
+      .catch(() => {})
+  }, [store?.id, ordersRepo])
+
+  useEffect(() => {
+    fetchBadge()
+    const interval = setInterval(fetchBadge, 60000) // Poll every 60s
+    return () => clearInterval(interval)
+  }, [fetchBadge])
 
   // Cuenta huérfana: usuario existe pero no tiene tienda → recuperar
   useEffect(() => {
@@ -65,17 +84,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-[#0d1218] border-r border-white/5 flex flex-col transition-transform duration-300 ${
+        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 shrink-0 bg-[#0d1218] border-r border-white/5 flex flex-col transition-transform duration-300 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-5 border-b border-white/5">
-          <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#33b380]">
-              <ShoppingBag className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-lg font-bold text-white">InstaOrder</span>
+          <Link href="/dashboard">
+            <LogoFull iconSize={36} />
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -90,6 +106,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href
+            const showBadge = item.badgeKey === 'quotes' && newQuotesCount > 0
             return (
               <Link
                 key={item.href}
@@ -103,7 +120,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               >
                 <item.icon className={`w-[18px] h-[18px] ${isActive ? "text-[#33b380]" : ""}`} />
                 {item.label}
-                {isActive && <ChevronRight className="w-3.5 h-3.5 ml-auto" />}
+                {showBadge && (
+                  <span className="ml-auto flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold bg-red-500 text-white rounded-full">
+                    {newQuotesCount > 99 ? '99+' : newQuotesCount}
+                  </span>
+                )}
+                {isActive && !showBadge && <ChevronRight className="w-3.5 h-3.5 ml-auto" />}
               </Link>
             )
           })}
@@ -170,7 +192,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
         {/* Top bar */}
         <header className="sticky top-0 z-30 h-16 bg-[#0a0f14]/90 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 lg:px-8">
           <button
@@ -187,17 +209,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
-            {!pathname.startsWith('/dashboard/diseno') && (
-              <Button
-                size="sm"
-                className="bg-[#33b380] hover:bg-[#2a9a6d] text-white text-xs h-8"
-                asChild
-              >
-                <Link href="/dashboard/productos/crear">Agregar producto</Link>
-              </Button>
-            )}
-          </div>
+          <div className="flex items-center gap-3" />
         </header>
 
         {/* Page content */}

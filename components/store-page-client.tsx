@@ -1,10 +1,11 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { CartProvider } from '@/lib/cart-context'
 import { StoreProvider } from '@/lib/store-context'
 import { TemplateRenderer } from '@/components/templates/renderer'
 import { WhatsAppPaymentProvider } from '@/lib/payment-providers/whatsapp'
+import { trackEvent } from '@/lib/analytics'
 import type { StorePageData } from '@/lib/api'
 
 /**
@@ -26,8 +27,12 @@ export function StorePageClient({ data }: { data: StorePageData }) {
     [data.store.whatsappNumbers[0], data.store.currency],
   )
 
+  useEffect(() => {
+    trackEvent(data.store.slug, 'PAGE_VIEW')
+  }, [data.store.slug])
+
   return (
-    <CartProvider>
+    <CartProvider storeSlug={data.store.slug}>
       <StoreProvider
         store={data.store}
         products={data.products}

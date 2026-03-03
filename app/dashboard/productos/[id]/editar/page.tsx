@@ -39,6 +39,7 @@ import {
   ProductAttributesBuilder,
   type AttributeField,
 } from '@/components/dashboard/product-attributes-builder'
+import { VariantPricingTable } from '@/components/dashboard/variant-pricing-table'
 
 export default function EditProductPage() {
   const router = useRouter()
@@ -62,8 +63,21 @@ export default function EditProductPage() {
   // Attribute fields (managed outside form, merged on submit)
   const [attributeFields, setAttributeFields] = useState<AttributeField[]>([])
 
+  // Variant pricing adjustments (combo key → adjustment)
+  const [variantPricing, setVariantPricing] = useState<Record<string, number>>({})
+
   // Submit state
   const [submitting, setSubmitting] = useState(false)
+
+  // Upload handler for color attribute images
+  const handleAttributeImageUpload = useCallback(
+    async (files: File[]): Promise<string[]> => {
+      if (!store?.id) return []
+      const uploads = await productRepo.uploadImages(store.id, files)
+      return uploads.map((u) => u.url)
+    },
+    [store?.id, productRepo],
+  )
 
   const form = useForm<CreateProductFormData>({
     resolver: zodResolver(createProductSchema),
@@ -138,9 +152,10 @@ export default function EditProductPage() {
         if (product.attributes?.length > 0) {
           setAttributeFields(
             product.attributes.map((attr) => ({
-              id: crypto.randomUUID(),
               name: attr.name,
+              type: (attr.type === 'color' ? 'color' : 'text') as 'text' | 'color',
               options: attr.options,
+              optionsMeta: attr.optionsMeta ?? undefined,
             })),
           )
         }
@@ -160,6 +175,30 @@ export default function EditProductPage() {
   const discountPercent = hasDiscount
     ? Math.round((1 - watchPrice / watchComparePrice!) * 100)
     : 0
+
+  const variantCombinations = useMemo(() => {
+    const validAttrs = attributeFields.filter((a) => a.name && a.options.length > 0)
+    if (validAttrs.length === 0) return []
+    const result: Record<string, string>[] = []
+    function recurse(index: number, current: Record<string, string>) {
+      if (index === validAttrs.length) { result.push({ ...current }); return }
+      const attr = validAttrs[index]
+      for (const option of attr.options) recurse(index + 1, { ...current, [attr.name]: option })
+    }
+    recurse(0, {})
+    return result
+  }, [attributeFields])
+
+  const colorMeta = useMemo(() => {
+    const colorAttr = attributeFields.find((a) => a.type === 'color')
+    if (!colorAttr?.optionsMeta) return undefined
+    const meta: Record<string, { hex?: string }> = {}
+    for (const [name, data] of Object.entries(colorAttr.optionsMeta)) {
+      meta[name] = { hex: data.hex }
+    }
+    return meta
+  }, [attributeFields])
+
   const selectedCategoryName = categories.find(
     (c) => watchCategory?.[0] === c.id,
   )?.name
@@ -233,7 +272,9 @@ export default function EditProductPage() {
           .filter((a) => a.name.trim() && a.options.length > 0)
           .map((a, i) => ({
             name: a.name.trim(),
+            type: a.type ?? 'text',
             options: a.options,
+            optionsMeta: a.type === 'color' ? a.optionsMeta : undefined,
             sortOrder: i,
           }))
 
@@ -554,9 +595,34 @@ export default function EditProductPage() {
               <ProductAttributesBuilder
                 attributes={attributeFields}
                 onChange={setAttributeFields}
+                onUploadImages={handleAttributeImageUpload}
               />
             </CardContent>
           </Card>
+
+          {/* Variant Pricing */}
+          {variantCombinations.length > 0 && watchPrice != null && (
+            <Card className="bg-[#0d1218] border-white/5 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-[450ms]">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold text-white flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-[#C9A86C]" />
+                  Precios por variante
+                </CardTitle>
+                <p className="text-xs text-white/40">
+                  Ajusta el precio de cada combinacion. El ajuste se suma al precio base.
+                </p>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <VariantPricingTable
+                  basePrice={watchPrice}
+                  combinations={variantCombinations}
+                  colorMeta={colorMeta}
+                  pricing={variantPricing}
+                  onChange={setVariantPricing}
+                />
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* --- Right Column --- */}

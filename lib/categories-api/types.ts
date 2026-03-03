@@ -11,3 +11,17 @@ export interface CategoryResponse {
   createdAt: string
   updatedAt: string
 }
+
+export interface CreateCategoryDto {
+  name: string
+  description?: string
+  image?: string
+  isVisible?: boolean
+}
+
+export interface UpdateCategoryDto {
+  name?: string
+  description?: string
+  image?: string
+  isVisible?: boolean
+}

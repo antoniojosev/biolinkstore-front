@@ -5,16 +5,17 @@ import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "sonner"
 import { AuthProvider } from "@/contexts/auth-context"
 import "./globals.css"
-import { Geist, Geist_Mono, Geist as V0_Font_Geist, Geist_Mono as V0_Font_Geist_Mono, Source_Serif_4 as V0_Font_Source_Serif_4 } from 'next/font/google'
+import { Geist, Geist_Mono, Geist as V0_Font_Geist, Geist_Mono as V0_Font_Geist_Mono, Source_Serif_4 as V0_Font_Source_Serif_4, Sora } from 'next/font/google'
 
 // Initialize fonts
 const _geist = V0_Font_Geist({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
 const _geistMono = V0_Font_Geist_Mono({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
 const _sourceSerif_4 = V0_Font_Source_Serif_4({ subsets: ['latin'], weight: ["200","300","400","500","600","700","800","900"] })
+const sora = Sora({ subsets: ['latin'], weight: ['700'], variable: '--font-sora' })
 
 export const metadata: Metadata = {
-  title: "InstaOrder - Tu catalogo de Instagram",
-  description: "Crea tu tienda online desde Instagram. Comparte tu catalogo de productos con un solo link y recibe pedidos por WhatsApp.",
+  title: "Bio Link Store - Tu catalogo de Instagram",
+  description: "Crea tu tienda online desde Instagram. Comparte tu catalogo de productos con un solo link y recibe cotizaciones por WhatsApp.",
   generator: "v0.app",
   icons: {
     icon: [
@@ -49,7 +50,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`font-sans antialiased`}>
+      <body className={`font-sans antialiased ${sora.variable}`}>
         <AuthProvider>
           {children}
         </AuthProvider>

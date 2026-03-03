@@ -3,8 +3,8 @@ import { ArrowRight } from "lucide-react"
 
 export function CtaSection() {
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto text-center glass-panel py-12 px-8 rounded-3xl border border-white/10">
+    <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto text-center glass-panel py-8 px-5 sm:py-12 sm:px-8 rounded-3xl border border-white/10">
         <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-balance text-white">
           Empieza a vender más{" "}
           <span className="bg-gradient-to-r from-[#6ee490] via-[#33b380] to-[#327be2] bg-clip-text text-transparent">
@@ -30,7 +30,7 @@ export function CtaSection() {
             Agendar demo personalizada
           </Button>
         </div>
-        <p className="text-sm text-white/60 mt-6">+5,000 vendedores ya usan InstaOrder</p>
+        <p className="text-sm text-white/60 mt-6">+5,000 vendedores ya usan Bio Link Store</p>
       </div>
     </section>
   )

@@ -1,4 +1,4 @@
-import type { StoreProfile, Product, Category, TemplateId } from './types'
+import type { StoreProfile, Product, ProductDetail, Category, TemplateId } from './types'
 
 export interface StorePageData {
   store: StoreProfile
@@ -105,13 +105,54 @@ function adaptCategory(dto: BackendCategory): Category {
   }
 }
 
+function adaptProductDetail(dto: BackendProduct): ProductDetail {
+  const attrs = (dto as Record<string, unknown>).attributes as
+    | { id: string; name: string; type?: string; options: string[]; optionsMeta?: any; sortOrder: number }[]
+    | undefined
+  const vars = (dto as Record<string, unknown>).variants as
+    | {
+        id: string
+        combination: Record<string, string>
+        sku: string | null
+        priceAdjustment: number
+        stock: number | null
+        image: string | null
+        isAvailable: boolean
+      }[]
+    | undefined
+  const videos = (dto as Record<string, unknown>).videos as string[] | undefined
+
+  return {
+    id: dto.id,
+    name: dto.name,
+    slug: dto.slug,
+    price: dto.basePrice,
+    comparePrice: dto.compareAtPrice ?? undefined,
+    images: dto.images ?? [],
+    videos: videos ?? [],
+    category: dto.categories?.[0]?.name ?? '',
+    description: dto.description || '',
+    inStock: dto.stock === null || dto.stock > 0,
+    featured: dto.isFeatured,
+    attributes: attrs?.map((a) => ({
+      id: a.id,
+      name: a.name,
+      type: a.type ?? 'text',
+      options: a.options,
+      optionsMeta: a.optionsMeta ?? undefined,
+      sortOrder: a.sortOrder,
+    })) ?? [],
+    variants: vars ?? [],
+  }
+}
+
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 export async function getStoreBySlug(slug: string): Promise<StorePageData | null> {
   try {
     // 1. Fetch store
     const storeRes = await fetch(`${API_URL}/api/public/${slug}`, {
-      next: { revalidate: 30 },
+      cache: 'no-store',
     })
     if (!storeRes.ok) return null
     const storeDto: BackendStore = await storeRes.json()
@@ -119,10 +160,10 @@ export async function getStoreBySlug(slug: string): Promise<StorePageData | null
     // 2. Fetch categories and products in parallel
     const [categoriesRes, productsRes] = await Promise.all([
       fetch(`${API_URL}/api/public/${slug}/categories`, {
-        next: { revalidate: 30 },
+        cache: 'no-store',
       }),
       fetch(`${API_URL}/api/public/${slug}/products?limit=100`, {
-        next: { revalidate: 30 },
+        cache: 'no-store',
       }),
     ])
 
@@ -142,6 +183,23 @@ export async function getStoreBySlug(slug: string): Promise<StorePageData | null
       products: productsDto.map((p) => adaptProduct(p, categoryMap)),
       categories: categoriesDto.map(adaptCategory),
     }
+  } catch {
+    return null
+  }
+}
+
+export async function getProductBySlug(
+  storeSlug: string,
+  productSlug: string,
+): Promise<ProductDetail | null> {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/public/${storeSlug}/products/${productSlug}`,
+      { cache: 'no-store' },
+    )
+    if (!res.ok) return null
+    const dto: BackendProduct = await res.json()
+    return adaptProductDetail(dto)
   } catch {
     return null
   }

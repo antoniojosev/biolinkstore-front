@@ -19,14 +19,14 @@ export function FeaturesSection() {
     {
       icon: ShoppingCart,
       title: "Carrito de compras",
-      description: "Los clientes agregan múltiples productos y hacen un solo pedido. Más ventas, menos mensajes.",
+      description: "Los clientes agregan múltiples productos y hacen una sola cotización. Más ventas, menos mensajes.",
       color: "#6ee490",
     },
     {
       icon: MessageCircle,
       title: "Checkout por WhatsApp",
       description:
-        "El pedido llega directo a tu WhatsApp con todos los detalles. Responde y cierra la venta al instante.",
+        "La cotización llega directo a tu WhatsApp con todos los detalles. Responde y cierra la venta al instante.",
       color: "#33b380",
     },
     {
@@ -44,9 +44,9 @@ export function FeaturesSection() {
   ]
 
   return (
-    <section id="features" className="py-20 px-4 sm:px-6 lg:px-8">
+    <section id="features" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16 glass-panel-light py-8 px-6 rounded-2xl border border-white/10 max-w-3xl mx-auto">
+        <div className="text-center mb-10 sm:mb-16 glass-panel-light py-6 sm:py-8 px-5 sm:px-6 rounded-2xl border border-white/10 max-w-3xl mx-auto">
           <p className="text-sm text-[#6ee490] font-semibold mb-2">Funciones</p>
           <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-balance text-white">
             Todo lo que necesitas para vender más

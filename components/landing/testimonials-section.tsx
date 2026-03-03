@@ -15,7 +15,7 @@ export function TestimonialsSection() {
       handle: "@carlostech",
       avatar: "/professional-man-portrait.png",
       content:
-        "El checkout por WhatsApp es genial. El cliente ya llega con el pedido armado, solo confirmo y envío. Proceso 3x más pedidos en el mismo tiempo.",
+        "El checkout por WhatsApp es genial. El cliente ya llega con la cotización armada, solo confirmo y envío. Proceso 3x más cotizaciones en el mismo tiempo.",
       rating: 5,
     },
     {
@@ -29,9 +29,9 @@ export function TestimonialsSection() {
   ]
 
   return (
-    <section id="testimonials" className="py-20 px-4 sm:px-6 lg:px-8 glass-panel">
+    <section id="testimonials" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 glass-panel">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <p className="text-sm text-[#33b380] font-semibold mb-2">Testimonios</p>
           <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-balance text-white">
             Vendedores que ya transformaron su negocio

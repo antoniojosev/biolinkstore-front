@@ -1,10 +1,12 @@
 'use client'
 
-import Image from 'next/image'
 import { useState } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Plus, Check } from 'lucide-react'
 import type { Product } from '@/lib/types'
 import { useCart } from '@/lib/cart-context'
+import { useStore } from '@/lib/store-context'
 
 interface Props {
   product: Product
@@ -13,7 +15,10 @@ interface Props {
 }
 
 export function NoirProductCard({ product, currency = 'ARS', featured = false }: Props) {
+  const { store } = useStore()
   const { addItem, setIsOpen } = useCart()
+  const searchParams = useSearchParams()
+  const preview = searchParams.get('preview')
   const [added, setAdded] = useState(false)
 
   const fmt = (n: number) =>
@@ -29,7 +34,9 @@ export function NoirProductCard({ product, currency = 'ARS', featured = false }:
       ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
       : null
 
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     if (!product.inStock) return
     addItem({
       id: product.id,
@@ -43,20 +50,17 @@ export function NoirProductCard({ product, currency = 'ARS', featured = false }:
     setTimeout(() => setAdded(false), 1800)
   }
 
-  return (
+  const card = (
     <div
       className={`group relative overflow-hidden ${
         featured ? 'aspect-[4/3]' : 'aspect-[3/4]'
-      } cursor-pointer`}
-      onClick={handleAdd}
+      }`}
     >
       {/* Full-bleed image */}
-      <Image
+      <img
         src={image}
         alt={product.name}
-        fill
-        className="object-cover transition-transform duration-700 group-hover:scale-105"
-        sizes={featured ? '(max-width: 640px) 100vw, 500px' : '(max-width: 640px) 50vw, 240px'}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
 
       {/* Gradient overlay */}
@@ -109,7 +113,7 @@ export function NoirProductCard({ product, currency = 'ARS', featured = false }:
                   ? 'bg-[#C9A86C] border-[#C9A86C] text-[#0A0A0A] scale-110'
                   : 'border-[#333] text-[#888] opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0'
               }`}
-              onClick={(e) => { e.stopPropagation(); handleAdd() }}
+              onClick={handleAdd}
               aria-label="Agregar al carrito"
             >
               {added ? (
@@ -123,4 +127,15 @@ export function NoirProductCard({ product, currency = 'ARS', featured = false }:
       </div>
     </div>
   )
+
+  if (product.slug) {
+    const href = `/${store.slug}/${product.slug}${preview ? `?preview=${preview}` : ''}`
+    return (
+      <Link href={href} className="block">
+        {card}
+      </Link>
+    )
+  }
+
+  return card
 }

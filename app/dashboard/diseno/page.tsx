@@ -69,6 +69,7 @@ export default function DisenoDashboardPage() {
       {/* CTA diseño personalizado */}
       <CustomDesignBar
         storeName={store.name}
+        storeId={store.id}
         defaultWhatsapp={store.whatsappNumbers[0] ?? ''}
         defaultEmail={user?.email ?? ''}
       />

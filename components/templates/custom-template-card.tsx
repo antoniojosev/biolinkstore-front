@@ -3,7 +3,7 @@
 import { Palette, MessageCircle } from "lucide-react"
 
 const WHATSAPP_MESSAGE = encodeURIComponent(
-  'Hola, me interesa un diseño personalizado para mi tienda en InstaOrder.'
+  'Hola, me interesa un diseño personalizado para mi tienda en Bio Link Store.'
 )
 const WHATSAPP_URL = `https://wa.me/message/contact?text=${WHATSAPP_MESSAGE}`
 

@@ -28,19 +28,24 @@ export class WhatsAppPaymentProvider implements PaymentProvider {
         `• ${item.name}${item.variant ? ` (${item.variant})` : ''} × ${item.quantity} — ${fmt.format(item.price * item.quantity)}`,
     )
 
-    return [
-      '¡Hola! Me gustaría hacer un pedido 🛍️',
+    const parts = [
+      '¡Hola! Me gustaría hacer una cotización 🛍️',
       '',
       ...lines,
       '',
       `*Total: ${fmt.format(payload.total)}*`,
-      '',
-      `Mi nombre: ${payload.customer.name}`,
-      `Teléfono: ${payload.customer.phone}`,
-      payload.customer.notes ? `Nota: ${payload.customer.notes}` : '',
     ]
-      .filter((l) => l !== undefined)
-      .join('\n')
-      .trim()
+
+    if (payload.customer?.name) {
+      parts.push('', `Mi nombre: ${payload.customer.name}`)
+    }
+    if (payload.customer?.phone) {
+      parts.push(`Teléfono: ${payload.customer.phone}`)
+    }
+    if (payload.customer?.notes) {
+      parts.push(`Nota: ${payload.customer.notes}`)
+    }
+
+    return parts.join('\n').trim()
   }
 }

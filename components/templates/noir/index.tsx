@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useState, useMemo } from 'react'
 import { Source_Serif_4 } from 'next/font/google'
 import { Instagram, Search, X, ShoppingBag, ChevronRight } from 'lucide-react'
@@ -84,12 +83,10 @@ export function NoirTemplate() {
       {/* ── Cinematic Header ─────────────────────────────────────── */}
       <header className="relative h-[65vh] w-full overflow-hidden bg-[#111]">
         {cover ? (
-          <Image
+          <img
             src={cover}
             alt={store.name}
-            fill
-            className="object-cover scale-105"
-            priority
+            className="absolute inset-0 w-full h-full object-cover scale-105"
           />
         ) : (
           <div
@@ -133,13 +130,11 @@ export function NoirTemplate() {
         {/* Store identity — bottom of header */}
         <div className="absolute bottom-0 inset-x-0 px-5 pb-8">
           {store.avatar && (
-            <div className="mb-4 w-12 h-12 rounded-full overflow-hidden border border-[#C9A86C]/30">
-              <Image
+            <div className="mb-4 w-18 h-18 rounded-full overflow-hidden border border-[#C9A86C]/30">
+              <img
                 src={avatar}
                 alt={store.name}
-                width={48}
-                height={48}
-                className="object-cover w-full h-full"
+                className="w-18 h-18 object-cover"
               />
             </div>
           )}

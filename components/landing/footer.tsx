@@ -1,15 +1,15 @@
 import Link from "next/link"
-import { ShoppingBag, Instagram, Twitter, Youtube } from "lucide-react"
+import { Instagram, Twitter, Youtube } from "lucide-react"
+import { LogoFull } from "@/components/brand/logo"
 
 export function Footer() {
   return (
-    <footer className="py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10 glass-panel">
+    <footer className="py-10 sm:py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10 glass-panel">
       <div className="max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-4 gap-12 mb-12">
-          <div className="md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <ShoppingBag className="h-8 w-8 text-[#33b380]" />
-              <span className="text-xl font-bold text-white">InstaOrder</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-10 sm:mb-12">
+          <div className="col-span-2 md:col-span-1">
+            <div className="mb-4">
+              <LogoFull iconSize={44} />
             </div>
             <p className="text-sm text-white/70 mb-4">
               La plataforma para convertir tu Instagram en una tienda profesional.
@@ -102,7 +102,7 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-white/60">© 2026 InstaOrder. Todos los derechos reservados.</p>
+          <p className="text-sm text-white/60">© 2026 Bio Link Store. Todos los derechos reservados.</p>
           <p className="text-sm text-white/60">Hecho con amor para vendedores de Instagram</p>
         </div>
       </div>

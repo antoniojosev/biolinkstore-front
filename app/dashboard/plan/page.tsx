@@ -1,9 +1,28 @@
 "use client"
 
-import { useState } from "react"
-import { Check, Zap, Crown, Building2, ArrowRight } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { Check, Zap, Crown, Building2, MessageCircle, Mail, Send, Sparkles, Banknote, Loader2, Upload, CheckCircle2, Globe, Settings2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import { cn } from "@/lib/utils"
+import { useAuth } from "@/contexts/auth-context"
+import { PaymentReportForm } from "@/components/dashboard/payment-report-form"
+
+const WA_PLAN_NUMBER = '5491100000000'
+const PLAN_EMAIL = 'ventas@biolinkstore.com'
+
+const plansMeta: Record<string, { icon: typeof Zap; color: string; colorBg: string }> = {
+  free: { icon: Zap, color: "#6ee490", colorBg: "rgba(110, 228, 144, 0.1)" },
+  pro: { icon: Crown, color: "#33b380", colorBg: "rgba(51, 179, 128, 0.1)" },
+  business: { icon: Building2, color: "#327be2", colorBg: "rgba(50, 123, 226, 0.1)" },
+}
 
 const plans = [
   {
@@ -15,20 +34,21 @@ const plans = [
     icon: Zap,
     features: [
       "Hasta 20 productos",
+      "5 fotos por producto",
+      "5 categorias",
       "Link personalizado",
       "Checkout por WhatsApp",
-      "1 categoria",
+      "Dominio personalizado",
+      "Analiticas basicas",
       "Soporte por email",
     ],
     limitations: [
-      "Marca de agua InstaOrder",
-      "Sin analiticas",
-      "Sin dominio propio",
+      "Marca de agua Bio Link Store",
     ],
     color: "#6ee490",
     colorBg: "rgba(110, 228, 144, 0.1)",
     cta: "Plan actual",
-    current: true,
+    ctaUpgrade: "Plan actual",
   },
   {
     id: "pro",
@@ -38,44 +58,47 @@ const plans = [
     description: "Para tiendas en crecimiento",
     icon: Crown,
     features: [
-      "Productos ilimitados",
-      "Dominio personalizado",
+      "Hasta 100 productos",
+      "10 fotos por producto",
+      "Categorias ilimitadas",
       "Sin marca de agua",
       "Analiticas avanzadas",
-      "Categorias ilimitadas",
+      "Acceso a templates Pro",
+      "Exportar cotizaciones",
       "Soporte prioritario",
-      "Personalizacion completa",
-      "Exportar pedidos",
     ],
     limitations: [],
     color: "#33b380",
     colorBg: "rgba(51, 179, 128, 0.1)",
     cta: "Mejorar a Pro",
-    current: false,
+    ctaUpgrade: "Mejorar a Pro",
     popular: true,
   },
   {
     id: "business",
     name: "Business",
-    price: "$29",
+    price: "$150",
     period: "/mes",
     description: "Para negocios establecidos",
     icon: Building2,
     features: [
       "Todo de Pro incluido",
-      "Multiples tiendas (hasta 5)",
+      "Productos ilimitados",
+      "Fotos ilimitadas",
+      "Multiples tiendas (hasta 3)",
       "API de integracion",
-      "Gestion de inventario",
       "Reportes exportables",
+      "Busqueda con IA por imagen e intencion",
+      "Recomendaciones personalizadas con IA",
+      "CRM de ventas integrado",
       "Soporte 24/7",
       "Account manager dedicado",
-      "Facturacion automatica",
     ],
     limitations: [],
     color: "#327be2",
     colorBg: "rgba(50, 123, 226, 0.1)",
     cta: "Mejorar a Business",
-    current: false,
+    ctaUpgrade: "Mejorar a Business",
   },
 ]
 
@@ -83,8 +106,265 @@ const billingHistory = [
   { date: "Gratis desde siempre", amount: "$0.00", status: "Activo", plan: "Gratis" },
 ]
 
+interface StoreCounts {
+  productCount: number
+  categoryCount: number
+  maxProducts: number
+  maxCategories: number
+  plan: 'FREE' | 'PRO' | 'BUSINESS'
+}
+
+type ContactMethod = 'whatsapp' | 'email' | 'transfer'
+
+function UpgradeModal({
+  open,
+  onClose,
+  planName,
+  storeName,
+  storeId,
+  defaultEmail,
+}: {
+  open: boolean
+  onClose: () => void
+  planName: string
+  storeName: string
+  storeId: string
+  defaultEmail: string
+}) {
+  const [method, setMethod] = useState<ContactMethod>('whatsapp')
+  const [whatsapp, setWhatsapp] = useState('')
+  const [email, setEmail] = useState(defaultEmail)
+
+  const handleSend = () => {
+    if (method === 'whatsapp') {
+      const msg = encodeURIComponent(
+        `Hola! Soy "${storeName}" y quiero mejorar mi plan a ${planName}.\nMe pueden contactar al: ${whatsapp}`
+      )
+      window.open(`https://wa.me/${WA_PLAN_NUMBER}?text=${msg}`, '_blank')
+    } else if (method === 'email') {
+      const subject = encodeURIComponent(`Mejorar plan a ${planName} — ${storeName}`)
+      const body = encodeURIComponent(
+        `Hola!\n\nSoy "${storeName}" y quiero mejorar mi plan a ${planName} en Bio Link Store.\n\nPueden contactarme al email: ${email}`
+      )
+      window.open(`mailto:${PLAN_EMAIL}?subject=${subject}&body=${body}`, '_blank')
+    }
+    if (method !== 'transfer') onClose()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-8 h-8 rounded-lg bg-[#33b380]/10 border border-[#33b380]/20 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-[#33b380]" />
+            </div>
+            <DialogTitle>Mejorar a {planName}</DialogTitle>
+          </div>
+          <DialogDescription>
+            Elegí cómo querés que te contactemos para activar tu nuevo plan.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="px-6 pb-6 space-y-5">
+          {/* Selector de método */}
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => setMethod('whatsapp')}
+              className={cn(
+                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
+                method === 'whatsapp'
+                  ? "border-[#25D366] bg-[#25D366]/8 text-white"
+                  : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
+              )}
+            >
+              <MessageCircle className={cn("w-5 h-5", method === 'whatsapp' ? "text-[#25D366]" : "")} />
+              <span className="text-[11px] font-medium">WhatsApp</span>
+            </button>
+            <button
+              onClick={() => setMethod('email')}
+              className={cn(
+                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
+                method === 'email'
+                  ? "border-[#327be2] bg-[#327be2]/8 text-white"
+                  : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
+              )}
+            >
+              <Mail className={cn("w-5 h-5", method === 'email' ? "text-[#327be2]" : "")} />
+              <span className="text-[11px] font-medium">Email</span>
+            </button>
+            <button
+              onClick={() => setMethod('transfer')}
+              className={cn(
+                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
+                method === 'transfer'
+                  ? "border-[#f59e0b] bg-[#f59e0b]/8 text-white"
+                  : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
+              )}
+            >
+              <Banknote className={cn("w-5 h-5", method === 'transfer' ? "text-[#f59e0b]" : "")} />
+              <span className="text-[11px] font-medium">Reportar pago</span>
+            </button>
+          </div>
+
+          {method === 'transfer' ? (
+            <PaymentReportForm
+              storeId={storeId}
+              type="PLAN_UPGRADE"
+              targetPlan={planName}
+              onSuccess={onClose}
+              onCancel={() => setMethod('whatsapp')}
+            />
+          ) : (
+            <>
+              {/* Campo editable */}
+              {method === 'whatsapp' ? (
+                <div className="space-y-1.5">
+                  <label className="text-xs text-white/40 font-medium">
+                    Tu número de WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    value={whatsapp}
+                    onChange={(e) => setWhatsapp(e.target.value)}
+                    placeholder="+54 9 11 XXXX XXXX"
+                    className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#25D366]/50 focus:bg-white/8 transition-all"
+                  />
+                  <p className="text-[11px] text-white/25">
+                    Te contactaremos para coordinar el pago y activar tu plan.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <label className="text-xs text-white/40 font-medium">
+                    Tu email de contacto
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="tu@email.com"
+                    className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#327be2]/50 focus:bg-white/8 transition-all"
+                  />
+                  <p className="text-[11px] text-white/25">
+                    Te escribiremos para coordinar el pago y activar tu plan.
+                  </p>
+                </div>
+              )}
+
+              {/* Botones */}
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={onClose}
+                  className="flex-1 py-2.5 rounded-xl border border-white/10 text-sm text-white/50 hover:text-white hover:border-white/20 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSend}
+                  disabled={method === 'whatsapp' ? !whatsapp.trim() : !email.trim()}
+                  className={cn(
+                    "flex-[2] flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-all",
+                    method === 'whatsapp'
+                      ? "bg-[#25D366] hover:bg-[#20bb5a] disabled:opacity-40 disabled:cursor-not-allowed"
+                      : "bg-[#327be2] hover:bg-[#2a6acc] disabled:opacity-40 disabled:cursor-not-allowed"
+                  )}
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  Enviar solicitud
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function DomainPaymentModal({
+  open,
+  onClose,
+  storeId,
+}: {
+  open: boolean
+  onClose: () => void
+  storeId: string
+}) {
+  const [domain, setDomain] = useState('')
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-8 h-8 rounded-lg bg-[#327be2]/10 border border-[#327be2]/20 flex items-center justify-center">
+              <Globe className="w-4 h-4 text-[#327be2]" />
+            </div>
+            <DialogTitle>Dominio personalizado</DialogTitle>
+          </div>
+          <DialogDescription>
+            Ingresa tu dominio y reporta el pago para activarlo.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="px-6 pb-6 space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-xs text-white/40 font-medium">Tu dominio</label>
+            <input
+              type="text"
+              value={domain}
+              onChange={(e) => setDomain(e.target.value)}
+              placeholder="mitienda.com"
+              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#327be2]/50 focus:bg-white/8 transition-all"
+            />
+          </div>
+
+          {domain.trim() ? (
+            <PaymentReportForm
+              storeId={storeId}
+              type="DOMAIN"
+              notes={`Dominio: ${domain.trim()}`}
+              onSuccess={onClose}
+              onCancel={onClose}
+            />
+          ) : (
+            <p className="text-xs text-white/30 text-center py-2">
+              Ingresa un dominio para continuar
+            </p>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function formatCount(count: number, max: number) {
+  return `${count} / ${max === -1 ? '∞' : max}`
+}
+
 export default function PlanPage() {
+  const { user, store, http } = useAuth()
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
+  const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; planName: string }>({
+    open: false,
+    planName: '',
+  })
+  const [domainModal, setDomainModal] = useState(false)
+  const [customPlanModal, setCustomPlanModal] = useState(false)
+  const [counts, setCounts] = useState<StoreCounts | null>(null)
+
+  useEffect(() => {
+    if (!store?.id || !http) return
+    http.get<StoreCounts>(`/api/stores/${store.id}/counts`)
+      .then(setCounts)
+      .catch(() => {})
+  }, [store?.id, http])
+
+  const currentPlan = counts?.plan?.toLowerCase() ?? store?.subscription?.plan?.toLowerCase() ?? 'free'
+  const meta = plansMeta[currentPlan] ?? plansMeta.free
+  const PlanIcon = meta.icon
+  const planDisplayName = currentPlan === 'free' ? 'Gratis' : currentPlan === 'pro' ? 'Pro' : 'Business'
 
   return (
     <div className="space-y-8">
@@ -95,24 +375,37 @@ export default function PlanPage() {
       </div>
 
       {/* Current plan banner */}
-      <div className="rounded-xl border border-[#6ee490]/20 bg-[#6ee490]/5 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div
+        className="rounded-xl border p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        style={{
+          borderColor: `${meta.color}33`,
+          backgroundColor: `${meta.color}0d`,
+        }}
+      >
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#6ee490]/15 flex items-center justify-center">
-            <Zap className="w-6 h-6 text-[#6ee490]" />
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: `${meta.color}26` }}
+          >
+            <PlanIcon className="w-6 h-6" style={{ color: meta.color }} />
           </div>
           <div>
             <p className="text-sm text-white/60">Tu plan actual</p>
-            <p className="text-lg font-bold text-white">Gratis</p>
+            <p className="text-lg font-bold text-white">{planDisplayName}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 text-sm">
           <div className="px-3 py-1.5 rounded-lg bg-[#0d1218] border border-white/10">
             <span className="text-white/50">Productos:</span>{" "}
-            <span className="text-white font-medium">8 / 20</span>
+            <span className="text-white font-medium">
+              {counts ? formatCount(counts.productCount, counts.maxProducts) : '…'}
+            </span>
           </div>
           <div className="px-3 py-1.5 rounded-lg bg-[#0d1218] border border-white/10">
             <span className="text-white/50">Categorias:</span>{" "}
-            <span className="text-white font-medium">1 / 1</span>
+            <span className="text-white font-medium">
+              {counts ? formatCount(counts.categoryCount, counts.maxCategories) : '…'}
+            </span>
           </div>
         </div>
       </div>
@@ -147,6 +440,7 @@ export default function PlanPage() {
       {/* Plans grid */}
       <div className="grid md:grid-cols-3 gap-5">
         {plans.map((plan) => {
+          const isCurrent = plan.id === currentPlan
           const displayPrice =
             billing === "annual" && plan.price !== "$0"
               ? `$${Math.round(parseInt(plan.price.replace("$", "")) * 0.8)}`
@@ -158,14 +452,14 @@ export default function PlanPage() {
             <div
               key={plan.id}
               className={`relative rounded-xl border p-6 flex flex-col transition-all ${
-                plan.popular
+                plan.popular && !isCurrent
                   ? "border-[#33b380]/40 bg-[#33b380]/5 shadow-lg shadow-[#33b380]/10"
-                  : plan.current
-                  ? "border-[#6ee490]/20 bg-white/[0.02]"
+                  : isCurrent
+                  ? `border-white/20 bg-white/[0.03]`
                   : "border-white/10 bg-white/[0.02] hover:border-white/20"
               }`}
             >
-              {plan.popular && (
+              {plan.popular && !isCurrent && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-gradient-to-r from-[#33b380] to-[#2a9669] text-white text-xs font-semibold rounded-full">
                   Recomendado
                 </div>
@@ -206,7 +500,7 @@ export default function PlanPage() {
                 ))}
                 {plan.limitations.map((limitation, i) => (
                   <li key={`lim-${i}`} className="flex items-start gap-2.5 text-sm">
-                    <X className="w-4 h-4 mt-0.5 shrink-0 text-white/25" />
+                    <XIcon className="w-4 h-4 mt-0.5 shrink-0 text-white/25" />
                     <span className="text-white/35 line-through">{limitation}</span>
                   </li>
                 ))}
@@ -215,72 +509,107 @@ export default function PlanPage() {
               {/* CTA */}
               <Button
                 className={`w-full ${
-                  plan.current
+                  isCurrent
                     ? "bg-white/5 border border-white/10 text-white/50 cursor-default hover:bg-white/5"
                     : plan.popular
                     ? "bg-gradient-to-r from-[#33b380] to-[#2a9669] hover:from-[#2a9669] hover:to-[#228055] text-white border-0"
                     : "bg-white/10 hover:bg-white/15 text-white border-0"
                 }`}
-                disabled={plan.current}
+                disabled={isCurrent}
+                onClick={() => !isCurrent && setUpgradeModal({ open: true, planName: plan.name })}
               >
-                {plan.current ? (
-                  plan.cta
-                ) : (
-                  <span className="flex items-center gap-2">
-                    {plan.cta}
-                    <ArrowRight className="w-4 h-4" />
-                  </span>
-                )}
+                {isCurrent ? "Plan actual" : plan.cta}
               </Button>
             </div>
           )
         })}
       </div>
 
-      {/* Payment method & billing */}
-      <div className="grid md:grid-cols-2 gap-5">
-        {/* Payment method */}
-        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
-          <h3 className="font-semibold text-white mb-4">Metodo de pago</h3>
-          <div className="flex items-center gap-4 p-4 rounded-lg border border-white/10 bg-white/[0.02]">
-            <div className="w-12 h-8 rounded bg-white/10 flex items-center justify-center">
-              <span className="text-xs font-bold text-white/60">VISA</span>
+      {/* Custom plan CTA */}
+      <div className="relative overflow-hidden rounded-xl">
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#6ee490] via-[#33b380] to-[#327be2] p-px">
+          <div className="w-full h-full rounded-xl bg-[#0d1218]" />
+        </div>
+        <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-[250px] h-[80px] bg-[#33b380]/15 blur-3xl" />
+        <div className="relative p-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#33b380]/20 to-[#327be2]/20 flex items-center justify-center shrink-0">
+              <Settings2 className="w-5 h-5 text-[#6ee490]" />
             </div>
-            <div className="flex-1">
-              <p className="text-sm text-white/40">No hay metodo de pago agregado</p>
+            <div>
+              <h3 className="font-bold text-white">
+                ¿Necesitas algo{" "}
+                <span className="bg-gradient-to-r from-[#6ee490] via-[#33b380] to-[#327be2] bg-clip-text text-transparent">
+                  a tu medida
+                </span>
+                ?
+              </h3>
+              <p className="text-xs text-white/50 mt-0.5">
+                Elige funciones individuales sin pagar un plan completo. Armamos la combinacion perfecta para tu negocio.
+              </p>
             </div>
           </div>
           <Button
-            variant="outline"
-            size="sm"
-            className="mt-4 border-white/10 text-white/70 hover:text-white hover:bg-white/5 bg-transparent"
+            className="gap-2 bg-gradient-to-r from-[#33b380] to-[#327be2] hover:from-[#2a9669] hover:to-[#2a6bc7] text-white border-0 shadow-lg shadow-[#33b380]/15 shrink-0"
+            onClick={() => setCustomPlanModal(true)}
           >
-            Agregar metodo de pago
+            <MessageCircle className="h-4 w-4" />
+            Cotizar mi plan
           </Button>
         </div>
+      </div>
 
-        {/* Billing history */}
-        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
-          <h3 className="font-semibold text-white mb-4">Historial de facturacion</h3>
-          <div className="space-y-3">
-            {billingHistory.map((item, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-white/[0.02]"
-              >
-                <div>
-                  <p className="text-sm text-white/80">{item.plan}</p>
-                  <p className="text-xs text-white/40">{item.date}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-white">{item.amount}</p>
-                  <Badge className="bg-[#33b380]/15 text-[#6ee490] border-0 text-[10px]">
-                    {item.status}
-                  </Badge>
-                </div>
-              </div>
-            ))}
+      {/* Add-ons */}
+      <div className="space-y-4">
+        <h3 className="font-semibold text-white text-lg">Add-ons</h3>
+        <div
+          className="rounded-xl border border-[#327be2]/20 bg-[#327be2]/5 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-[#327be2]/15 flex items-center justify-center">
+              <Globe className="w-6 h-6 text-[#327be2]" />
+            </div>
+            <div>
+              <p className="text-base font-semibold text-white">Dominio personalizado</p>
+              <p className="text-sm text-white/50">Usa tu propio dominio en vez de biolinkstore.com/tu-tienda</p>
+            </div>
           </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-lg font-bold text-[#327be2]">$2<span className="text-sm text-white/40 font-normal">/mes</span></p>
+              <p className="text-xs text-white/30">o $15/año</p>
+            </div>
+            <Button
+              className="bg-[#327be2] hover:bg-[#2a6acc] text-white border-0"
+              onClick={() => setDomainModal(true)}
+            >
+              Configurar
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Billing history */}
+      <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+        <h3 className="font-semibold text-white mb-4">Historial de facturacion</h3>
+        <div className="space-y-3">
+          {billingHistory.map((item, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-white/[0.02]"
+            >
+              <div>
+                <p className="text-sm text-white/80">{item.plan}</p>
+                <p className="text-xs text-white/40">{item.date}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-white">{item.amount}</p>
+                <Badge className="bg-[#33b380]/15 text-[#6ee490] border-0 text-[10px]">
+                  {item.status}
+                </Badge>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -299,7 +628,7 @@ export default function PlanPage() {
             },
             {
               q: "Hay comisiones por venta?",
-              a: "No, InstaOrder no cobra comisiones por venta. Solo pagas tu suscripcion mensual o anual.",
+              a: "No, Bio Link Store no cobra comisiones por venta. Solo pagas tu suscripcion mensual o anual.",
             },
             {
               q: "Puedo cambiar de plan en cualquier momento?",
@@ -313,11 +642,178 @@ export default function PlanPage() {
           ))}
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={upgradeModal.open}
+        onClose={() => setUpgradeModal({ open: false, planName: '' })}
+        planName={upgradeModal.planName}
+        storeName={store?.name ?? 'Mi tienda'}
+        storeId={store?.id ?? ''}
+        defaultEmail={user?.email ?? ''}
+      />
+
+      {/* Domain Modal */}
+      <DomainPaymentModal
+        open={domainModal}
+        onClose={() => setDomainModal(false)}
+        storeId={store?.id ?? ''}
+      />
+
+      {/* Custom Plan Modal */}
+      <CustomPlanModal
+        open={customPlanModal}
+        onClose={() => setCustomPlanModal(false)}
+        storeName={store?.name ?? 'Mi tienda'}
+        defaultEmail={user?.email ?? ''}
+      />
     </div>
   )
 }
 
-function X({ className, style }: { className?: string; style?: React.CSSProperties }) {
+function CustomPlanModal({
+  open,
+  onClose,
+  storeName,
+  defaultEmail,
+}: {
+  open: boolean
+  onClose: () => void
+  storeName: string
+  defaultEmail: string
+}) {
+  const [method, setMethod] = useState<'whatsapp' | 'email'>('whatsapp')
+  const [whatsapp, setWhatsapp] = useState('')
+  const [email, setEmail] = useState(defaultEmail)
+  const [description, setDescription] = useState('')
+
+  const handleSend = () => {
+    if (method === 'whatsapp') {
+      const msg = encodeURIComponent(
+        `Hola! Soy "${storeName}" y me interesa un plan personalizado en Bio Link Store.\n\n${description ? `Lo que necesito: ${description}\n\n` : ''}Mi WhatsApp: ${whatsapp}`
+      )
+      window.open(`https://wa.me/${WA_PLAN_NUMBER}?text=${msg}`, '_blank')
+    } else {
+      const subject = encodeURIComponent(`Plan personalizado — ${storeName}`)
+      const body = encodeURIComponent(
+        `Hola!\n\nSoy "${storeName}" y me interesa cotizar un plan personalizado en Bio Link Store.\n\n${description ? `Lo que necesito: ${description}\n\n` : ''}Mi email: ${email}`
+      )
+      window.open(`mailto:${PLAN_EMAIL}?subject=${subject}&body=${body}`, '_blank')
+    }
+    onClose()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#33b380]/15 to-[#327be2]/15 border border-[#33b380]/20 flex items-center justify-center">
+              <Settings2 className="w-4 h-4 text-[#6ee490]" />
+            </div>
+            <DialogTitle>Plan personalizado</DialogTitle>
+          </div>
+          <DialogDescription>
+            Contanos qué necesitas y te armamos una propuesta a medida.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="px-6 pb-6 space-y-5">
+          {/* Method selector */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setMethod('whatsapp')}
+              className={cn(
+                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
+                method === 'whatsapp'
+                  ? "border-[#25D366] bg-[#25D366]/8 text-white"
+                  : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
+              )}
+            >
+              <MessageCircle className={cn("w-5 h-5", method === 'whatsapp' ? "text-[#25D366]" : "")} />
+              <span className="text-[11px] font-medium">WhatsApp</span>
+            </button>
+            <button
+              onClick={() => setMethod('email')}
+              className={cn(
+                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
+                method === 'email'
+                  ? "border-[#327be2] bg-[#327be2]/8 text-white"
+                  : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
+              )}
+            >
+              <Mail className={cn("w-5 h-5", method === 'email' ? "text-[#327be2]" : "")} />
+              <span className="text-[11px] font-medium">Email</span>
+            </button>
+          </div>
+
+          {/* Contact input */}
+          {method === 'whatsapp' ? (
+            <div className="space-y-1.5">
+              <label className="text-xs text-white/40 font-medium">Tu número de WhatsApp</label>
+              <input
+                type="tel"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="+54 9 11 XXXX XXXX"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#25D366]/50 focus:bg-white/8 transition-all"
+              />
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              <label className="text-xs text-white/40 font-medium">Tu email de contacto</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@email.com"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#327be2]/50 focus:bg-white/8 transition-all"
+              />
+            </div>
+          )}
+
+          {/* Description */}
+          <div className="space-y-1.5">
+            <label className="text-xs text-white/40 font-medium">
+              ¿Qué funciones te interesan? <span className="text-white/20">(opcional)</span>
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Ej: Necesito integraciones con MercadoLibre, reportes personalizados..."
+              rows={3}
+              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#33b380]/50 focus:bg-white/8 transition-all resize-none"
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-2 pt-1">
+            <button
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl border border-white/10 text-sm text-white/50 hover:text-white hover:border-white/20 transition-all"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleSend}
+              disabled={method === 'whatsapp' ? !whatsapp.trim() : !email.trim()}
+              className="flex-[2] flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#33b380] to-[#327be2] hover:from-[#2a9669] hover:to-[#2a6bc7] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Send className="w-3.5 h-3.5" />
+              Enviar solicitud
+            </button>
+          </div>
+
+          <p className="text-[11px] text-white/25 text-center">
+            Te contactaremos en menos de 24 horas con una propuesta.
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function XIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

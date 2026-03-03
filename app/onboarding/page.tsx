@@ -31,32 +31,32 @@ const PLANS = [
     name: "Gratuito",
     price: "Gratis",
     description: "Para empezar a vender hoy",
-    features: ["Hasta 10 productos", "Pedidos ilimitados", "Link de tienda personalizado", "Soporte por email"],
+    features: ["Hasta 20 productos", "5 fotos por producto", "5 categorias", "Checkout por WhatsApp", "Analiticas basicas"],
     current: true,
     color: "#33b380",
   },
   {
     id: "pro",
     name: "Pro",
-    price: "$19 / mes",
+    price: "$9 / mes",
     description: "Para tiendas en crecimiento",
-    features: ["Productos ilimitados", "Analytics avanzado", "Múltiples números de WhatsApp", "Soporte prioritario", "Sin marca de agua"],
+    features: ["Hasta 100 productos", "Sin marca de agua", "Analiticas avanzadas", "Templates Pro", "Exportar cotizaciones"],
     current: false,
     color: "#327be2",
   },
   {
     id: "business",
     name: "Business",
-    price: "$49 / mes",
+    price: "$45 / mes",
     description: "Para marcas consolidadas",
-    features: ["Todo de Pro", "Múltiples tiendas", "Dominio propio", "Manager dedicado", "API access"],
+    features: ["Todo de Pro", "Hasta 3 tiendas", "API de integracion", "IA integrada", "CRM de ventas"],
     current: false,
     color: "#C9A86C",
   },
 ]
 
 const WA_SALES   = "5491100000000"
-const SALES_EMAIL = "ventas@instaorder.com"
+const SALES_EMAIL = "ventas@biolinkstore.com"
 type ContactMethod = "whatsapp" | "email"
 
 // ── Modal de contacto para planes ─────────────────────────────────────────────
@@ -71,10 +71,10 @@ function PlanContactModal({
 
   const handleSend = () => {
     if (method === "whatsapp") {
-      const msg = encodeURIComponent(`Hola! Me interesa el plan ${planName} de InstaOrder. Mi WhatsApp es: ${phone}`)
+      const msg = encodeURIComponent(`Hola! Me interesa el plan ${planName} de Bio Link Store. Mi WhatsApp es: ${phone}`)
       window.open(`https://wa.me/${WA_SALES}?text=${msg}`, "_blank")
     } else {
-      const sub  = encodeURIComponent(`Consulta plan ${planName} — InstaOrder`)
+      const sub  = encodeURIComponent(`Consulta plan ${planName} — Bio Link Store`)
       const body = encodeURIComponent(`Hola!\n\nMe interesa el plan ${planName}.\n\nContactarme al email: ${email}`)
       window.open(`mailto:${SALES_EMAIL}?subject=${sub}&body=${body}`, "_blank")
     }
@@ -244,7 +244,7 @@ export default function OnboardingPage() {
       if (categories.length > 0) {
         setSaving(true)
         try {
-          await storeRepo.update(store!.id, { bio: categories.join(", ") })
+          await storeRepo.update(store!.id, { description: categories.join(", ") })
         } catch { /* non-critical */ }
         finally { setSaving(false) }
       }
@@ -529,6 +529,7 @@ export default function OnboardingPage() {
         <CustomDesignBar
           noSidebar
           storeName={store.name}
+          storeId={store.id}
           defaultWhatsapp={store.whatsappNumbers[0] ?? ""}
           defaultEmail={user?.email ?? ""}
         />

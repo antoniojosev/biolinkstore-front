@@ -1,11 +1,13 @@
 'use client'
 
-import Image from 'next/image'
 import { useState } from 'react'
-import { Plus, Check, ShoppingBag } from 'lucide-react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { Plus, Check } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/lib/cart-context'
+import { useStore } from '@/lib/store-context'
 import type { Product } from '@/lib/types'
 
 interface Props {
@@ -14,7 +16,10 @@ interface Props {
 }
 
 export function VitrinaProductCard({ product, currency = 'ARS' }: Props) {
+  const { store } = useStore()
   const { addItem, setIsOpen } = useCart()
+  const searchParams = useSearchParams()
+  const preview = searchParams.get('preview')
   const [added, setAdded] = useState(false)
 
   const fmt = (n: number) =>
@@ -30,7 +35,9 @@ export function VitrinaProductCard({ product, currency = 'ARS' }: Props) {
       ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
       : null
 
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     if (!product.inStock) return
     addItem({
       id: product.id,
@@ -44,16 +51,14 @@ export function VitrinaProductCard({ product, currency = 'ARS' }: Props) {
     setTimeout(() => setAdded(false), 1800)
   }
 
-  return (
+  const card = (
     <div className="group relative flex flex-col overflow-hidden rounded-xl bg-card border border-border/50 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-muted">
-        <Image
+        <img
           src={image}
           alt={product.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-107"
-          sizes="(max-width: 640px) 50vw, 200px"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-107"
         />
 
         {/* Overlay badges */}
@@ -117,4 +122,15 @@ export function VitrinaProductCard({ product, currency = 'ARS' }: Props) {
       </div>
     </div>
   )
+
+  if (product.slug) {
+    const href = `/${store.slug}/${product.slug}${preview ? `?preview=${preview}` : ''}`
+    return (
+      <Link href={href} className="block">
+        {card}
+      </Link>
+    )
+  }
+
+  return card
 }

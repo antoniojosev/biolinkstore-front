@@ -52,4 +52,16 @@ export class ProductHttpRepository implements IProductRepository {
     files.forEach((file) => formData.append('files', file))
     return this.http.postFormData(`/api/stores/${storeId}/uploads`, formData)
   }
+
+  createVariant(storeId: string, productId: string, data: { combination: Record<string, string>; priceAdjustment?: number; sku?: string; stock?: number }): Promise<any> {
+    return this.http.post(`/api/stores/${storeId}/products/${productId}/variants`, data)
+  }
+
+  updateVariant(storeId: string, productId: string, variantId: string, data: { priceAdjustment?: number; sku?: string; stock?: number }): Promise<any> {
+    return this.http.patch(`/api/stores/${storeId}/products/${productId}/variants/${variantId}`, data)
+  }
+
+  deleteVariant(storeId: string, productId: string, variantId: string): Promise<void> {
+    return this.http.delete(`/api/stores/${storeId}/products/${productId}/variants/${variantId}`)
+  }
 }

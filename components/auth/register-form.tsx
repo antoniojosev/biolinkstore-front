@@ -5,7 +5,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, ShoppingBag, Loader2, Check, AlertCircle } from "lucide-react"
+import { Eye, EyeOff, Loader2, Check, AlertCircle } from "lucide-react"
+import { LogoIcon } from "@/components/brand/logo"
 import { useAuth } from "@/contexts/auth-context"
 import { cn } from "@/lib/utils"
 
@@ -70,9 +71,7 @@ export function RegisterForm() {
       <div className="glass-panel rounded-2xl border border-white/10 p-8 shadow-2xl">
         {/* Logo */}
         <div className="flex flex-col items-center gap-3 mb-7">
-          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#33b380]">
-            <ShoppingBag className="w-6 h-6 text-white" />
-          </div>
+          <LogoIcon size={72} />
           <div className="text-center">
             <h1 className="text-2xl font-bold text-white">Crea tu cuenta</h1>
             <p className="text-sm text-white/50 mt-1">Empieza a vender en minutos</p>
@@ -121,7 +120,7 @@ export function RegisterForm() {
             <p className="text-[11px] text-white/30">
               URL de tu tienda:{" "}
               <span className="text-white/50 font-mono">
-                instaorder.com/{formData.username || "tu-usuario"}
+                biolinkstore.com/{formData.username || "tu-usuario"}
               </span>
             </p>
           </div>
@@ -136,9 +135,9 @@ export function RegisterForm() {
                 onChange={(e) => set("gender", e.target.value)}
                 className="h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white focus:border-[#33b380] focus:outline-none [color-scheme:dark]"
               >
-                <option value="">Seleccionar…</option>
+                <option value="" className="bg-[#0d1218] text-white">Seleccionar…</option>
                 {GENDER_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  <option key={opt.value} value={opt.value} className="bg-[#0d1218] text-white">{opt.label}</option>
                 ))}
               </select>
             </div>
