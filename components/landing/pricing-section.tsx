@@ -207,7 +207,7 @@ export function PricingSection() {
               {plan.isRegister ? (
                 <Link href="/register">
                   <Button
-                    className="w-full gap-2 bg-white/10 border-white/20 hover:bg-white/20 text-white"
+                    className="w-full gap-2 bg-white/10 border-white/20 hover:bg-white/20 text-white cursor-pointer"
                     variant="outline"
                   >
                     {plan.cta}
@@ -217,7 +217,7 @@ export function PricingSection() {
               ) : (
                 <Link href={isAuthenticated ? "/dashboard/plan" : "/login"}>
                   <Button
-                    className={`w-full ${
+                    className={`w-full cursor-pointer ${
                       plan.highlighted
                         ? "bg-gradient-to-r from-[#33b380] to-[#2a9669] hover:from-[#2a9669] hover:to-[#228055] text-white border-0"
                         : "bg-white/10 border-white/20 hover:bg-white/20 text-white"
@@ -257,12 +257,14 @@ export function PricingSection() {
               </p>
             </div>
             <Button
+              asChild
               size="lg"
-              className="gap-2 bg-gradient-to-r from-[#33b380] to-[#327be2] hover:from-[#2a9669] hover:to-[#2a6bc7] text-white border-0 shadow-lg shadow-[#33b380]/20 shrink-0"
-              onClick={() => openModal("Personalizado")}
+              className="gap-2 bg-gradient-to-r from-[#33b380] to-[#327be2] hover:from-[#2a9669] hover:to-[#2a6bc7] text-white border-0 shadow-lg shadow-[#33b380]/20 shrink-0 cursor-pointer"
             >
-              <MessageCircle className="h-4 w-4" />
-              Cotizar mi plan
+              <Link href={isAuthenticated ? "/dashboard/plan" : "/login"}>
+                <MessageCircle className="h-4 w-4" />
+                Cotizar mi plan
+              </Link>
             </Button>
           </div>
         </div>

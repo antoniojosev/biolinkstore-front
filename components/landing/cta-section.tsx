@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, X, Calendar, Clock, Send, Check } from "lucide-react";
 import Link from "next/link";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -108,7 +108,7 @@ export function CtaSection() {
             <Link href="/registro">
               <Button
                 size="lg"
-                className="gap-2 bg-gradient-to-r from-[#33b380] to-[#2a9669] hover:from-[#2a9669] hover:to-[#228055] text-white border-0 shadow-lg shadow-[#33b380]/25"
+                className="gap-2 bg-gradient-to-r from-[#33b380] to-[#2a9669] hover:from-[#2a9669] hover:to-[#228055] text-white border-0 shadow-lg shadow-[#33b380]/25 cursor-pointer"
               >
                 Crear mi tienda gratis
                 <ArrowRight className="h-4 w-4" />
@@ -117,7 +117,7 @@ export function CtaSection() {
             <Button
               size="lg"
               variant="outline"
-              className="bg-white/10 border-white/30 hover:bg-white/20 hover:border-white/50 text-white"
+              className="bg-white/10 border-white/30 hover:bg-white/20 hover:border-white/50 text-white cursor-pointer"
               onClick={() => setModalOpen(true)}
             >
               Agendar demo personalizada
@@ -130,7 +130,10 @@ export function CtaSection() {
       </section>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-[#0a0f14] border-white/10 text-white">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-[#0a0f14] border border-white/10 text-white p-6">
+          <DialogTitle className="sr-only">
+            Agendar demo personalizada
+          </DialogTitle>
           {isSubmitted ? (
             <div className="text-center py-8">
               <div className="w-16 h-16 rounded-full bg-[#33b380]/20 flex items-center justify-center mx-auto mb-4">
