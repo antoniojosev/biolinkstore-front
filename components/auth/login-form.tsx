@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
-import { LogoIcon } from "@/components/brand/logo"
-import { useAuth } from "@/contexts/auth-context"
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { LogoIcon } from "@/components/brand/logo";
+import { useAuth } from "@/contexts/auth-context";
 
 export function LoginForm() {
-  const { login, error, clearError } = useAuth()
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const { login, error, clearError } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    clearError()
-    setIsLoading(true)
+    e.preventDefault();
+    clearError();
+    setIsLoading(true);
     try {
-      await login({ email, password })
+      await login({ email, password });
     } catch {
       // error already set in context
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="w-full max-w-md">
@@ -36,8 +36,12 @@ export function LoginForm() {
         <div className="flex flex-col items-center gap-3 mb-8">
           <LogoIcon size={72} />
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white">Bienvenido de vuelta</h1>
-            <p className="text-sm text-white/60 mt-1">Inicia sesion en tu cuenta de biolinkstore</p>
+            <h1 className="text-2xl font-bold text-white">
+              Bienvenido de vuelta
+            </h1>
+            <p className="text-sm text-white/60 mt-1">
+              Inicia sesion en tu cuenta de biolinkstore
+            </p>
           </div>
         </div>
 
@@ -70,7 +74,9 @@ export function LoginForm() {
         {/* Divider */}
         <div className="flex items-center gap-3 mb-6">
           <div className="flex-1 h-px bg-white/10" />
-          <span className="text-xs text-white/40 uppercase tracking-wider">o con email</span>
+          <span className="text-xs text-white/40 uppercase tracking-wider">
+            o con email
+          </span>
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
@@ -105,7 +111,7 @@ export function LoginForm() {
                 Contrasena
               </Label>
               <Link
-                href="#"
+                href="/olvide-password"
                 className="text-xs text-[#33b380] hover:text-[#6ee490] transition-colors"
               >
                 Olvidaste tu contrasena?
@@ -125,9 +131,15 @@ export function LoginForm() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
-                aria-label={showPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
+                aria-label={
+                  showPassword ? "Ocultar contrasena" : "Mostrar contrasena"
+                }
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
@@ -170,5 +182,5 @@ export function LoginForm() {
         </Link>
       </div>
     </div>
-  )
+  );
 }
