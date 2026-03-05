@@ -9,6 +9,8 @@ import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { LogoIcon } from "@/components/brand/logo";
 import { useAuth } from "@/contexts/auth-context";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+
 export function LoginForm() {
   const { login, error, clearError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
@@ -49,6 +51,8 @@ export function LoginForm() {
         <Button
           variant="outline"
           className="w-full h-11 bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white mb-6"
+          onClick={() => { window.location.href = `${API_URL}/api/auth/google` }}
+          type="button"
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
             <path

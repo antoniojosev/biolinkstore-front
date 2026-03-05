@@ -31,6 +31,7 @@ interface AuthContextValue {
 
   // Actions
   login(dto: LoginDto): Promise<void>
+  loginWithTokens(accessToken: string, refreshToken: string): Promise<void>
   register(dto: RegisterDto & { storeName: string; whatsapp: string; username?: string; gender?: string; dateOfBirth?: string }): Promise<void>
   logout(): void
   clearError(): void
@@ -133,6 +134,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [authRepo, tokenStorage, loadUserAndStore, router],
   )
 
+  // ── Login with OAuth tokens (e.g. Google callback) ──────────────────────────
+  const loginWithTokens = useCallback(
+    async (accessToken: string, refreshToken: string) => {
+      tokenStorage.setTokens(accessToken, refreshToken)
+      try {
+        const { store } = await loadUserAndStore()
+        router.push(store ? '/dashboard' : '/onboarding/create-store')
+      } catch {
+        logout()
+      }
+    },
+    [tokenStorage, loadUserAndStore, router, logout],
+  )
+
   // ── Register ─────────────────────────────────────────────────────────────────
   const register = useCallback(
     async (dto: RegisterDto & { storeName: string; whatsapp: string }) => {
@@ -193,6 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: user !== null,
         error,
         login,
+        loginWithTokens,
         register,
         logout,
         clearError,
