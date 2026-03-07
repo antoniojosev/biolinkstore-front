@@ -41,6 +41,12 @@ export default function SettingsPage() {
 
   // Form state — initialized from store
   const [name, setName] = useState("")
+  const [username, setUsername] = useState("")
+  const [usernameStatus, setUsernameStatus] = useState<{
+    checking: boolean
+    available: boolean | null
+    error: string | null
+  }>({ checking: false, available: null, error: null })
   const [description, setDescription] = useState("")
   const [email, setEmail] = useState("")
   const [address, setAddress] = useState("")
@@ -64,6 +70,7 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!store) return
     setName(store.name || "")
+    setUsername(store.username ?? "")
     setDescription(store.description ?? store.bio ?? "")
     setEmail(store.email ?? "")
     setAddress(store.address ?? "")
@@ -102,6 +109,32 @@ export default function SettingsPage() {
     }
   }, [])
 
+  const checkUsernameAvailability = async (username: string, currentUsername: string) => {
+    if (username === currentUsername) {
+      setUsernameStatus({ checking: false, available: true, error: null })
+      return true
+    }
+    if (username.length < 3) {
+      setUsernameStatus({ checking: false, available: null, error: null })
+      return false
+    }
+    if (!/^[a-z0-9_.]+$/.test(username)) {
+      setUsernameStatus({ checking: false, available: false, error: 'Solo letras, números, guiones y guiones bajos' })
+      return false
+    }
+    setUsernameStatus({ checking: true, available: null, error: null })
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+      const res = await fetch(`${API_URL}/api/stores/check-username?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      setUsernameStatus({ checking: false, available: data.available, error: null })
+      return data.available
+    } catch {
+      setUsernameStatus({ checking: false, available: null, error: 'Error al verificar' })
+      return false
+    }
+  }
+
   const uploadFile = async (file: File): Promise<string> => {
     if (!store) throw new Error("No store")
     const formData = new FormData()
@@ -115,6 +148,16 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     if (!store) return
+    
+    // Validate username if changed
+    if (username !== store.username && username.trim()) {
+      const isAvailable = await checkUsernameAvailability(username, store.username ?? "")
+      if (!isAvailable) {
+        toast.error("El nombre de usuario no está disponible")
+        return
+      }
+    }
+    
     setSaving(true)
 
     try {
@@ -136,6 +179,7 @@ export default function SettingsPage() {
 
       const dto: UpdateStoreDto = {
         name: name.trim() || undefined,
+        username: username.trim() || undefined,
         description: description.trim() || undefined,
         logo: logoUrl ?? undefined,
         banner: bannerUrl ?? undefined,
@@ -319,6 +363,43 @@ export default function SettingsPage() {
               className="h-10 bg-white/5 border-white/10 text-white focus:border-[#33b380]"
               placeholder="Mi Tienda"
             />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm text-white/70">
+              Username <span className="text-white/30 font-normal">(URL de tu tienda)</span>
+            </Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-sm select-none">@</span>
+              <Input
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ''))
+                  setUsernameStatus({ checking: false, available: null, error: null })
+                }}
+                onBlur={(e) => checkUsernameAvailability(e.target.value, store.username ?? "")}
+                className={`h-10 pl-7 bg-white/5 border-white/10 text-white focus:border-[#33b380] ${
+                  usernameStatus.available === false ? "border-red-500 focus:border-red-500" : ""
+                } ${usernameStatus.available === true ? "border-[#33b380]" : ""}`}
+                placeholder="mi-tienda"
+              />
+              {usernameStatus.checking && (
+                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-white/40" />
+              )}
+              {usernameStatus.available === true && !usernameStatus.checking && (
+                <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#33b380]" />
+              )}
+            </div>
+            {usernameStatus.error && (
+              <p className="text-xs text-red-400">{usernameStatus.error}</p>
+            )}
+            {usernameStatus.available === false && !usernameStatus.error && (
+              <p className="text-xs text-red-400">Este usuario ya está tomado</p>
+            )}
+            {username && !usernameStatus.error && usernameStatus.available !== false && (
+              <p className="text-xs text-white/40">
+                Tu tienda: biolinkstore.com/{username}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label className="text-sm text-white/70">Descripcion</Label>

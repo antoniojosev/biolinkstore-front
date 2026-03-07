@@ -24,7 +24,7 @@ export interface RegisterDto {
   name?: string
   email: string
   password: string
-  username?: string
+  username: string
   gender?: string
   dateOfBirth?: string
 }

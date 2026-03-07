@@ -4,6 +4,7 @@ export interface DashboardStore {
   id: string
   name: string
   slug: string
+  username?: string
   template: TemplateId
   primaryColor: string
   currency: string
@@ -29,6 +30,7 @@ export interface DashboardStore {
 
 export interface CreateStoreDto {
   name: string
+  username: string
   whatsappNumbers: string[]
 }
 
@@ -38,6 +40,7 @@ export interface CreateStoreDto {
  */
 export interface UpdateStoreDto {
   name?: string
+  username?: string
   description?: string
   logo?: string
   banner?: string

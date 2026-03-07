@@ -32,7 +32,7 @@ interface AuthContextValue {
   // Actions
   login(dto: LoginDto): Promise<void>
   loginWithTokens(accessToken: string, refreshToken: string): Promise<void>
-  register(dto: RegisterDto & { storeName: string; whatsapp: string; username?: string; gender?: string; dateOfBirth?: string }): Promise<void>
+  register(dto: RegisterDto & { storeName: string; whatsapp: string }): Promise<void>
   logout(): void
   clearError(): void
   refreshStore(): Promise<void>
@@ -167,6 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // 2. Create their first store
         const newStore = await storeRepo.create({
           name: dto.storeName,
+          username: dto.username || '',
           whatsappNumbers: dto.whatsapp ? [dto.whatsapp] : [],
         })
         const me = await authRepo.me()

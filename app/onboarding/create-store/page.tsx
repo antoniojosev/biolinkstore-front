@@ -22,10 +22,10 @@ export default function CreateStorePage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError]       = useState<string | null>(null)
 
-  // Si ya tiene tienda (registro normal), saltar directo al template
+  // Si ya tiene tienda (registro normal), saltar directo al onboarding
   useEffect(() => {
     if (!isLoading && store) {
-      router.replace('/onboarding/template')
+      router.replace('/onboarding')
     }
   }, [isLoading, store, router])
 
@@ -37,12 +37,15 @@ export default function CreateStorePage() {
     setError(null)
     setSubmitting(true)
     try {
+      // Generate username from store name if not provided
+      const username = name.trim().toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
       await storeRepo.create({
         name: name.trim(),
+        username,
         whatsappNumbers: whatsapp.trim() ? [whatsapp.trim()] : [],
       })
       await refreshStore()
-      router.push('/onboarding/template')
+      router.push('/onboarding')
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Error al crear la tienda')
     } finally {
