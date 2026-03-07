@@ -5,15 +5,18 @@ import { Upload, Loader2, CheckCircle2, FileText, X, Copy, Check } from "lucide-
 import { useAuth } from "@/contexts/auth-context"
 
 const BANK_INFO = {
-  bank: 'Banco Mercantil',
+  bankDisplay: 'Banco Mercantil · 0105',
+  bankCopy: '0105',
   cedula: '26850126',
   account: '041258349984',
 }
 
-function CopyField({ label, value }: { label: string; value: string }) {
+const BANK_COPY_ALL = `0105\n${BANK_INFO.cedula}\n${BANK_INFO.account}`
+
+function CopyField({ label, display, copyValue }: { label: string; display: string; copyValue: string }) {
   const [copied, setCopied] = useState(false)
   const copy = () => {
-    navigator.clipboard.writeText(value)
+    navigator.clipboard.writeText(copyValue)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -21,7 +24,7 @@ function CopyField({ label, value }: { label: string; value: string }) {
     <div className="flex items-center justify-between gap-2">
       <div>
         <p className="text-[10px] text-[#f59e0b]/60 uppercase tracking-wide font-medium">{label}</p>
-        <p className="text-sm text-white font-mono">{value}</p>
+        <p className="text-sm text-white font-mono">{display}</p>
       </div>
       <button
         onClick={copy}
@@ -31,6 +34,24 @@ function CopyField({ label, value }: { label: string; value: string }) {
         {copied ? <Check className="w-3.5 h-3.5 text-[#33b380]" /> : <Copy className="w-3.5 h-3.5" />}
       </button>
     </div>
+  )
+}
+
+function CopyAllButton() {
+  const [copied, setCopied] = useState(false)
+  const copy = () => {
+    navigator.clipboard.writeText(BANK_COPY_ALL)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  return (
+    <button
+      onClick={copy}
+      className="flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-lg border border-[#f59e0b]/20 hover:border-[#f59e0b]/40 text-[#f59e0b]/70 hover:text-[#f59e0b] transition-all"
+    >
+      {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+      {copied ? 'Copiado' : 'Copiar todo'}
+    </button>
   )
 }
 
@@ -151,12 +172,15 @@ export function PaymentReportForm({
     <div className="space-y-3">
       {/* Bank info card */}
       <div className="rounded-xl border border-[#f59e0b]/25 bg-[#f59e0b]/5 p-4 space-y-3">
-        <p className="text-xs font-semibold text-[#f59e0b] uppercase tracking-wide">Datos para la transferencia</p>
-        <CopyField label="Banco" value={BANK_INFO.bank} />
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-[#f59e0b] uppercase tracking-wide">Datos para la transferencia</p>
+          <CopyAllButton />
+        </div>
+        <CopyField label="Banco" display={BANK_INFO.bankDisplay} copyValue={BANK_INFO.bankCopy} />
         <div className="h-px bg-white/5" />
-        <CopyField label="Cédula" value={BANK_INFO.cedula} />
+        <CopyField label="Cédula" display={BANK_INFO.cedula} copyValue={BANK_INFO.cedula} />
         <div className="h-px bg-white/5" />
-        <CopyField label="Número de cuenta" value={BANK_INFO.account} />
+        <CopyField label="Número de cuenta" display={BANK_INFO.account} copyValue={BANK_INFO.account} />
       </div>
 
       <div className="space-y-1.5">
