@@ -27,11 +27,10 @@ export default function DashboardPage() {
 
   const ordersRepo = useMemo(() => new OrdersHttpRepository(http), [http])
 
-  const storeSlug = store?.slug || ''
-  const origin = typeof window !== 'undefined' ? window.location.origin : ''
-  const host = typeof window !== 'undefined' ? window.location.host : ''
-  const storeUrl = storeSlug && origin ? `${origin}/${storeSlug}` : ''
-  const displayUrl = storeSlug && host ? `${host}/${storeSlug}` : 'Cargando...'
+  const storeHandle = store?.username ?? store?.slug ?? ''
+  const STORE_DOMAIN = 'biolinkstore.com'
+  const storeUrl = storeHandle ? `https://${STORE_DOMAIN}/${storeHandle}` : ''
+  const displayUrl = storeHandle ? `${STORE_DOMAIN}/${storeHandle}` : 'Cargando...'
 
   useEffect(() => {
     if (!store?.id) return
@@ -114,13 +113,13 @@ export default function DashboardPage() {
             {copied ? <Check className="w-3.5 h-3.5 mr-1.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
             {copied ? "Copiado" : "Copiar"}
           </Button>
-          {storeSlug ? (
+          {storeHandle ? (
             <Button
               size="sm"
               className="h-8 text-xs bg-[#33b380] hover:bg-[#2a9a6d] text-white"
               asChild
             >
-              <Link href={`/${storeSlug}`} target="_blank">
+              <Link href={storeUrl} target="_blank">
                 <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
                 Abrir
               </Link>
