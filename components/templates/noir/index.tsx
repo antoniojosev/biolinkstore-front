@@ -8,6 +8,7 @@ import { useStore } from '@/lib/store-context'
 import { useCart } from '@/lib/cart-context'
 import { NoirProductCard } from './product-card'
 import { NoirCartDrawer } from './cart-drawer'
+import { WishlistDrawer } from '@/components/templates/shared/wishlist-drawer'
 
 const serif = Source_Serif_4({
   subsets: ['latin'],
@@ -297,6 +298,7 @@ export function NoirTemplate() {
       )}
 
       <NoirCartDrawer />
+      <WishlistDrawer accent="#C9A86C" bgClass="bg-[#0A0A0A]" textClass="text-[#F0EDE8]" mutedClass="text-[#666]" borderClass="border-[#1A1A1A]" itemBgClass="bg-[#111]" cartBtnClass="bg-[#C9A86C] text-[#0A0A0A] hover:bg-[#b8966a]" />
     </div>
   )
 }

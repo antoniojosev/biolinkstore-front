@@ -2,6 +2,7 @@
 
 import { useMemo, useEffect } from 'react'
 import { CartProvider } from '@/lib/cart-context'
+import { WishlistProvider } from '@/lib/wishlist-context'
 import { StoreProvider } from '@/lib/store-context'
 import { TemplateRenderer } from '@/components/templates/renderer'
 import { WhatsAppPaymentProvider } from '@/lib/payment-providers/whatsapp'
@@ -31,16 +32,20 @@ export function StorePageClient({ data }: { data: StorePageData }) {
     trackEvent(data.store.slug, 'PAGE_VIEW')
   }, [data.store.slug])
 
+  const wishlistEnabled = data.store.plan === 'PRO' || data.store.plan === 'BUSINESS'
+
   return (
     <CartProvider storeSlug={data.store.slug}>
-      <StoreProvider
-        store={data.store}
-        products={data.products}
-        categories={data.categories}
-        paymentProvider={paymentProvider}
-      >
-        <TemplateRenderer template={data.store.template} />
-      </StoreProvider>
+      <WishlistProvider storeSlug={wishlistEnabled ? data.store.slug : undefined}>
+        <StoreProvider
+          store={data.store}
+          products={data.products}
+          categories={data.categories}
+          paymentProvider={paymentProvider}
+        >
+          <TemplateRenderer template={data.store.template} />
+        </StoreProvider>
+      </WishlistProvider>
     </CartProvider>
   )
 }

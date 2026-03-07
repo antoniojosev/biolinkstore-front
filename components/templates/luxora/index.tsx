@@ -7,6 +7,7 @@ import { useStore } from '@/lib/store-context'
 import { useCart } from '@/lib/cart-context'
 import { LuxoraProductCard } from './product-card'
 import { LuxoraCartDrawer } from './cart-drawer'
+import { WishlistDrawer } from '@/components/templates/shared/wishlist-drawer'
 
 export function LuxoraTemplate() {
   const { store, products, categories } = useStore()
@@ -226,6 +227,7 @@ export function LuxoraTemplate() {
       )}
 
       <LuxoraCartDrawer />
+      <WishlistDrawer accent="#1A1A1A" bgClass="bg-[#FAFAF8]" textClass="text-[#1A1A1A]" mutedClass="text-[#999]" borderClass="border-[#EAEAE6]" itemBgClass="bg-[#F4F4F0]" cartBtnClass="bg-[#1A1A1A] text-white hover:bg-[#333]" />
     </div>
   )
 }

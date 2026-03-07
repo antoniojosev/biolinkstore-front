@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Plus, Check, Share2 } from 'lucide-react'
+import { Plus, Check, Share2, Heart } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/lib/cart-context'
 import { useStore } from '@/lib/store-context'
+import { useWishlist } from '@/lib/wishlist-context'
 import { useShare } from '@/components/templates/shared/use-share'
 import type { Product } from '@/lib/types'
 
@@ -19,16 +20,26 @@ interface Props {
 export function VitrinaProductCard({ product, currency = 'ARS' }: Props) {
   const { store } = useStore()
   const { addItem, setIsOpen } = useCart()
+  const { toggle: toggleWishlist, isWishlisted, setIsOpen: openWishlist } = useWishlist()
   const { share, copied } = useShare()
   const searchParams = useSearchParams()
   const preview = searchParams.get('preview')
   const [added, setAdded] = useState(false)
+  const wishlistEnabled = store.plan === 'PRO' || store.plan === 'BUSINESS'
+  const wishlisted = isWishlisted(product.id)
 
   const handleShare = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     const url = `${window.location.origin}/${store.slug}/${product.slug}`
     share(url, product.name)
+  }
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleWishlist(product)
+    if (!wishlisted) openWishlist(true)
   }
 
   const fmt = (n: number) =>
@@ -84,20 +95,34 @@ export function VitrinaProductCard({ product, currency = 'ARS' }: Props) {
           )}
         </div>
 
-        {/* Share button */}
-        {product.slug && (
-          <button
-            onClick={handleShare}
-            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/70 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 text-foreground/70 hover:text-foreground"
-            aria-label="Compartir"
-          >
-            {copied ? (
-              <Check className="h-3.5 w-3.5 text-primary" strokeWidth={2.5} />
-            ) : (
-              <Share2 className="h-3.5 w-3.5" />
-            )}
-          </button>
-        )}
+        {/* Top-right actions */}
+        <div className="absolute top-2 right-2 flex flex-col gap-1.5">
+          {wishlistEnabled && product.slug && (
+            <button
+              onClick={handleWishlist}
+              className="w-7 h-7 rounded-full bg-background/70 backdrop-blur-sm flex items-center justify-center transition-all duration-200 text-foreground/70 hover:text-foreground"
+              aria-label={wishlisted ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+            >
+              <Heart
+                className={`h-3.5 w-3.5 transition-colors ${wishlisted ? 'fill-red-500 text-red-500' : ''}`}
+                strokeWidth={wishlisted ? 0 : 2}
+              />
+            </button>
+          )}
+          {product.slug && (
+            <button
+              onClick={handleShare}
+              className="w-7 h-7 rounded-full bg-background/70 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 text-foreground/70 hover:text-foreground"
+              aria-label="Compartir"
+            >
+              {copied ? (
+                <Check className="h-3.5 w-3.5 text-primary" strokeWidth={2.5} />
+              ) : (
+                <Share2 className="h-3.5 w-3.5" />
+              )}
+            </button>
+          )}
+        </div>
 
         {!product.inStock && (
           <div className="absolute inset-0 bg-background/75 backdrop-blur-sm flex items-center justify-center">

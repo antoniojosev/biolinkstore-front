@@ -112,4 +112,5 @@ export interface StoreProfile {
   primaryColor: string
   currency: string
   template: TemplateId
+  plan: 'FREE' | 'PRO' | 'BUSINESS'
 }

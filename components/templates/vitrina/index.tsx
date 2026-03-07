@@ -9,6 +9,7 @@ import { useStore } from '@/lib/store-context'
 import { useCart } from '@/lib/cart-context'
 import { VitrinaProductCard } from './product-card'
 import { VitrinaCartDrawer } from './cart-drawer'
+import { WishlistDrawer } from '@/components/templates/shared/wishlist-drawer'
 
 export function VitrinaTemplate() {
   const { store, products, categories } = useStore()
@@ -181,6 +182,7 @@ export function VitrinaTemplate() {
       )}
 
       <VitrinaCartDrawer />
+      <WishlistDrawer />
     </div>
   )
 }

@@ -7,6 +7,7 @@ import { Heart, Plus, Check, Share2 } from 'lucide-react'
 import type { Product } from '@/lib/types'
 import { useCart } from '@/lib/cart-context'
 import { useStore } from '@/lib/store-context'
+import { useWishlist } from '@/lib/wishlist-context'
 import { useShare } from '@/components/templates/shared/use-share'
 
 interface Props {
@@ -17,17 +18,26 @@ interface Props {
 export function LuxoraProductCard({ product, currency = 'ARS' }: Props) {
   const { store } = useStore()
   const { addItem, setIsOpen } = useCart()
+  const { toggle: toggleWishlist, isWishlisted, setIsOpen: openWishlist } = useWishlist()
   const { share, copied } = useShare()
   const searchParams = useSearchParams()
   const preview = searchParams.get('preview')
   const [added, setAdded] = useState(false)
-  const [liked, setLiked] = useState(false)
+  const wishlistEnabled = store.plan === 'PRO' || store.plan === 'BUSINESS'
+  const wishlisted = isWishlisted(product.id)
 
   const handleShare = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     const url = `${window.location.origin}/${store.slug}/${product.slug}`
     share(url, product.name)
+  }
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleWishlist(product)
+    if (!wishlisted) openWishlist(true)
   }
 
   const fmt = (n: number) =>
@@ -73,18 +83,20 @@ export function LuxoraProductCard({ product, currency = 'ARS' }: Props) {
 
         {/* Top-right actions */}
         <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5">
-          <button
-            onClick={handleLike}
-            className="transition-transform active:scale-90"
-            aria-label="Me gusta"
-          >
-            <Heart
-              className={`h-5 w-5 drop-shadow-sm transition-colors ${
-                liked ? 'fill-red-500 text-red-500' : 'text-white/80'
-              }`}
-              strokeWidth={liked ? 0 : 1.5}
-            />
-          </button>
+          {wishlistEnabled && (
+            <button
+              onClick={handleWishlist}
+              className="transition-transform active:scale-90"
+              aria-label={wishlisted ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+            >
+              <Heart
+                className={`h-5 w-5 drop-shadow-sm transition-colors ${
+                  wishlisted ? 'fill-red-500 text-red-500' : 'text-white/80'
+                }`}
+                strokeWidth={wishlisted ? 0 : 1.5}
+              />
+            </button>
+          )}
           {product.slug && (
             <button
               onClick={handleShare}
