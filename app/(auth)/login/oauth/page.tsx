@@ -21,25 +21,18 @@ function OAuthCallbackContent() {
   }, [searchParams, loginWithTokens, logout])
 
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-      <div className="mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-          Autenticando...
-        </h2>
-      </div>
+    <div className="flex min-h-screen flex-1 flex-col justify-center items-center">
+      <Loader2 className="w-8 h-8 animate-spin text-[#33b380]" />
+      <p className="mt-4 text-sm text-white/50">Autenticando...</p>
     </div>
   )
 }
 
 function Loading() {
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-      <div className="mx-auto sm:w-full sm:max-w-sm">
-        <Loader2 className="mx-auto w-8 h-8 animate-spin text-[#33b380]" />
-        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-          Cargando...
-        </h2>
-      </div>
+    <div className="flex min-h-screen flex-1 flex-col justify-center items-center">
+      <Loader2 className="w-8 h-8 animate-spin text-[#33b380]" />
+      <p className="mt-4 text-sm text-white/50">Cargando...</p>
     </div>
   )
 }
