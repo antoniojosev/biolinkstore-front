@@ -86,7 +86,7 @@ export function RegisterForm() {
         dateOfBirth: formData.dateOfBirth || undefined,
         email:       formData.email.trim(),
         password:    formData.password,
-        storeName:   formData.name.trim(),
+        storeName:   formData.username,
         whatsapp:    formData.whatsapp.trim(),
       })
     } catch {
