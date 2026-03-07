@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Check, Zap, Crown, Building2, MessageCircle, Mail, Send, Sparkles, Banknote, Loader2, Upload, CheckCircle2, Globe, Settings2 } from "lucide-react"
+import { Check, Zap, Crown, Building2, MessageCircle, Mail, Send, Sparkles, Globe, Settings2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -114,43 +114,17 @@ interface StoreCounts {
   plan: 'FREE' | 'PRO' | 'BUSINESS'
 }
 
-type ContactMethod = 'whatsapp' | 'email' | 'transfer'
-
 function UpgradeModal({
   open,
   onClose,
   planName,
-  storeName,
   storeId,
-  defaultEmail,
 }: {
   open: boolean
   onClose: () => void
   planName: string
-  storeName: string
   storeId: string
-  defaultEmail: string
 }) {
-  const [method, setMethod] = useState<ContactMethod>('whatsapp')
-  const [whatsapp, setWhatsapp] = useState('')
-  const [email, setEmail] = useState(defaultEmail)
-
-  const handleSend = () => {
-    if (method === 'whatsapp') {
-      const msg = encodeURIComponent(
-        `Hola! Soy "${storeName}" y quiero mejorar mi plan a ${planName}.\nMe pueden contactar al: ${whatsapp}`
-      )
-      window.open(`https://wa.me/${WA_PLAN_NUMBER}?text=${msg}`, '_blank')
-    } else if (method === 'email') {
-      const subject = encodeURIComponent(`Mejorar plan a ${planName} — ${storeName}`)
-      const body = encodeURIComponent(
-        `Hola!\n\nSoy "${storeName}" y quiero mejorar mi plan a ${planName} en Bio Link Store.\n\nPueden contactarme al email: ${email}`
-      )
-      window.open(`mailto:${PLAN_EMAIL}?subject=${subject}&body=${body}`, '_blank')
-    }
-    if (method !== 'transfer') onClose()
-  }
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-sm">
@@ -162,120 +136,17 @@ function UpgradeModal({
             <DialogTitle>Mejorar a {planName}</DialogTitle>
           </div>
           <DialogDescription>
-            Elegí cómo querés que te contactemos para activar tu nuevo plan.
+            Realizá la transferencia y subí el comprobante para activar tu plan.
           </DialogDescription>
         </DialogHeader>
-
-        <div className="px-6 pb-6 space-y-5">
-          {/* Selector de método */}
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              onClick={() => setMethod('whatsapp')}
-              className={cn(
-                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
-                method === 'whatsapp'
-                  ? "border-[#25D366] bg-[#25D366]/8 text-white"
-                  : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
-              )}
-            >
-              <MessageCircle className={cn("w-5 h-5", method === 'whatsapp' ? "text-[#25D366]" : "")} />
-              <span className="text-[11px] font-medium">WhatsApp</span>
-            </button>
-            <button
-              onClick={() => setMethod('email')}
-              className={cn(
-                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
-                method === 'email'
-                  ? "border-[#327be2] bg-[#327be2]/8 text-white"
-                  : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
-              )}
-            >
-              <Mail className={cn("w-5 h-5", method === 'email' ? "text-[#327be2]" : "")} />
-              <span className="text-[11px] font-medium">Email</span>
-            </button>
-            <button
-              onClick={() => setMethod('transfer')}
-              className={cn(
-                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
-                method === 'transfer'
-                  ? "border-[#f59e0b] bg-[#f59e0b]/8 text-white"
-                  : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
-              )}
-            >
-              <Banknote className={cn("w-5 h-5", method === 'transfer' ? "text-[#f59e0b]" : "")} />
-              <span className="text-[11px] font-medium">Reportar pago</span>
-            </button>
-          </div>
-
-          {method === 'transfer' ? (
-            <PaymentReportForm
-              storeId={storeId}
-              type="PLAN_UPGRADE"
-              targetPlan={planName}
-              onSuccess={onClose}
-              onCancel={() => setMethod('whatsapp')}
-            />
-          ) : (
-            <>
-              {/* Campo editable */}
-              {method === 'whatsapp' ? (
-                <div className="space-y-1.5">
-                  <label className="text-xs text-white/40 font-medium">
-                    Tu número de WhatsApp
-                  </label>
-                  <input
-                    type="tel"
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
-                    placeholder="+54 9 11 XXXX XXXX"
-                    className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#25D366]/50 focus:bg-white/8 transition-all"
-                  />
-                  <p className="text-[11px] text-white/25">
-                    Te contactaremos para coordinar el pago y activar tu plan.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-1.5">
-                  <label className="text-xs text-white/40 font-medium">
-                    Tu email de contacto
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="tu@email.com"
-                    className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#327be2]/50 focus:bg-white/8 transition-all"
-                  />
-                  <p className="text-[11px] text-white/25">
-                    Te escribiremos para coordinar el pago y activar tu plan.
-                  </p>
-                </div>
-              )}
-
-              {/* Botones */}
-              <div className="flex gap-2 pt-1">
-                <button
-                  onClick={onClose}
-                  className="flex-1 py-2.5 rounded-xl border border-white/10 text-sm text-white/50 hover:text-white hover:border-white/20 transition-all"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleSend}
-                  disabled={method === 'whatsapp' ? !whatsapp.trim() : !email.trim()}
-                  className={cn(
-                    "flex-[2] flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-all",
-                    method === 'whatsapp'
-                      ? "bg-[#25D366] hover:bg-[#20bb5a] disabled:opacity-40 disabled:cursor-not-allowed"
-                      : "bg-[#327be2] hover:bg-[#2a6acc] disabled:opacity-40 disabled:cursor-not-allowed"
-                  )}
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  Enviar solicitud
-                </button>
-              </div>
-            </>
-          )}
+        <div className="px-6 pb-6">
+          <PaymentReportForm
+            storeId={storeId}
+            type="PLAN_UPGRADE"
+            targetPlan={planName}
+            onSuccess={onClose}
+            onCancel={onClose}
+          />
         </div>
       </DialogContent>
     </Dialog>
@@ -648,9 +519,7 @@ export default function PlanPage() {
         open={upgradeModal.open}
         onClose={() => setUpgradeModal({ open: false, planName: '' })}
         planName={upgradeModal.planName}
-        storeName={store?.name ?? 'Mi tienda'}
         storeId={store?.id ?? ''}
-        defaultEmail={user?.email ?? ''}
       />
 
       {/* Domain Modal */}

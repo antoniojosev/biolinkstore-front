@@ -1,8 +1,38 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Upload, Loader2, CheckCircle2, FileText, X } from "lucide-react"
+import { Upload, Loader2, CheckCircle2, FileText, X, Copy, Check } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
+
+const BANK_INFO = {
+  bank: 'Banco Mercantil',
+  cedula: '26850126',
+  account: '041258349984',
+}
+
+function CopyField({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false)
+  const copy = () => {
+    navigator.clipboard.writeText(value)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div>
+        <p className="text-[10px] text-[#f59e0b]/60 uppercase tracking-wide font-medium">{label}</p>
+        <p className="text-sm text-white font-mono">{value}</p>
+      </div>
+      <button
+        onClick={copy}
+        className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-all"
+        title="Copiar"
+      >
+        {copied ? <Check className="w-3.5 h-3.5 text-[#33b380]" /> : <Copy className="w-3.5 h-3.5" />}
+      </button>
+    </div>
+  )
+}
 
 interface PaymentReportFormProps {
   storeId: string
@@ -85,7 +115,6 @@ export function PaymentReportForm({
       })
 
       setSuccess(true)
-      setTimeout(onSuccess, 2000)
     } catch (err: unknown) {
       setUploading(false)
       setError(err instanceof Error ? err.message : 'Error al enviar el reporte')
@@ -96,16 +125,22 @@ export function PaymentReportForm({
 
   if (success) {
     return (
-      <div className="flex flex-col items-center gap-3 py-6">
-        <div className="w-12 h-12 rounded-full bg-[#33b380]/15 flex items-center justify-center">
-          <CheckCircle2 className="w-6 h-6 text-[#33b380]" />
+      <div className="flex flex-col items-center gap-4 py-6 text-center">
+        <div className="w-14 h-14 rounded-full bg-[#33b380]/15 flex items-center justify-center">
+          <CheckCircle2 className="w-7 h-7 text-[#33b380]" />
         </div>
-        <div className="text-center">
-          <p className="text-sm font-medium text-white">Reporte enviado</p>
-          <p className="text-xs text-white/40 mt-1">
-            Revisaremos tu comprobante y activaremos el servicio en menos de 24 hs.
+        <div>
+          <p className="text-base font-semibold text-white">¡Reporte recibido!</p>
+          <p className="text-sm text-white/50 mt-1.5 leading-relaxed max-w-xs">
+            Revisaremos tu comprobante y activaremos el servicio en las próximas <span className="text-white/70 font-medium">24 horas</span>. Te notificaremos por email.
           </p>
         </div>
+        <button
+          onClick={onSuccess}
+          className="mt-2 px-6 py-2.5 rounded-xl bg-[#33b380] hover:bg-[#2a9a6d] text-white text-sm font-semibold transition-all"
+        >
+          Entendido
+        </button>
       </div>
     )
   }
@@ -114,6 +149,16 @@ export function PaymentReportForm({
 
   return (
     <div className="space-y-3">
+      {/* Bank info card */}
+      <div className="rounded-xl border border-[#f59e0b]/25 bg-[#f59e0b]/5 p-4 space-y-3">
+        <p className="text-xs font-semibold text-[#f59e0b] uppercase tracking-wide">Datos para la transferencia</p>
+        <CopyField label="Banco" value={BANK_INFO.bank} />
+        <div className="h-px bg-white/5" />
+        <CopyField label="Cédula" value={BANK_INFO.cedula} />
+        <div className="h-px bg-white/5" />
+        <CopyField label="Número de cuenta" value={BANK_INFO.account} />
+      </div>
+
       <div className="space-y-1.5">
         <label className="text-xs text-white/40 font-medium">Nombre completo</label>
         <input
