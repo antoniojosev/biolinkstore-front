@@ -84,7 +84,7 @@ export class HttpClient {
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
       // Si hay errores de campo (ValidationPipe), mostrar el primer mensaje de campo
-      const fieldError = Array.isArray(body.errors) && body.errors[0]?.errors?.[0]
+      const fieldError = Array.isArray(body.errors) ? body.errors[0]?.errors?.[0] : undefined
       const msg = fieldError
         ?? (Array.isArray(body.message) ? body.message[0] : (body.message ?? 'Error del servidor'))
       throw new ApiError(res.status, msg)
