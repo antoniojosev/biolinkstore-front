@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Plus, Check } from 'lucide-react'
+import { Plus, Check, Share2 } from 'lucide-react'
 import type { Product } from '@/lib/types'
 import { useCart } from '@/lib/cart-context'
 import { useStore } from '@/lib/store-context'
+import { useShare } from '@/components/templates/shared/use-share'
 
 interface Props {
   product: Product
@@ -17,9 +18,17 @@ interface Props {
 export function NoirProductCard({ product, currency = 'ARS', featured = false }: Props) {
   const { store } = useStore()
   const { addItem, setIsOpen } = useCart()
+  const { share, copied } = useShare()
   const searchParams = useSearchParams()
   const preview = searchParams.get('preview')
   const [added, setAdded] = useState(false)
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const url = `${window.location.origin}/${store.slug}/${product.slug}`
+    share(url, product.name)
+  }
 
   const fmt = (n: number) =>
     new Intl.NumberFormat('es-AR', {
@@ -73,6 +82,21 @@ export function NoirProductCard({ product, currency = 'ARS', featured = false }:
             Agotado
           </span>
         </div>
+      )}
+
+      {/* Share button */}
+      {product.slug && (
+        <button
+          onClick={handleShare}
+          className="absolute top-3 right-3 w-7 h-7 rounded-full bg-[#0A0A0A]/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
+          aria-label="Compartir"
+        >
+          {copied ? (
+            <Check className="h-3 w-3 text-[#C9A86C]" strokeWidth={2.5} />
+          ) : (
+            <Share2 className="h-3 w-3 text-[#888]" strokeWidth={1.5} />
+          )}
+        </button>
       )}
 
       {/* Top badges */}

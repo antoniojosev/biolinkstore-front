@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Heart, Plus, Check } from 'lucide-react'
+import { Heart, Plus, Check, Share2 } from 'lucide-react'
 import type { Product } from '@/lib/types'
 import { useCart } from '@/lib/cart-context'
 import { useStore } from '@/lib/store-context'
+import { useShare } from '@/components/templates/shared/use-share'
 
 interface Props {
   product: Product
@@ -16,10 +17,18 @@ interface Props {
 export function LuxoraProductCard({ product, currency = 'ARS' }: Props) {
   const { store } = useStore()
   const { addItem, setIsOpen } = useCart()
+  const { share, copied } = useShare()
   const searchParams = useSearchParams()
   const preview = searchParams.get('preview')
   const [added, setAdded] = useState(false)
   const [liked, setLiked] = useState(false)
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const url = `${window.location.origin}/${store.slug}/${product.slug}`
+    share(url, product.name)
+  }
 
   const fmt = (n: number) =>
     new Intl.NumberFormat('es-AR', {
@@ -62,19 +71,34 @@ export function LuxoraProductCard({ product, currency = 'ARS' }: Props) {
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
-        {/* Like button */}
-        <button
-          onClick={handleLike}
-          className="absolute top-2.5 right-2.5 transition-transform active:scale-90"
-          aria-label="Me gusta"
-        >
-          <Heart
-            className={`h-5 w-5 drop-shadow-sm transition-colors ${
-              liked ? 'fill-red-500 text-red-500' : 'text-white/80'
-            }`}
-            strokeWidth={liked ? 0 : 1.5}
-          />
-        </button>
+        {/* Top-right actions */}
+        <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5">
+          <button
+            onClick={handleLike}
+            className="transition-transform active:scale-90"
+            aria-label="Me gusta"
+          >
+            <Heart
+              className={`h-5 w-5 drop-shadow-sm transition-colors ${
+                liked ? 'fill-red-500 text-red-500' : 'text-white/80'
+              }`}
+              strokeWidth={liked ? 0 : 1.5}
+            />
+          </button>
+          {product.slug && (
+            <button
+              onClick={handleShare}
+              className="opacity-0 group-hover:opacity-100 transition-all duration-200"
+              aria-label="Compartir"
+            >
+              {copied ? (
+                <Check className="h-4 w-4 drop-shadow-sm text-[#1A1A1A] bg-white rounded-full p-0.5" strokeWidth={2.5} />
+              ) : (
+                <Share2 className="h-4 w-4 drop-shadow-sm text-white/80" strokeWidth={1.5} />
+              )}
+            </button>
+          )}
+        </div>
 
         {/* Badges */}
         {product.comparePrice && product.comparePrice > product.price && (

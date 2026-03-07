@@ -10,9 +10,12 @@ import {
   Minus,
   Plus,
   ChevronRight,
+  Share2,
+  Check,
 } from 'lucide-react'
 import { useStore } from '@/lib/store-context'
 import { useCart } from '@/lib/cart-context'
+import { useShare } from '@/components/templates/shared/use-share'
 import { NoirCartDrawer } from './cart-drawer'
 import type { ProductDetail, VariantDetail } from '@/lib/types'
 import { ColorSwatch } from '@/components/templates/shared/color-swatch'
@@ -30,6 +33,7 @@ interface Props {
 export function NoirProductDetail({ product }: Props) {
   const { store } = useStore()
   const { addItem, setIsOpen, totalItems } = useCart()
+  const { share, copied: shareCopied } = useShare()
   const searchParams = useSearchParams()
   const preview = searchParams.get('preview')
   const backHref = `/${store.slug}${preview ? `?preview=${preview}` : ''}`
@@ -161,17 +165,30 @@ export function NoirProductDetail({ product }: Props) {
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <button
-            onClick={() => setIsOpen(true)}
-            className="relative text-[#F0EDE8]/80 hover:text-[#F0EDE8] transition-colors"
-          >
-            <ShoppingBag className="h-5 w-5" />
-            {totalItems > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-[#C9A86C] text-[#0A0A0A] text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                {totalItems}
-              </span>
-            )}
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => share(window.location.href, product.name)}
+              className="text-[#F0EDE8]/80 hover:text-[#F0EDE8] transition-colors"
+              aria-label="Compartir"
+            >
+              {shareCopied ? (
+                <Check className="h-4.5 w-4.5 text-[#C9A86C]" strokeWidth={2} />
+              ) : (
+                <Share2 className="h-4.5 w-4.5" strokeWidth={1.5} />
+              )}
+            </button>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="relative text-[#F0EDE8]/80 hover:text-[#F0EDE8] transition-colors"
+            >
+              <ShoppingBag className="h-5 w-5" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-[#C9A86C] text-[#0A0A0A] text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Badges */}

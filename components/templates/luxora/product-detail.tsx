@@ -13,10 +13,12 @@ import {
   ChevronUp,
   ChevronLeft,
   ChevronRight,
-  Share,
+  Share2,
+  Check,
 } from 'lucide-react'
 import { useStore } from '@/lib/store-context'
 import { useCart } from '@/lib/cart-context'
+import { useShare } from '@/components/templates/shared/use-share'
 import { LuxoraCartDrawer } from './cart-drawer'
 import type { ProductDetail, VariantDetail } from '@/lib/types'
 import { ColorSwatch } from '@/components/templates/shared/color-swatch'
@@ -28,6 +30,7 @@ interface Props {
 export function LuxoraProductDetail({ product }: Props) {
   const { store } = useStore()
   const { addItem, setIsOpen, totalItems } = useCart()
+  const { share, copied: shareCopied } = useShare()
   const searchParams = useSearchParams()
   const preview = searchParams.get('preview')
   const backHref = `/${store.slug}${preview ? `?preview=${preview}` : ''}`
@@ -145,17 +148,30 @@ export function LuxoraProductDetail({ product }: Props) {
         >
           <ArrowLeft className="h-5 w-5 text-[#1A1A1A]" />
         </Link>
-        <button
-          onClick={() => setIsOpen(true)}
-          className="relative w-9 h-9 flex items-center justify-center rounded-xl hover:bg-[#F0F0EC] transition-colors"
-        >
-          <ShoppingBag className="h-5 w-5 text-[#1A1A1A]" />
-          {totalItems > 0 && (
-            <span className="absolute -top-1 -right-1 bg-[#1A1A1A] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-              {totalItems}
-            </span>
-          )}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => share(window.location.href, product.name)}
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-[#F0F0EC] transition-colors"
+            aria-label="Compartir"
+          >
+            {shareCopied ? (
+              <Check className="h-4 w-4 text-[#1A1A1A]" strokeWidth={2.5} />
+            ) : (
+              <Share2 className="h-4 w-4 text-[#1A1A1A]" />
+            )}
+          </button>
+          <button
+            onClick={() => setIsOpen(true)}
+            className="relative w-9 h-9 flex items-center justify-center rounded-xl hover:bg-[#F0F0EC] transition-colors"
+          >
+            <ShoppingBag className="h-5 w-5 text-[#1A1A1A]" />
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 bg-[#1A1A1A] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {totalItems}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Main Image */}
