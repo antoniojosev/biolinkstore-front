@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import {
   ArrowRight, Check, ChevronLeft, Lock, Sparkles,
-  MessageCircle, Mail, Send, X,
+  MessageCircle, Mail, Send, Loader2,
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { StoreHttpRepository } from "@/lib/stores-api/store.http-repository"
@@ -152,7 +152,9 @@ function PlanContactModal({
 }
 
 // ── Barra de progreso ─────────────────────────────────────────────────────────
-const STEP_LABELS = ["Tu empresa", "Categorías", "Diseño", "Tu plan"]
+const STEP_LABELS = ["Tu link", "Tu empresa", "Categorías", "Diseño", "Tu plan"]
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 function ProgressBar({ step, total }: { step: number; total: number }) {
   return (
@@ -183,10 +185,16 @@ export default function OnboardingPage() {
   const [sliding, setSliding]         = useState(false)
   const [slideDir, setSlideDir]       = useState<"forward" | "back">("forward")
 
-  // Step 0 — store name
+  // Step 0 — username
+  const [username, setUsername]       = useState("")
+  const [usernameStatus, setUsernameStatus] = useState<{
+    checking: boolean; available: boolean | null; error: string | null
+  }>({ checking: false, available: null, error: null })
+
+  // Step 1 — store name
   const [storeName, setStoreName]     = useState("")
 
-  // Step 1 — categories
+  // Step 2 — categories
   const [categories, setCategories]   = useState<string[]>([])
 
   // Step 3 — plans modal
@@ -196,10 +204,11 @@ export default function OnboardingPage() {
   const [saving, setSaving]           = useState(false)
   const [saveError, setSaveError]     = useState<string | null>(null)
 
-  // Pre-fill store name
+  // Pre-fill from store
   useEffect(() => {
+    if (store?.username) setUsername(store.username)
     if (store?.name) setStoreName(store.name)
-  }, [store?.name])
+  }, [store?.username, store?.name])
 
   // Guard: sin store → create-store
   useEffect(() => {
@@ -210,14 +219,14 @@ export default function OnboardingPage() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Enter" && !sliding && !saving) {
-        if (step < 3) handleNext()
+        if (step < 4) handleNext()
       }
     }
     window.addEventListener("keydown", handler)
     return () => window.removeEventListener("keydown", handler)
   })
 
-  const TOTAL = 4
+  const TOTAL = 5
 
   const navigate = useCallback((dir: "forward" | "back") => {
     setSlideDir(dir)
@@ -227,9 +236,35 @@ export default function OnboardingPage() {
     setSaveError(null)
   }, [])
 
+  const checkUsernameAvailability = async (value: string) => {
+    if (value.length < 3 || !/^[a-z0-9_.]+$/.test(value)) return
+    setUsernameStatus({ checking: true, available: null, error: null })
+    try {
+      const res = await fetch(`${API_URL}/api/stores/check-username?username=${encodeURIComponent(value)}`)
+      const data = await res.json()
+      // If it's the current store's username, it's available
+      const isSame = value === store?.username
+      setUsernameStatus({ checking: false, available: isSame || data.available, error: null })
+    } catch {
+      setUsernameStatus({ checking: false, available: null, error: 'Error al verificar' })
+    }
+  }
+
   const handleNext = async () => {
     setSaveError(null)
     if (step === 0) {
+      // Save username
+      const isUsernameValid = username.trim().length >= 3 && /^[a-z0-9_.]+$/.test(username)
+      if (!isUsernameValid) return
+      if (usernameStatus.available === false) return
+      setSaving(true)
+      try {
+        await storeRepo.update(store!.id, { username: username.trim() })
+        await refreshStore()
+        navigate("forward")
+      } catch { setSaveError("No se pudo guardar. Intentá de nuevo.") }
+      finally { setSaving(false) }
+    } else if (step === 1) {
       // Save store name
       if (storeName.trim().length < 3) return
       setSaving(true)
@@ -239,8 +274,8 @@ export default function OnboardingPage() {
         navigate("forward")
       } catch { setSaveError("No se pudo guardar. Intentá de nuevo.") }
       finally { setSaving(false) }
-    } else if (step === 1) {
-      // Save categories as bio
+    } else if (step === 2) {
+      // Save categories as description
       if (categories.length > 0) {
         setSaving(true)
         try {
@@ -249,7 +284,7 @@ export default function OnboardingPage() {
         finally { setSaving(false) }
       }
       navigate("forward")
-    } else if (step === 2) {
+    } else if (step === 3) {
       navigate("forward")
     }
   }
@@ -288,8 +323,73 @@ export default function OnboardingPage() {
         "flex-1 flex flex-col overflow-y-auto transition-all duration-400 ease-out",
         slideClass
       )}>
-        {/* ── Step 0: Nombre de la empresa ── */}
+        {/* ── Step 0: Username ── */}
         {step === 0 && (
+          <div className="flex-1 flex flex-col items-center justify-center px-6 pb-24">
+            <div className="w-full max-w-xl">
+              <p className="text-xs font-semibold text-[#33b380] uppercase tracking-widest mb-4">
+                Tu link
+              </p>
+              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 leading-tight">
+                ¿Cuál será el link<br />de tu tienda?
+              </h1>
+              <p className="text-white/40 text-sm mb-10">
+                Este es el link único de tu catálogo. Solo letras, números, puntos y guiones bajos.
+              </p>
+
+              <div className="relative w-full">
+                <span className="absolute left-0 bottom-3 text-white/30 text-2xl sm:text-3xl select-none pointer-events-none">@</span>
+                <input
+                  autoFocus
+                  type="text"
+                  value={username}
+                  onChange={(e) => {
+                    const val = e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')
+                    setUsername(val)
+                    setUsernameStatus({ checking: false, available: null, error: null })
+                    setSaveError(null)
+                  }}
+                  onBlur={(e) => checkUsernameAvailability(e.target.value)}
+                  placeholder="mi-tienda"
+                  className="w-full bg-transparent border-b-2 border-white/15 focus:border-[#33b380] outline-none text-2xl sm:text-3xl text-white placeholder:text-white/15 pb-3 pl-8 transition-colors"
+                />
+                {usernameStatus.checking && (
+                  <Loader2 className="absolute right-0 bottom-4 w-5 h-5 animate-spin text-white/30" />
+                )}
+                {usernameStatus.available === true && !usernameStatus.checking && (
+                  <Check className="absolute right-0 bottom-4 w-5 h-5 text-[#33b380]" />
+                )}
+              </div>
+
+              {username && usernameStatus.available !== false && (
+                <p className="text-sm text-white/30 mt-3 font-mono">
+                  biolinkstore.com/<span className="text-white/60">{username}</span>
+                </p>
+              )}
+              {usernameStatus.available === false && (
+                <p className="text-sm text-red-400 mt-3">Este usuario ya está tomado</p>
+              )}
+              {saveError && <p className="text-sm text-red-400 mt-3">{saveError}</p>}
+
+              <div className="flex items-center justify-between mt-10">
+                <span className="text-xs text-white/20 hidden sm:block">
+                  Presioná <kbd className="px-1.5 py-0.5 rounded bg-white/8 font-mono text-white/30">Enter</kbd> para continuar
+                </span>
+                <button
+                  onClick={handleNext}
+                  disabled={username.trim().length < 3 || usernameStatus.available === false || saving}
+                  className="ml-auto flex items-center gap-2 px-6 py-3 rounded-xl bg-[#33b380] hover:bg-[#2a9a6d] text-white font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {saving ? "Guardando…" : "Continuar"}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Step 1: Nombre de la empresa ── */}
+        {step === 1 && (
           <div className="flex-1 flex flex-col items-center justify-center px-6 pb-24">
             <div className="w-full max-w-xl">
               <p className="text-xs font-semibold text-[#33b380] uppercase tracking-widest mb-4">
@@ -330,8 +430,8 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* ── Step 1: Categorías ── */}
-        {step === 1 && (
+        {/* ── Step 2: Categorías ── */}
+        {step === 2 && (
           <div className="flex-1 flex flex-col items-center justify-center px-6 pb-24">
             <div className="w-full max-w-xl">
               <p className="text-xs font-semibold text-[#33b380] uppercase tracking-widest mb-4">
@@ -394,8 +494,8 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* ── Step 2: Templates ── */}
-        {step === 2 && (
+        {/* ── Step 3: Templates ── */}
+        {step === 3 && (
           <div className="flex-1 flex flex-col px-4 sm:px-6 pb-24">
             <div className="max-w-4xl mx-auto w-full pt-4">
               <p className="text-xs font-semibold text-[#33b380] uppercase tracking-widest mb-3">
@@ -428,8 +528,8 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* ── Step 3: Planes ── */}
-        {step === 3 && (
+        {/* ── Step 4: Planes ── */}
+        {step === 4 && (
           <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pb-10">
             <div className="w-full max-w-3xl">
               <p className="text-xs font-semibold text-[#33b380] uppercase tracking-widest mb-4 text-center">
@@ -525,7 +625,7 @@ export default function OnboardingPage() {
         bloque contenedor y no se posicionan relativo al viewport. Al sacarlo aquí,
         position:fixed funciona correctamente sin importar el slide.
       */}
-      {step === 2 && (
+      {step === 3 && (
         <CustomDesignBar
           noSidebar
           storeName={store.name}

@@ -167,7 +167,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // 2. Create their first store
         const newStore = await storeRepo.create({
           name: dto.storeName,
-          username: dto.username || '',
           whatsappNumbers: dto.whatsapp ? [dto.whatsapp] : [],
         })
         const me = await authRepo.me()

@@ -30,7 +30,7 @@ export interface DashboardStore {
 
 export interface CreateStoreDto {
   name: string
-  username: string
+  username?: string
   whatsappNumbers: string[]
 }
 

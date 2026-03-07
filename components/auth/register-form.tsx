@@ -10,8 +10,6 @@ import { LogoIcon } from "@/components/brand/logo"
 import { useAuth } from "@/contexts/auth-context"
 import { cn } from "@/lib/utils"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
-
 const GENDER_OPTIONS = [
   { value: 'male',   label: 'Masculino' },
   { value: 'female', label: 'Femenino' },
@@ -21,16 +19,10 @@ const GENDER_OPTIONS = [
 export function RegisterForm() {
   const { register, error, clearError } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading]       = useState(false)
-  const [usernameStatus, setUsernameStatus] = useState<{
-    checking: boolean
-    available: boolean | null
-    error: string | null
-  }>({ checking: false, available: null, error: null })
+  const [isLoading, setIsLoading] = useState(false)
 
   const [formData, setFormData] = useState({
     name:        "",
-    username:    "",
     gender:      "",
     dateOfBirth: "",
     email:       "",
@@ -44,34 +36,11 @@ export function RegisterForm() {
     { label: "Un número",             valid: /[0-9]/.test(formData.password) },
   ]
   const isPasswordValid = passwordChecks.every((c) => c.valid)
-  const isUsernameValid = formData.username.length >= 3 && /^[a-z0-9_.]+$/.test(formData.username)
-  const canSubmit = isPasswordValid && formData.name.trim().length > 0 && formData.email.trim().length > 0 && isUsernameValid
-
-  const checkUsernameAvailability = async (username: string) => {
-    if (username.length < 3) {
-      setUsernameStatus({ checking: false, available: null, error: null })
-      return
-    }
-    if (!/^[a-z0-9_.]+$/.test(username)) {
-      setUsernameStatus({ checking: false, available: false, error: 'Solo letras, números, guiones y guiones bajos' })
-      return
-    }
-    setUsernameStatus({ checking: true, available: null, error: null })
-    try {
-      const res = await fetch(`${API_URL}/api/stores/check-username?username=${encodeURIComponent(username)}`)
-      const data = await res.json()
-      setUsernameStatus({ checking: false, available: data.available, error: null })
-    } catch {
-      setUsernameStatus({ checking: false, available: null, error: 'Error al verificar' })
-    }
-  }
+  const canSubmit = isPasswordValid && formData.name.trim().length > 0 && formData.email.trim().length > 0
 
   const set = (field: string, value: string) => {
     clearError()
     setFormData((prev) => ({ ...prev, [field]: value }))
-    if (field === 'username') {
-      setUsernameStatus({ checking: false, available: null, error: null })
-    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,12 +50,11 @@ export function RegisterForm() {
     try {
       await register({
         name:        formData.name.trim(),
-        username:    formData.username.trim(),
         gender:      formData.gender || undefined,
         dateOfBirth: formData.dateOfBirth || undefined,
         email:       formData.email.trim(),
         password:    formData.password,
-        storeName:   formData.username,
+        storeName:   formData.name.trim(),
         whatsapp:    formData.whatsapp.trim(),
       })
     } catch {
@@ -152,48 +120,6 @@ export function RegisterForm() {
               required
               className="h-10 bg-white/5 border-white/10 text-white placeholder:text-white/25 focus:border-[#33b380]"
             />
-          </div>
-
-          {/* Username */}
-          <div className="space-y-1.5">
-            <Label htmlFor="username" className="text-sm text-white/70">
-              Usuario <span className="text-red-400">*</span>
-            </Label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-sm select-none">@</span>
-              <Input
-                id="username"
-                type="text"
-                placeholder="mi-tienda"
-                value={formData.username}
-                onChange={(e) => set("username", e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ''))}
-                onBlur={(e) => checkUsernameAvailability(e.target.value)}
-                required
-                className={cn(
-                  "h-10 pl-7 bg-white/5 border-white/10 text-white placeholder:text-white/25 focus:border-[#33b380]",
-                  usernameStatus.available === false && "border-red-500 focus:border-red-500",
-                  usernameStatus.available === true && "border-[#33b380]"
-                )}
-              />
-              {usernameStatus.checking && (
-                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-white/40" />
-              )}
-              {usernameStatus.available === true && !usernameStatus.checking && (
-                <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#33b380]" />
-              )}
-            </div>
-            {usernameStatus.error && (
-              <p className="text-xs text-red-400">{usernameStatus.error}</p>
-            )}
-            {usernameStatus.available === false && !usernameStatus.error && (
-              <p className="text-xs text-red-400">Este usuario ya está tomado</p>
-            )}
-            <p className="text-[11px] text-white/30">
-              URL de tu tienda:{" "}
-              <span className="text-white/50 font-mono">
-                biolinkstore.com/{formData.username || "mi-tienda"}
-              </span>
-            </p>
           </div>
 
           {/* Género + Fecha de nacimiento en fila */}
