@@ -27,10 +27,9 @@ export default function DashboardPage() {
 
   const ordersRepo = useMemo(() => new OrdersHttpRepository(http), [http])
 
-  const storeHandle = store?.username ?? store?.slug ?? ''
   const STORE_DOMAIN = 'biolinkstore.com'
-  const storeUrl = storeHandle ? `https://${STORE_DOMAIN}/${storeHandle}` : ''
-  const displayUrl = storeHandle ? `${STORE_DOMAIN}/${storeHandle}` : 'Cargando...'
+  const storeUrl = store?.slug ? `https://${STORE_DOMAIN}/${store.slug}` : ''
+  const displayUrl = store?.username ? `${STORE_DOMAIN}/${store.slug}` : 'Pendiente — completá el onboarding'
 
   useEffect(() => {
     if (!store?.id) return
@@ -113,7 +112,7 @@ export default function DashboardPage() {
             {copied ? <Check className="w-3.5 h-3.5 mr-1.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
             {copied ? "Copiado" : "Copiar"}
           </Button>
-          {storeHandle ? (
+          {store?.username ? (
             <Button
               size="sm"
               className="h-8 text-xs bg-[#33b380] hover:bg-[#2a9a6d] text-white"
