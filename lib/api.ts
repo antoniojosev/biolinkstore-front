@@ -72,6 +72,9 @@ function adaptStore(dto: BackendStore): StoreProfile {
     primaryColor: dto.primaryColor || '#10b981',
     currency: dto.currencyConfig?.code || 'USD',
     template,
+    plan: (['FREE', 'PRO', 'BUSINESS'].includes(dto.plan as string)
+      ? dto.plan
+      : 'FREE') as 'FREE' | 'PRO' | 'BUSINESS',
   }
 }
 

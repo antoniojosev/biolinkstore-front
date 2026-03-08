@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Plus, Check } from 'lucide-react'
+import { Plus, Check, Share2, Heart } from 'lucide-react'
 import type { Product } from '@/lib/types'
 import { useCart } from '@/lib/cart-context'
 import { useStore } from '@/lib/store-context'
+import { useWishlist } from '@/lib/wishlist-context'
+import { useShare } from '@/components/templates/shared/use-share'
 
 interface Props {
   product: Product
@@ -17,9 +19,27 @@ interface Props {
 export function NoirProductCard({ product, currency = 'ARS', featured = false }: Props) {
   const { store } = useStore()
   const { addItem, setIsOpen } = useCart()
+  const { toggle: toggleWishlist, isWishlisted, setIsOpen: openWishlist } = useWishlist()
+  const { share, copied } = useShare()
   const searchParams = useSearchParams()
   const preview = searchParams.get('preview')
   const [added, setAdded] = useState(false)
+  const wishlistEnabled = store.plan === 'PRO' || store.plan === 'BUSINESS'
+  const wishlisted = isWishlisted(product.id)
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const url = `${window.location.origin}/${store.slug}/${product.slug}`
+    share(url, product.name)
+  }
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleWishlist(product)
+    if (!wishlisted) openWishlist(true)
+  }
 
   const fmt = (n: number) =>
     new Intl.NumberFormat('es-AR', {
@@ -74,6 +94,35 @@ export function NoirProductCard({ product, currency = 'ARS', featured = false }:
           </span>
         </div>
       )}
+
+      {/* Top-right actions */}
+      <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
+        {wishlistEnabled && product.slug && (
+          <button
+            onClick={handleWishlist}
+            className="w-7 h-7 rounded-full bg-[#0A0A0A]/60 backdrop-blur-sm flex items-center justify-center transition-all duration-200"
+            aria-label={wishlisted ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+          >
+            <Heart
+              className={`h-3 w-3 transition-colors ${wishlisted ? 'fill-red-400 text-red-400' : 'text-[#888]'}`}
+              strokeWidth={wishlisted ? 0 : 1.5}
+            />
+          </button>
+        )}
+        {product.slug && (
+          <button
+            onClick={handleShare}
+            className="w-7 h-7 rounded-full bg-[#0A0A0A]/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200"
+            aria-label="Compartir"
+          >
+            {copied ? (
+              <Check className="h-3 w-3 text-[#C9A86C]" strokeWidth={2.5} />
+            ) : (
+              <Share2 className="h-3 w-3 text-[#888]" strokeWidth={1.5} />
+            )}
+          </button>
+        )}
+      </div>
 
       {/* Top badges */}
       <div className="absolute top-3 left-3 flex flex-col gap-1">

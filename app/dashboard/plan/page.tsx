@@ -62,6 +62,7 @@ const plans = [
       "Sin marca de agua",
       "Analiticas avanzadas",
       "Acceso a templates Pro",
+      "Lista de deseos (Wishlist)",
       "Exportar cotizaciones",
       "Soporte prioritario",
     ],

@@ -47,6 +47,7 @@ export interface UpdateStoreDto {
   template?: TemplateId
   primaryColor?: string
   whatsappNumbers?: string[]
+
   instagramHandle?: string
   facebookUrl?: string
   tiktokUrl?: string

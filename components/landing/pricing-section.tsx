@@ -205,7 +205,7 @@ export function PricingSection() {
               </ul>
 
               {plan.isRegister ? (
-                <Link href="/register">
+                <Link href="/registro">
                   <Button
                     className="w-full gap-2 bg-white/10 border-white/20 hover:bg-white/20 text-white cursor-pointer"
                     variant="outline"
