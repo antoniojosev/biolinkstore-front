@@ -10,6 +10,8 @@ import { LogoIcon } from "@/components/brand/logo"
 import { useAuth } from "@/contexts/auth-context"
 import { cn } from "@/lib/utils"
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+
 const GENDER_OPTIONS = [
   { value: 'male',   label: 'Masculino' },
   { value: 'female', label: 'Femenino' },
