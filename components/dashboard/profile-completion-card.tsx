@@ -20,13 +20,13 @@ export function getProfileSteps(store: DashboardStore): Step[] {
       label: 'Nombre de tu tienda',
       done: !!store.name?.trim(),
       icon: Store,
-      href: '/dashboard/configuracion',
+      href: '/dashboard/diseno',
     },
     {
       label: 'Username / URL',
       done: !!store.username?.trim(),
       icon: AtSign,
-      href: '/dashboard/configuracion',
+      href: '/dashboard/diseno',
     },
     {
       label: 'Número de WhatsApp',
