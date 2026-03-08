@@ -18,10 +18,7 @@ export default function CreateStorePage() {
 
     const create = async () => {
       try {
-        const name = user.email.split('@')[0]
-          .split(/[-_.]/)
-          .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ')
+        const name = user.name ?? user.email.split('@')[0]
         await storeRepo.create({ name, whatsappNumbers: [] })
         await refreshStore()
       } finally {

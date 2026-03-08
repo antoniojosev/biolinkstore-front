@@ -207,7 +207,16 @@ export default function OnboardingPage() {
   // Pre-fill from store
   useEffect(() => {
     if (store?.username) setUsername(store.username)
-    if (store?.name) setStoreName(store.name)
+    if (store?.username && /[-_.]/.test(store.username)) {
+      setStoreName(
+        store.username
+          .split(/[-_.]/)
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ')
+      )
+    } else if (store?.name) {
+      setStoreName(store.name)
+    }
   }, [store?.username, store?.name])
 
   // Guard: sin store → create-store
