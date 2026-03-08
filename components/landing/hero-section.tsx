@@ -1,7 +1,13 @@
+"use client"
+
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
 
 export function HeroSection() {
+  const router = useRouter()
+
   return (
     <section className="pt-20 pb-0 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -19,17 +25,20 @@ export function HeroSection() {
               solicitar cotizaciones directamente por WhatsApp. Sin comisiones, sin complicaciones.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
-              <Button
-                size="lg"
-                className="gap-2 bg-gradient-to-r from-[#33b380] to-[#2a9669] hover:from-[#2a9669] hover:to-[#228055] text-white border-0 shadow-lg shadow-[#33b380]/25"
-              >
-                Crear mi tienda gratis
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              <Link href="/registro">
+                <Button
+                  size="lg"
+                  className="gap-2 bg-gradient-to-r from-[#33b380] to-[#2a9669] hover:from-[#2a9669] hover:to-[#228055] text-white border-0 shadow-lg shadow-[#33b380]/25 w-full sm:w-auto"
+                >
+                  Crear mi tienda gratis
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
               <Button
                 size="lg"
                 variant="outline"
                 className="gap-2 bg-white/10 border-white/30 hover:bg-white/20 hover:border-white/50 text-white"
+                onClick={() => router.push("/login?demo=1")}
               >
                 <Play className="h-4 w-4" />
                 Ver demo

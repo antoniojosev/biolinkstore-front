@@ -19,6 +19,7 @@ import {
   Sparkles,
   Palette,
   Tags,
+  LayoutTemplate,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
@@ -32,7 +33,8 @@ const navItems = [
   { label: "Categorias", href: "/dashboard/categorias", icon: Tags },
   { label: "Cotizaciones", href: "/dashboard/cotizaciones", icon: ClipboardList, badgeKey: "quotes" as const },
   { label: "Estadisticas", href: "/dashboard/estadisticas", icon: BarChart3 },
-  { label: "Diseño", href: "/dashboard/diseno", icon: Palette },
+  { label: "Mi tienda", href: "/dashboard/diseno", icon: Palette },
+  { label: "Plantillas", href: "/dashboard/plantillas", icon: LayoutTemplate },
   { label: "Configuracion", href: "/dashboard/configuracion", icon: Settings },
   { label: "Mi plan", href: "/dashboard/plan", icon: Crown },
 ]
@@ -195,23 +197,15 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 h-16 bg-[#0a0f14]/90 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 lg:px-8">
+        {/* Top bar — mobile only (hamburger trigger) */}
+        <header className="lg:hidden sticky top-0 z-30 h-14 bg-[#0a0f14]/90 backdrop-blur-md border-b border-white/5 flex items-center px-4">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden text-white/60 hover:text-white"
+            className="text-white/60 hover:text-white"
             aria-label="Abrir menu"
           >
             <Menu className="w-5 h-5" />
           </button>
-
-          <div className="hidden lg:block">
-            <h2 className="text-sm font-medium text-white/80">
-              {navItems.find((item) => item.href === pathname)?.label || "Dashboard"}
-            </h2>
-          </div>
-
-          <div className="flex items-center gap-3" />
         </header>
 
         {/* Page content */}
