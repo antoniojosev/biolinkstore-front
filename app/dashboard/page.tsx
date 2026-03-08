@@ -17,6 +17,7 @@ import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
 import { OrdersHttpRepository } from "@/lib/orders-api"
 import type { StoreStats, OrderResponse } from "@/lib/orders-api"
+import { ProfileCompletionCard } from "@/components/dashboard/profile-completion-card"
 
 export default function DashboardPage() {
   const { store, http } = useAuth()
@@ -96,6 +97,8 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {store && <ProfileCompletionCard store={store} />}
+
       {/* Store link bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-xl bg-[#33b380]/10 border border-[#33b380]/20">
         <div className="flex-1 min-w-0">

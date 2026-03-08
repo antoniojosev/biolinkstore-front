@@ -24,6 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
 import { LogoFull } from "@/components/brand/logo"
 import { OrdersHttpRepository } from "@/lib/orders-api"
+import { ProfileCompletionModal } from "@/components/dashboard/profile-completion-modal"
 
 const navItems = [
   { label: "Resumen", href: "/dashboard", icon: LayoutDashboard },
@@ -74,6 +75,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-[#0a0f14] flex">
+      {store && <ProfileCompletionModal store={store} />}
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div

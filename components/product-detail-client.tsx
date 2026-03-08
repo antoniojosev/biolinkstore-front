@@ -2,6 +2,7 @@
 
 import { useMemo, useEffect } from 'react'
 import { CartProvider } from '@/lib/cart-context'
+import { WishlistProvider } from '@/lib/wishlist-context'
 import { StoreProvider } from '@/lib/store-context'
 import { ProductDetailRenderer } from '@/components/templates/product-detail-renderer'
 import { WhatsAppPaymentProvider } from '@/lib/payment-providers/whatsapp'
@@ -29,8 +30,11 @@ export function ProductDetailClient({ storeData, product }: Props) {
     trackEvent(storeData.store.slug, 'PRODUCT_VIEW', product.id)
   }, [storeData.store.slug, product.id])
 
+  const wishlistEnabled = storeData.store.plan === 'PRO' || storeData.store.plan === 'BUSINESS'
+
   return (
     <CartProvider storeSlug={storeData.store.slug}>
+      <WishlistProvider storeSlug={wishlistEnabled ? storeData.store.slug : undefined}>
       <StoreProvider
         store={storeData.store}
         products={storeData.products}
@@ -42,6 +46,7 @@ export function ProductDetailClient({ storeData, product }: Props) {
           product={product}
         />
       </StoreProvider>
+      </WishlistProvider>
     </CartProvider>
   )
 }

@@ -65,12 +65,6 @@ export function LuxoraProductCard({ product, currency = 'ARS' }: Props) {
     setTimeout(() => setAdded(false), 1800)
   }
 
-  const handleLike = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setLiked((v) => !v)
-  }
-
   const card = (
     <div className="group flex flex-col gap-2">
       {/* Image container */}
