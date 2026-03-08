@@ -24,14 +24,7 @@ export const metadata: Metadata = {
     title: "Bio Link Store — Tu tienda de Instagram, en un solo link",
     description: "Crea tu catálogo digital en minutos. Tus clientes exploran productos y cotizan directo por WhatsApp. Sin comisiones.",
     url: "https://biolinkstore.com",
-    images: [
-      {
-        url: "/og-default.png",
-        width: 1200,
-        height: 630,
-        alt: "Bio Link Store",
-      },
-    ],
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Bio Link Store" }],
   },
   twitter: {
     card: "summary_large_image",
