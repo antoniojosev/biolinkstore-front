@@ -17,6 +17,28 @@ export const metadata: Metadata = {
   title: "Bio Link Store - Tu catalogo de Instagram",
   description: "Crea tu tienda online desde Instagram. Comparte tu catalogo de productos con un solo link y recibe cotizaciones por WhatsApp.",
   generator: "v0.app",
+  metadataBase: new URL("https://biolinkstore.com"),
+  openGraph: {
+    type: "website",
+    siteName: "Bio Link Store",
+    title: "Bio Link Store — Tu tienda de Instagram, en un solo link",
+    description: "Crea tu catálogo digital en minutos. Tus clientes exploran productos y cotizan directo por WhatsApp. Sin comisiones.",
+    url: "https://biolinkstore.com",
+    images: [
+      {
+        url: "/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "Bio Link Store",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Bio Link Store — Tu tienda de Instagram, en un solo link",
+    description: "Crea tu catálogo digital en minutos. Tus clientes exploran productos y cotizan directo por WhatsApp.",
+    images: ["/og-default.png"],
+  },
   icons: {
     icon: [
       {

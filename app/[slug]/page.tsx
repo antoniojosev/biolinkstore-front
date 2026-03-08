@@ -15,9 +15,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const data = await getStoreBySlug(slug)
   if (!data) return { title: 'Tienda no encontrada' }
+
+  const { store } = data
+  const title = `${store.name} — Catálogo`
+  const description = store.bio ?? `Explorá el catálogo de ${store.name} y cotizá por WhatsApp.`
+  const image = store.avatar ?? store.coverImage ?? '/og-default.png'
+  const url = `https://biolinkstore.com/${slug}`
+
   return {
-    title: `${data.store.name} — Catálogo`,
-    description: data.store.bio ?? `Catálogo online de ${data.store.name}`,
+    title,
+    description,
+    openGraph: {
+      type: 'website',
+      siteName: 'Bio Link Store',
+      title,
+      description,
+      url,
+      images: [{ url: image, width: 800, height: 800, alt: store.name }],
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+      images: [image],
+    },
   }
 }
 
