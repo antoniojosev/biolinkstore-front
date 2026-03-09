@@ -14,6 +14,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { useExchangeRate, formatBs } from "@/lib/hooks/use-exchange-rate";
 
 const WA_NUMBER = "5491100000000";
 const CONTACT_EMAIL = "ventas@biolinkstore.com";
@@ -29,6 +30,7 @@ export function PricingSection() {
   });
   const [method, setMethod] = useState<ContactMethod>("whatsapp");
   const [contactValue, setContactValue] = useState("");
+  const { rate } = useExchangeRate();
   const [description, setDescription] = useState("");
   const [transferInfo, setTransferInfo] = useState({
     name: "",
@@ -189,6 +191,11 @@ export function PricingSection() {
                   </span>
                   <span className="text-sm text-white/70">{plan.period}</span>
                 </div>
+                {rate && plan.price !== "$0" && (
+                  <p className="text-sm text-white/40 mt-1">
+                    {formatBs(parseInt(plan.price.replace("$", "")), rate)} <span className="text-white/25">/ tasa BCV</span>
+                  </p>
+                )}
                 <p className="text-sm text-white/70 mt-2">{plan.description}</p>
               </div>
 

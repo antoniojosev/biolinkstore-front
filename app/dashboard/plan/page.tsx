@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/auth-context"
 import { PaymentReportForm } from "@/components/dashboard/payment-report-form"
+import { useExchangeRate, formatBs } from "@/lib/hooks/use-exchange-rate"
 
 
 const plansMeta: Record<string, { icon: typeof Zap; color: string; colorBg: string }> = {
@@ -215,6 +216,7 @@ function formatCount(count: number, max: number) {
 
 export default function PlanPage() {
   const { user, store, http } = useAuth()
+  const { rate } = useExchangeRate()
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
   const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; planName: string }>({
     open: false,
@@ -350,12 +352,18 @@ export default function PlanPage() {
               </div>
 
               {/* Price */}
-              <div className="flex items-baseline gap-1 mb-6">
+              <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-3xl font-bold" style={{ color: plan.color }}>
                   {displayPrice}
                 </span>
                 <span className="text-sm text-white/50">{displayPeriod}</span>
               </div>
+              {rate && plan.price !== "$0" && (
+                <p className="text-sm text-white/40 mb-5">
+                  {formatBs(parseInt(displayPrice.replace("$", "")), rate)} <span className="text-white/25">/ tasa BCV</span>
+                </p>
+              )}
+              {(!rate || plan.price === "$0") && <div className="mb-6" />}
 
               {/* Features */}
               <ul className="space-y-2.5 mb-6 flex-1">

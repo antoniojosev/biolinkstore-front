@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { StoreHttpRepository } from "@/lib/stores-api/store.http-repository"
+import { useExchangeRate, formatBs } from "@/lib/hooks/use-exchange-rate"
 import { TemplateGallery } from "@/components/templates/template-gallery"
 import { CustomDesignBar } from "@/components/templates/custom-cta-versions"
 import {
@@ -180,6 +181,7 @@ export default function OnboardingPage() {
   const router  = useRouter()
   const { user, store, isLoading, http, refreshStore } = useAuth()
   const storeRepo = useMemo(() => new StoreHttpRepository(http), [http])
+  const { rate } = useExchangeRate()
 
   const [step, setStep]               = useState(0)
   const [sliding, setSliding]         = useState(false)
@@ -577,6 +579,11 @@ export default function OnboardingPage() {
                         {plan.name}
                       </p>
                       <p className="text-2xl font-bold text-white">{plan.price}</p>
+                      {rate && plan.price !== "Gratis" && (
+                        <p className="text-xs text-white/40 mt-0.5">
+                          {formatBs(parseInt(plan.price.replace(/[^0-9]/g, "")), rate)} <span className="text-white/25">/ tasa BCV</span>
+                        </p>
+                      )}
                       <p className="text-xs text-white/35 mt-1">{plan.description}</p>
                     </div>
 
