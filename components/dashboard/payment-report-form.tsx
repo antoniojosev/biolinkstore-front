@@ -3,6 +3,7 @@
 import { useState, useRef } from "react"
 import { Upload, Loader2, CheckCircle2, FileText, X, Copy, Check } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
+import { useExchangeRate, formatBs } from "@/lib/hooks/use-exchange-rate"
 
 const BANK_INFO = {
   bankDisplay: 'Banco Mercantil · 0105',
@@ -10,8 +11,6 @@ const BANK_INFO = {
   cedula: '26850126',
   account: '041258349984',
 }
-
-const BANK_COPY_ALL = `0105\n${BANK_INFO.cedula}\n${BANK_INFO.account}`
 
 function CopyField({ label, display, copyValue }: { label: string; display: string; copyValue: string }) {
   const [copied, setCopied] = useState(false)
@@ -37,10 +36,12 @@ function CopyField({ label, display, copyValue }: { label: string; display: stri
   )
 }
 
-function CopyAllButton() {
+function CopyAllButton({ bsAmount }: { bsAmount?: string }) {
   const [copied, setCopied] = useState(false)
   const copy = () => {
-    navigator.clipboard.writeText(BANK_COPY_ALL)
+    const parts = [BANK_INFO.bankCopy, BANK_INFO.cedula, BANK_INFO.account]
+    if (bsAmount) parts.push(bsAmount)
+    navigator.clipboard.writeText(parts.join('\n'))
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -59,6 +60,7 @@ interface PaymentReportFormProps {
   storeId: string
   type: 'PLAN_UPGRADE' | 'DOMAIN' | 'DESIGN'
   targetPlan?: string
+  amountUsd?: number
   notes?: string
   defaultName?: string
   defaultPhone?: string
@@ -70,6 +72,7 @@ export function PaymentReportForm({
   storeId,
   type,
   targetPlan,
+  amountUsd,
   notes: externalNotes,
   defaultName = '',
   defaultPhone = '',
@@ -77,6 +80,7 @@ export function PaymentReportForm({
   onCancel,
 }: PaymentReportFormProps) {
   const { http } = useAuth()
+  const { rate } = useExchangeRate()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [name, setName] = useState(defaultName)
@@ -174,13 +178,19 @@ export function PaymentReportForm({
       <div className="rounded-xl border border-[#f59e0b]/25 bg-[#f59e0b]/5 p-4 space-y-3">
         <div className="flex items-center justify-between">
           <p className="text-xs font-semibold text-[#f59e0b] uppercase tracking-wide">Datos para la transferencia</p>
-          <CopyAllButton />
+          <CopyAllButton bsAmount={amountUsd && rate ? formatBs(amountUsd, rate) : undefined} />
         </div>
         <CopyField label="Banco" display={BANK_INFO.bankDisplay} copyValue={BANK_INFO.bankCopy} />
         <div className="h-px bg-white/5" />
         <CopyField label="Cédula" display={BANK_INFO.cedula} copyValue={BANK_INFO.cedula} />
         <div className="h-px bg-white/5" />
         <CopyField label="Número de cuenta" display={BANK_INFO.account} copyValue={BANK_INFO.account} />
+        {amountUsd && rate && (
+          <>
+            <div className="h-px bg-white/5" />
+            <CopyField label="Monto" display={formatBs(amountUsd, rate)} copyValue={formatBs(amountUsd, rate)} />
+          </>
+        )}
       </div>
 
       <div className="space-y-1.5">

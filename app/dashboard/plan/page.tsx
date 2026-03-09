@@ -114,6 +114,8 @@ interface StoreCounts {
   plan: 'FREE' | 'PRO' | 'BUSINESS'
 }
 
+const PLAN_PRICES_USD: Record<string, number> = { Pro: 15, Business: 150 }
+
 function UpgradeModal({
   open,
   onClose,
@@ -144,6 +146,7 @@ function UpgradeModal({
             storeId={storeId}
             type="PLAN_UPGRADE"
             targetPlan={planName}
+            amountUsd={PLAN_PRICES_USD[planName]}
             onSuccess={onClose}
             onCancel={onClose}
           />
@@ -195,6 +198,7 @@ function DomainPaymentModal({
             <PaymentReportForm
               storeId={storeId}
               type="DOMAIN"
+              amountUsd={2}
               notes={`Dominio: ${domain.trim()}`}
               onSuccess={onClose}
               onCancel={onClose}
@@ -455,7 +459,7 @@ export default function PlanPage() {
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-lg font-bold text-[#327be2]">$2<span className="text-sm text-white/40 font-normal">/mes</span></p>
-              <p className="text-xs text-white/30">o $15/año</p>
+              {rate && <p className="text-xs text-white/30">{formatBs(2, rate)}</p>}
             </div>
             <Button
               className="bg-[#327be2] hover:bg-[#2a6acc] text-white border-0"
