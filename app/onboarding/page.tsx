@@ -38,7 +38,7 @@ const PLANS = [
   {
     id: "pro",
     name: "Pro",
-    price: "$9 / mes",
+    price: "$15 / mes",
     description: "Para tiendas en crecimiento",
     features: ["Hasta 100 productos", "Sin marca de agua", "Analiticas avanzadas", "Templates Pro", "Exportar cotizaciones"],
     current: false,

@@ -59,7 +59,7 @@ export function PricingSection() {
     },
     {
       name: "Pro",
-      price: "$9",
+      price: "$15",
       period: "por mes",
       description: "Para tiendas en crecimiento",
       features: [

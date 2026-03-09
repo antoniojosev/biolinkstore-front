@@ -51,7 +51,7 @@ const plans = [
   {
     id: "pro",
     name: "Pro",
-    price: "$9",
+    price: "$15",
     period: "/mes",
     description: "Para tiendas en crecimiento",
     icon: Crown,
