@@ -9,6 +9,7 @@ import { Eye, EyeOff, Loader2, Check, AlertCircle } from "lucide-react"
 import { LogoIcon } from "@/components/brand/logo"
 import { useAuth } from "@/contexts/auth-context"
 import { cn } from "@/lib/utils"
+import { getOrCreateFingerprint } from "@/lib/fingerprint"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
@@ -58,6 +59,7 @@ export function RegisterForm() {
         password:    formData.password,
         storeName:   formData.name.trim(),
         whatsapp:    formData.whatsapp.trim(),
+        fingerprint: getOrCreateFingerprint() || undefined,
       })
     } catch {
       // error set in context

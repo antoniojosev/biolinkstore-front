@@ -161,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           username: dto.username,
           gender: dto.gender,
           dateOfBirth: dto.dateOfBirth,
+          fingerprint: dto.fingerprint,
         })
         tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken)
 

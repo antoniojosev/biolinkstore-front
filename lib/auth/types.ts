@@ -27,4 +27,5 @@ export interface RegisterDto {
   username?: string
   gender?: string
   dateOfBirth?: string
+  fingerprint?: string
 }

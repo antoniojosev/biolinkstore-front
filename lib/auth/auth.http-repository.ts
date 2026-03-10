@@ -20,6 +20,7 @@ export class AuthHttpRepository implements IAuthRepository {
       username: dto.username,
       gender: dto.gender,
       dateOfBirth: dto.dateOfBirth,
+      fingerprint: dto.fingerprint,
     })
   }
 
