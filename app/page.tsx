@@ -7,10 +7,12 @@ import { PricingSection } from "@/components/landing/pricing-section";
 import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { CtaSection } from "@/components/landing/cta-section";
 import { Footer } from "@/components/landing/footer";
+import { LandingTracker } from "@/components/landing/landing-tracker";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen gradient-background text-foreground">
+      <LandingTracker />
       <Navbar />
       <main>
         <HeroSection />
