@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
+import Script from "next/script"
 
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "sonner"
@@ -65,6 +66,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-F4T3MGMXZS"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-F4T3MGMXZS');
+          `}
+        </Script>
+      </head>
       <body className={`font-sans antialiased ${sora.variable}`}>
         <AuthProvider>
           {children}
