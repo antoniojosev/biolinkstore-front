@@ -83,18 +83,18 @@ export function Footer() {
             <h4 className="font-semibold mb-4 text-white">Legal</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="#" className="text-sm text-white/70 hover:text-white transition-colors">
+                <Link href="/home/terminos" className="text-sm text-white/70 hover:text-white transition-colors">
                   Términos de uso
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-white/70 hover:text-white transition-colors">
+                <Link href="/home/terminos#privacidad" className="text-sm text-white/70 hover:text-white transition-colors">
                   Privacidad
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-white/70 hover:text-white transition-colors">
-                  Cookies
+                <Link href="/home/terminos#reembolso" className="text-sm text-white/70 hover:text-white transition-colors">
+                  Reembolso
                 </Link>
               </li>
             </ul>
