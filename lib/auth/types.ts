@@ -8,10 +8,8 @@ export interface User {
   avatar?: string
 }
 
-/** Shape returned by /api/auth/login and /api/auth/register */
+/** Shape returned by the BFF /api/auth/login and /api/auth/register routes */
 export interface LoginResponse {
-  accessToken: string
-  refreshToken: string
   user: { id: string; email: string; name: string | null }
 }
 

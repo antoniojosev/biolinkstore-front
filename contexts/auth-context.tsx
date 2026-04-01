@@ -13,7 +13,6 @@ import {
 import { flushSync } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { HttpClient } from '@/lib/http/client'
-import { LocalTokenStorage } from '@/lib/auth/token-storage'
 import { AuthHttpRepository } from '@/lib/auth/auth.http-repository'
 import { StoreHttpRepository } from '@/lib/stores-api/store.http-repository'
 import { ApiError } from '@/lib/http/types'
@@ -39,15 +38,12 @@ interface AuthContextValue {
 
   /**
    * Pre-configured HttpClient shared across all repositories.
-   * Use this to instantiate repositories in hooks/components:
-   *   const repo = useMemo(() => new StoreHttpRepository(http), [http])
+   * Calls go through the BFF proxy — tokens are never visible to JavaScript.
    */
   http: HttpClient
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
@@ -56,18 +52,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // ── Composition root ────────────────────────────────────────────────────────
-  // To swap implementations (e.g. CookieTokenStorage, MockAuthRepository),
-  // change the classes instantiated here. Nothing else needs to change.
-
-  const tokenStorage = useMemo(() => new LocalTokenStorage(), [])
-
   // logoutRef breaks the circular dependency between `logout` ↔ `http`
   const logoutRef = useRef<() => void>(() => {})
 
+  // HttpClient points to the BFF proxy — no token management client-side
   const http = useMemo(
-    () => new HttpClient(API_URL, tokenStorage, () => logoutRef.current()),
-    [tokenStorage],
+    () => new HttpClient('/api/proxy', () => logoutRef.current()),
+    [],
   )
 
   const authRepo: IAuthRepository = useMemo(() => new AuthHttpRepository(http), [http])
@@ -75,13 +66,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── Logout ──────────────────────────────────────────────────────────────────
   const logout = useCallback(() => {
-    tokenStorage.clearTokens()
+    // Clear httpOnly cookies server-side
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {})
     setUser(null)
     setStore(null)
     router.push('/login')
-  }, [tokenStorage, router])
+  }, [router])
 
-  // Keep ref in sync so HttpClient always calls the latest logout
   useEffect(() => { logoutRef.current = logout }, [logout])
 
   // ── Session helpers ─────────────────────────────────────────────────────────
@@ -97,22 +88,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [authRepo, storeRepo])
 
   // ── Restore session on mount ────────────────────────────────────────────────
+  // The proxy will try to refresh the AT from the RT cookie if needed.
+  // If both are missing/expired, /api/users/me returns 401 → onLogout → user=null.
   useEffect(() => {
-    const restore = async () => {
-      // If no refresh token, skip — user is not logged in
-      if (!tokenStorage.getRefreshToken()) {
-        setIsLoading(false)
-        return
-      }
-      try {
-        await loadUserAndStore()
-      } catch {
-        logout()
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    restore()
+    loadUserAndStore()
+      .catch(() => {
+        setUser(null)
+        setStore(null)
+      })
+      .finally(() => setIsLoading(false))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // intentional: run once on mount
 
@@ -121,8 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (dto: LoginDto) => {
       setError(null)
       try {
-        const tokens = await authRepo.login(dto)
-        tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken)
+        // BFF route sets httpOnly cookies and returns { user }
+        await authRepo.login(dto)
         const { store } = await loadUserAndStore()
         router.push(store ? '/dashboard' : '/onboarding/create-store')
       } catch (err) {
@@ -131,21 +115,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw err
       }
     },
-    [authRepo, tokenStorage, loadUserAndStore, router],
+    [authRepo, loadUserAndStore, router],
   )
 
-  // ── Login with OAuth tokens (e.g. Google callback) ──────────────────────────
+  // ── Login with OAuth tokens (Google callback) ────────────────────────────────
+  // Tokens arrive in URL params; we hand them to the BFF set-session route
+  // so they become httpOnly cookies — they never touch localStorage or JS state.
   const loginWithTokens = useCallback(
     async (accessToken: string, refreshToken: string) => {
-      tokenStorage.setTokens(accessToken, refreshToken)
       try {
+        await fetch('/api/auth/set-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken, refreshToken }),
+          credentials: 'same-origin',
+        })
         const { store } = await loadUserAndStore()
         router.push(store ? '/dashboard' : '/onboarding/create-store')
       } catch {
         logout()
       }
     },
-    [tokenStorage, loadUserAndStore, router, logout],
+    [loadUserAndStore, router, logout],
   )
 
   // ── Register ─────────────────────────────────────────────────────────────────
@@ -153,8 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (dto: RegisterDto & { storeName: string; whatsapp: string }) => {
       setError(null)
       try {
-        // 1. Create user account
-        const tokens = await authRepo.register({
+        await authRepo.register({
           name: dto.name,
           email: dto.email,
           password: dto.password,
@@ -163,17 +153,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           dateOfBirth: dto.dateOfBirth,
           fingerprint: dto.fingerprint,
         })
-        tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken)
 
-        // 2. Create their first store
         const newStore = await storeRepo.create({
           name: dto.storeName,
           whatsappNumbers: dto.whatsapp ? [dto.whatsapp] : [],
         })
         const me = await authRepo.me()
 
-        // flushSync garantiza que los setters se commiteen ANTES de navegar,
-        // evitando la race condition donde el onboarding page lee store=null
         flushSync(() => {
           setUser(me)
           setStore(newStore)
@@ -186,7 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw err
       }
     },
-    [authRepo, storeRepo, tokenStorage, router],
+    [authRepo, storeRepo, router],
   )
 
   const clearError = useCallback(() => setError(null), [])
@@ -196,7 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const stores = await storeRepo.findAll()
       setStore(stores.data[0] ?? null)
     } catch {
-      // Si falla, conserva el store actual — no lo pisa con null
+      // Keep existing store on failure
     }
   }, [storeRepo])
 
