@@ -1,4 +1,7 @@
 import type { PaymentProvider, CheckoutPayload, CheckoutResult } from './types'
+import { getOrCreateVisitorId, trackEvent } from '@/lib/analytics'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export class WhatsAppPaymentProvider implements PaymentProvider {
   readonly id = 'whatsapp'
@@ -10,10 +13,52 @@ export class WhatsAppPaymentProvider implements PaymentProvider {
   ) {}
 
   async checkout(payload: CheckoutPayload): Promise<CheckoutResult> {
+    const visitorId = getOrCreateVisitorId()
+
+    // Try to create order on backend first
+    try {
+      const response = await fetch(`${API_URL}/api/public/${payload.storeSlug}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: payload.items.map((i) => ({
+            productId: i.productId,
+            variantId: i.variantId,
+            quantity: i.quantity,
+          })),
+          customerName: payload.customer?.name,
+          customerPhone: payload.customer?.phone,
+          customerNotes: payload.customer?.notes,
+          channel: 'WHATSAPP',
+          currency: payload.currency,
+          visitorId,
+        }),
+      })
+
+      if (response.ok) {
+        const order = await response.json()
+        trackEvent(payload.storeSlug, 'CHECKOUT_COMPLETE')
+        if (order.whatsappUrl) {
+          window.open(order.whatsappUrl, '_blank')
+        } else {
+          // Fallback: build URL client-side
+          this.openWhatsApp(payload)
+        }
+        return { success: true, message: 'Cotización creada' }
+      }
+    } catch {
+      // Network error — fallback to client-only
+    }
+
+    // Fallback: open WhatsApp without server-side order
+    this.openWhatsApp(payload)
+    return { success: true, message: 'Redirigido a WhatsApp' }
+  }
+
+  private openWhatsApp(payload: CheckoutPayload): void {
     const message = this.buildMessage(payload)
     const url = `https://wa.me/${this.whatsappNumber}?text=${encodeURIComponent(message)}`
     window.open(url, '_blank')
-    return { success: true, message: 'Redirigido a WhatsApp' }
   }
 
   private buildMessage(payload: CheckoutPayload): string {
@@ -29,7 +74,7 @@ export class WhatsAppPaymentProvider implements PaymentProvider {
     )
 
     const parts = [
-      '¡Hola! Me gustaría hacer una cotización 🛍️',
+      '¡Hola! Me gustaría hacer una cotización',
       '',
       ...lines,
       '',

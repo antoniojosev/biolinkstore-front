@@ -33,6 +33,8 @@ export interface Product {
   inStock: boolean
   featured?: boolean
   variants?: ProductVariant[]
+  tags?: string[]
+  specs?: Record<string, string>
 }
 
 export interface VariantDetail {
@@ -45,6 +47,7 @@ export interface VariantDetail {
 export interface CartItem {
   id: string
   productId: string
+  variantId?: string
   name: string
   price: number
   image: string
@@ -66,6 +69,7 @@ export interface ProductAttribute {
   id: string
   name: string
   type: string
+  role?: string
   options: string[]
   optionsMeta?: Record<string, { hex?: string; images?: string[] }>
   sortOrder: number

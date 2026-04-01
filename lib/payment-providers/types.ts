@@ -5,6 +5,8 @@ export interface CustomerInfo {
 }
 
 export interface CartLineItem {
+  productId: string
+  variantId?: string
   name: string
   price: number
   quantity: number

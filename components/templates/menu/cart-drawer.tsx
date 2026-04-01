@@ -10,7 +10,7 @@ import { useStore } from '@/lib/store-context'
 import { trackEvent } from '@/lib/analytics'
 import { CartVariantBadge } from '@/components/templates/shared/cart-variant-badge'
 
-export function VitrinaCartDrawer() {
+export function MenuCartDrawer() {
   const { items, isOpen, setIsOpen, updateQuantity, removeItem, totalPrice, clearCart } = useCart()
   const { store, paymentProvider } = useStore()
   const [loading, setLoading] = useState(false)
@@ -46,23 +46,23 @@ export function VitrinaCartDrawer() {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent className="flex flex-col w-full sm:max-w-md bg-card border-border p-0">
-        <SheetHeader className="px-6 py-4 border-b border-border">
-          <SheetTitle className="text-foreground flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-primary" />
-            Tu carrito
+      <SheetContent className="flex flex-col w-full sm:max-w-md p-0" style={{ backgroundColor: '#FFF8F0' }}>
+        <SheetHeader className="px-6 py-4 border-b" style={{ borderColor: '#E8DDD3' }}>
+          <SheetTitle className="text-gray-900 flex items-center gap-2">
+            <ShoppingBag className="h-5 w-5" style={{ color: '#B45309' }} />
+            Tu pedido
           </SheetTitle>
         </SheetHeader>
 
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center px-6 gap-4">
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-              <ShoppingBag className="h-7 w-7 text-muted-foreground" />
+            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center">
+              <ShoppingBag className="h-7 w-7 text-gray-400" />
             </div>
             <div>
-              <p className="font-medium text-foreground">Tu carrito está vacío</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Agrega productos para hacer tu cotización
+              <p className="font-medium text-gray-900">Tu pedido está vacío</p>
+              <p className="text-sm text-gray-500 mt-1">
+                Agrega platos del menú para hacer tu pedido
               </p>
             </div>
           </div>
@@ -71,8 +71,8 @@ export function VitrinaCartDrawer() {
             <ScrollArea className="flex-1 px-6 py-4">
               <div className="space-y-4">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-3">
-                    <div className="relative h-18 w-18 shrink-0 rounded-lg overflow-hidden bg-muted">
+                  <div key={item.id} className="flex gap-3 bg-white rounded-xl p-3">
+                    <div className="relative h-16 w-16 shrink-0 rounded-lg overflow-hidden bg-gray-100">
                       <img
                         src={item.image || '/placeholder.svg'}
                         alt={item.name}
@@ -80,17 +80,19 @@ export function VitrinaCartDrawer() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground line-clamp-1">
+                      <p className="text-sm font-medium text-gray-900 line-clamp-1">
                         {item.name}
                       </p>
                       {item.variantDetails && item.variantDetails.length > 0 ? (
-                        <div className="text-muted-foreground">
+                        <div className="text-gray-500">
                           <CartVariantBadge details={item.variantDetails} />
                         </div>
                       ) : item.variant ? (
-                        <p className="text-xs text-muted-foreground">{item.variant}</p>
+                        <p className="text-xs text-gray-500">{item.variant}</p>
                       ) : null}
-                      <p className="text-sm font-bold text-primary mt-0.5">{fmt(item.price)}</p>
+                      <p className="text-sm font-bold mt-0.5" style={{ color: '#B45309' }}>
+                        {fmt(item.price)}
+                      </p>
                       <div className="flex items-center gap-1.5 mt-2">
                         <Button
                           variant="secondary"
@@ -112,7 +114,7 @@ export function VitrinaCartDrawer() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 ml-auto text-muted-foreground hover:text-destructive"
+                          className="h-6 w-6 ml-auto text-gray-400 hover:text-red-500"
                           onClick={() => removeItem(item.id)}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -124,18 +126,19 @@ export function VitrinaCartDrawer() {
               </div>
             </ScrollArea>
 
-            <div className="px-6 py-4 border-t border-border space-y-3">
+            <div className="px-6 py-4 border-t space-y-3" style={{ borderColor: '#E8DDD3' }}>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Total</span>
-                <span className="font-bold text-lg text-foreground">{fmt(totalPrice)}</span>
+                <span className="text-gray-500 text-sm">Total</span>
+                <span className="font-bold text-lg text-gray-900">{fmt(totalPrice)}</span>
               </div>
               <Button
-                className="w-full h-12 text-base gap-2"
+                className="w-full h-12 text-base gap-2 text-white rounded-xl"
+                style={{ backgroundColor: '#B45309' }}
                 onClick={handleCheckout}
                 disabled={loading}
               >
                 <MessageCircle className="h-5 w-5" />
-                {loading ? 'Enviando...' : 'Enviar cotización por WhatsApp'}
+                {loading ? 'Enviando...' : 'Hacer pedido por WhatsApp'}
               </Button>
             </div>
           </>

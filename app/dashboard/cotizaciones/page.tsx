@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useCallback } from "react"
+import { toast } from "sonner"
 import { Search, MessageCircle, Download, ChevronLeft, ChevronRight } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -70,7 +71,7 @@ export default function CotizacionesPage() {
     try {
       await ordersRepo.updateStatus(store.id, orderId, newStatus)
       fetchOrders()
-    } catch { /* TODO: toast error */ }
+    } catch { toast.error('Error al actualizar el estado') }
   }
 
   const handleExport = async () => {
@@ -84,7 +85,7 @@ export default function CotizacionesPage() {
       a.download = 'cotizaciones.csv'
       a.click()
       URL.revokeObjectURL(url)
-    } catch { /* TODO: toast error */ }
+    } catch { toast.error('Error al exportar cotizaciones') }
   }
 
   const orders = data?.data ?? []

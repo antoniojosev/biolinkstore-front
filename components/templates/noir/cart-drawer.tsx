@@ -26,6 +26,8 @@ export function NoirCartDrawer() {
     trackEvent(store.slug, 'CHECKOUT_START')
     await paymentProvider.checkout({
       items: items.map((i) => ({
+        productId: i.productId,
+        variantId: i.variantId,
         name: i.name,
         price: i.price,
         quantity: i.quantity,
