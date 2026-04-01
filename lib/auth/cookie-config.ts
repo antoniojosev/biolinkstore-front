@@ -1,5 +1,8 @@
 export const AT_COOKIE = 'igs_at'
 export const RT_COOKIE = 'igs_rt'
+/** Readable by JS — signals that a session exists so the client skips the
+ *  cold-start /me call when there's clearly no session. Contains no secret. */
+export const SESSION_FLAG_COOKIE = 'igs_session'
 
 /** Must match JWT_EXPIRES_IN in backend (15 min) */
 export const AT_MAX_AGE = 15 * 60

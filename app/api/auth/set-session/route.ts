@@ -7,7 +7,7 @@
  */
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { AT_COOKIE, RT_COOKIE, AT_MAX_AGE, RT_MAX_AGE, cookieOptions } from '@/lib/auth/cookie-config'
+import { AT_COOKIE, RT_COOKIE, AT_MAX_AGE, RT_MAX_AGE, SESSION_FLAG_COOKIE, cookieOptions } from '@/lib/auth/cookie-config'
 
 export async function POST(request: Request) {
   const { accessToken, refreshToken } = await request.json()
@@ -19,6 +19,7 @@ export async function POST(request: Request) {
   const jar = await cookies()
   jar.set(AT_COOKIE, accessToken, { ...cookieOptions, maxAge: AT_MAX_AGE })
   jar.set(RT_COOKIE, refreshToken, { ...cookieOptions, maxAge: RT_MAX_AGE })
+  jar.set(SESSION_FLAG_COOKIE, '1', { httpOnly: false, secure: cookieOptions.secure, sameSite: cookieOptions.sameSite, path: '/', maxAge: RT_MAX_AGE })
 
   return NextResponse.json({ success: true })
 }

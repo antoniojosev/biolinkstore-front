@@ -7,9 +7,9 @@ const AUTH_ONLY = ['/login', '/registro']
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // The access token is stored in a plain cookie by LocalTokenStorage
-  // so the Edge runtime can read it here without JS
-  const hasSession = request.cookies.has('igs_at')
+  // igs_session is a non-httpOnly flag set alongside the real httpOnly tokens.
+  // The Edge runtime can read it; it contains no secret.
+  const hasSession = request.cookies.has('igs_session')
 
   const isProtected = PROTECTED.some((p) => pathname.startsWith(p))
   const isAuthPage = AUTH_ONLY.some((p) => pathname.startsWith(p))

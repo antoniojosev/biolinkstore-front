@@ -88,9 +88,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [authRepo, storeRepo])
 
   // ── Restore session on mount ────────────────────────────────────────────────
-  // The proxy will try to refresh the AT from the RT cookie if needed.
-  // If both are missing/expired, /api/users/me returns 401 → onLogout → user=null.
+  // Read the non-httpOnly session flag cookie to avoid a pointless /me call
+  // (and the resulting 401 → onLogout loop) when there is clearly no session.
   useEffect(() => {
+    const hasSession = typeof document !== 'undefined' &&
+      document.cookie.split(';').some((c) => c.trim().startsWith('igs_session='))
+
+    if (!hasSession) {
+      setIsLoading(false)
+      return
+    }
+
     loadUserAndStore()
       .catch(() => {
         setUser(null)
