@@ -13,7 +13,7 @@ export class WhatsAppPaymentProvider implements PaymentProvider {
   ) {}
 
   async checkout(payload: CheckoutPayload): Promise<CheckoutResult> {
-    const visitorId = getOrCreateVisitorId()
+    const visitorId = await getOrCreateVisitorId()
 
     // Try to create order on backend first
     try {

@@ -1,20 +1,28 @@
+import { getOrCreateFingerprint } from './fingerprint'
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 const VISITOR_KEY = 'ig_visitor_id'
 
-export function getOrCreateVisitorId(): string {
+/**
+ * Returns a stable visitor ID backed by FingerprintJS.
+ * On first call initializes async; returns cached value on subsequent calls.
+ */
+export async function getOrCreateVisitorId(): Promise<string> {
   if (typeof window === 'undefined') return ''
 
-  let visitorId = localStorage.getItem(VISITOR_KEY)
-  if (visitorId) return visitorId
+  // Use fingerprint as the stable visitor ID
+  const fp = await getOrCreateFingerprint()
+  if (!fp) return ''
 
-  visitorId = crypto.randomUUID()
-  localStorage.setItem(VISITOR_KEY, visitorId)
+  // Keep the cookie in sync for server-side reads
+  const current = localStorage.getItem(VISITOR_KEY)
+  if (current !== fp) {
+    localStorage.setItem(VISITOR_KEY, fp)
+    document.cookie = `${VISITOR_KEY}=${fp}; max-age=${365 * 24 * 60 * 60}; path=/; SameSite=Lax`
+  }
 
-  // Also set as cookie for server-side access
-  document.cookie = `${VISITOR_KEY}=${visitorId}; max-age=${365 * 24 * 60 * 60}; path=/; SameSite=Lax`
-
-  return visitorId
+  return fp
 }
 
 type EventType =
@@ -31,23 +39,24 @@ export function trackEvent(
   slug: string,
   type: EventType,
   productId?: string,
-  metadata?: Record<string, any>,
+  metadata?: Record<string, unknown>,
 ): void {
   try {
-    const visitorId = getOrCreateVisitorId()
-    if (!visitorId) return
+    getOrCreateVisitorId().then((visitorId) => {
+      if (!visitorId) return
 
-    const body: Record<string, any> = { type, visitorId }
-    if (productId) body.productId = productId
-    if (metadata) body.metadata = metadata
+      const body: Record<string, unknown> = { type, visitorId }
+      if (productId) body.productId = productId
+      if (metadata) body.metadata = metadata
 
-    // Fire-and-forget — silently fails
-    fetch(`${API_URL}/api/public/${slug}/track`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      keepalive: true,
-    }).catch(() => {})
+      // Fire-and-forget — silently fails
+      fetch(`${API_URL}/api/public/${slug}/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        keepalive: true,
+      }).catch(() => {})
+    })
   } catch {
     // Never block the UI
   }

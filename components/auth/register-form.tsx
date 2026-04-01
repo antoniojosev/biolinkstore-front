@@ -59,7 +59,7 @@ export function RegisterForm() {
         password:    formData.password,
         storeName:   formData.name.trim(),
         whatsapp:    formData.whatsapp.trim(),
-        fingerprint: getOrCreateFingerprint() || undefined,
+        fingerprint: (await getOrCreateFingerprint()) || undefined,
       })
     } catch {
       // error set in context
