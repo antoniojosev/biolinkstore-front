@@ -26,6 +26,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { LogoFull } from "@/components/brand/logo"
 import { OrdersHttpRepository } from "@/lib/orders-api"
 import { ProfileCompletionModal } from "@/components/dashboard/profile-completion-modal"
+import { DemoBanner } from "@/components/demo-banner"
 
 const navItems = [
   { label: "Resumen", href: "/dashboard", icon: LayoutDashboard },
@@ -197,6 +198,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
+        {/* Demo banner */}
+        {user?.isDemo && <DemoBanner />}
+
         {/* Top bar — mobile only (hamburger trigger) */}
         <header className="lg:hidden sticky top-0 z-30 h-14 bg-[#0a0f14]/90 backdrop-blur-md border-b border-white/5 flex items-center px-4">
           <button

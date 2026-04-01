@@ -6,6 +6,7 @@ export interface User {
   gender?: string
   dateOfBirth?: string
   avatar?: string
+  isDemo?: boolean
 }
 
 /** Shape returned by the BFF /api/auth/login and /api/auth/register routes */

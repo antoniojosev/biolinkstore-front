@@ -126,6 +126,18 @@ export default function ProductsPage() {
     }
   }
 
+  // Toggle visibility
+  const handleToggleVisibility = async (product: ProductResponse) => {
+    if (!store?.id) return
+    try {
+      await productRepo.update(store.id, product.id, { isVisible: !product.isVisible })
+      toast.success(product.isVisible ? 'Producto pausado' : 'Producto activado')
+      fetchProducts()
+    } catch {
+      toast.error('Error al cambiar visibilidad')
+    }
+  }
+
   // Duplicate product
   const handleDuplicate = async (product: ProductResponse) => {
     if (!store?.id) return
@@ -346,8 +358,10 @@ export default function ProductsPage() {
                           </div>
                         </td>
                         <td className="px-6 py-3 text-center hidden md:table-cell">
-                          <span
-                            className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                          <button
+                            onClick={() => handleToggleVisibility(product)}
+                            title={product.isVisible ? 'Click para pausar' : 'Click para activar'}
+                            className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full transition-opacity hover:opacity-70 ${
                               product.isVisible
                                 ? 'bg-[#33b380]/15 text-[#6ee490]'
                                 : 'bg-red-500/15 text-red-400'
@@ -359,10 +373,10 @@ export default function ProductsPage() {
                               </>
                             ) : (
                               <>
-                                <EyeOff className="w-2.5 h-2.5" /> Oculto
+                                <EyeOff className="w-2.5 h-2.5" /> Pausado
                               </>
                             )}
-                          </span>
+                          </button>
                         </td>
                         <td className="px-6 py-3 text-right">
                           <DropdownMenu>
@@ -383,6 +397,16 @@ export default function ProductsPage() {
                                   <Pencil className="w-3.5 h-3.5 mr-2" />
                                   Editar
                                 </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-sm hover:bg-white/5 focus:bg-white/5 cursor-pointer"
+                                onClick={() => handleToggleVisibility(product)}
+                              >
+                                {product.isVisible ? (
+                                  <><EyeOff className="w-3.5 h-3.5 mr-2" />Pausar</>
+                                ) : (
+                                  <><Eye className="w-3.5 h-3.5 mr-2" />Activar</>
+                                )}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="text-sm hover:bg-white/5 focus:bg-white/5 cursor-pointer"
