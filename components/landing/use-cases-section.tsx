@@ -116,7 +116,7 @@ export function UseCasesSection() {
     <section
       id="casos"
       ref={sectionRef}
-      className="reveal py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bylink-surface-soft)]/50"
+      className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bylink-surface-soft)]/50"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
