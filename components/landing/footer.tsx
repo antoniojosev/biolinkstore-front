@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { Instagram } from "lucide-react"
 import { LogoFull } from "@/components/brand/logo"
 
 export function Footer() {
@@ -9,20 +8,21 @@ export function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex flex-col items-center sm:items-start gap-3">
             <LogoFull iconSize={36} />
-            <p className="text-sm text-gray-400">
-              Tu negocio, un link, cero enredos.
-            </p>
+            <p className="text-sm text-gray-400">Tu tienda, en un link.</p>
           </div>
 
           <div className="flex items-center gap-6">
-            <Link href="/home/terminos" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
+            <Link
+              href="/home/terminos"
+              className="text-sm text-gray-500 hover:text-gray-300 transition-colors rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--bylink-primary)]"
+            >
               Términos
             </Link>
-            <Link href="/home/terminos#privacidad" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
+            <Link
+              href="/home/terminos#privacidad"
+              className="text-sm text-gray-500 hover:text-gray-300 transition-colors rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--bylink-primary)]"
+            >
               Privacidad
-            </Link>
-            <Link href="#" className="text-gray-500 hover:text-[var(--bylink-primary)] transition-colors">
-              <Instagram className="h-5 w-5" />
             </Link>
           </div>
         </div>
@@ -31,9 +31,7 @@ export function Footer() {
           <p className="text-sm text-gray-600">
             © 2026 ByLink. Todos los derechos reservados.
           </p>
-          <p className="text-sm text-gray-500">
-            Hecho en Venezuela 🇻🇪
-          </p>
+          <p className="text-sm text-gray-500">Hecho en Venezuela 🇻🇪</p>
         </div>
       </div>
     </footer>

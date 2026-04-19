@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useId } from "react"
 import { ChevronDown } from "lucide-react"
 import { useScrollReveal } from "@/hooks/use-scroll-reveal"
 
@@ -35,13 +35,18 @@ const faqs = [
 export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const sectionRef = useScrollReveal<HTMLElement>()
+  const baseId = useId()
 
   const toggle = (i: number) => {
     setOpenIndex(openIndex === i ? null : i)
   }
 
   return (
-    <section id="faq" ref={sectionRef} className="reveal py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">
+    <section
+      id="faq"
+      ref={sectionRef}
+      className="reveal py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white"
+    >
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10 sm:mb-14">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 text-balance">
@@ -50,39 +55,56 @@ export function FaqSection() {
         </div>
 
         <div className="space-y-3">
-          {faqs.map((faq, i) => (
-            <div
-              key={i}
-              className={`rounded-xl border bg-white overflow-hidden transition-all duration-300 ${
-                openIndex === i
-                  ? "border-[var(--bylink-primary)]/30 shadow-md shadow-[var(--bylink-primary)]/5"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-            >
-              <button
-                onClick={() => toggle(i)}
-                className="w-full flex items-center justify-between p-5 text-left cursor-pointer group"
+          {faqs.map((faq, i) => {
+            const isOpen = openIndex === i
+            const buttonId = `${baseId}-btn-${i}`
+            const panelId = `${baseId}-panel-${i}`
+            return (
+              <div
+                key={i}
+                className={`rounded-xl border bg-white overflow-hidden transition-[border-color,box-shadow] duration-300 ${
+                  isOpen
+                    ? "border-[var(--bylink-primary)]/30 shadow-md shadow-[var(--bylink-primary)]/5"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
               >
-                <span className="text-base font-semibold text-gray-900 pr-4 group-hover:text-[var(--bylink-primary)] transition-colors">
-                  {faq.question}
-                </span>
-                <ChevronDown
-                  className={`h-5 w-5 shrink-0 transition-all duration-300 ${
-                    openIndex === i ? "rotate-180 text-[var(--bylink-primary)]" : "text-gray-400"
-                  }`}
-                />
-              </button>
-              <div className={`faq-answer ${openIndex === i ? "is-open" : ""}`}>
-                <div>
-                  <div className="px-5 pb-5">
-                    <p className="text-sm text-gray-600 leading-relaxed">
-                      {faq.answer}
-                    </p>
+                <button
+                  id={buttonId}
+                  type="button"
+                  aria-expanded={isOpen}
+                  aria-controls={panelId}
+                  onClick={() => toggle(i)}
+                  className="w-full flex items-center justify-between p-5 text-left cursor-pointer group focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--bylink-primary)]"
+                >
+                  <span className="text-base font-semibold text-gray-900 pr-4 group-hover:text-[var(--bylink-primary)] transition-colors">
+                    {faq.question}
+                  </span>
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={`h-5 w-5 shrink-0 transition-[transform,color] duration-300 ${
+                      isOpen
+                        ? "rotate-180 text-[var(--bylink-primary)]"
+                        : "text-gray-400"
+                    }`}
+                  />
+                </button>
+                <div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={buttonId}
+                  className={`faq-answer ${isOpen ? "is-open" : ""}`}
+                >
+                  <div>
+                    <div className="px-5 pb-5">
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>
