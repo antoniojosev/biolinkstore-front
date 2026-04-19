@@ -7,6 +7,7 @@
   /* ByLink brand tokens — turquesa profundo (trust/CTA) + coral (urgencia/disrupcion) */
   --bylink-primary: #0F6BA8;
   --bylink-primary-hover: #0A5285;
+  --bylink-primary-light: #6FC2E8;
   --bylink-primary-soft: #E7F2FA;
   --bylink-primary-softer: #D4EAF5;
   --bylink-accent: #FF6B4A;
@@ -244,7 +245,9 @@
 
 /* Tab pill scale — satisfying selection */
 .tab-pill {
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.2s ease,
+              color 0.2s ease;
 }
 .tab-pill:hover {
   transform: scale(1.05);
@@ -399,4 +402,45 @@
 }
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REDUCED MOTION — honor user preference
+═══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-float-delayed,
+  .animate-gentle-pulse,
+  .animate-ping,
+  .badge-glow,
+  .text-gradient-animated {
+    animation: none !important;
+  }
+  .btn-shimmer::after {
+    display: none !important;
+  }
+  .animate-fade-in-up,
+  .phone-reveal,
+  .badge-pop,
+  .badge-pop-delayed,
+  .case-fade-enter,
+  .count-pulse {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .reveal,
+  .stagger-children > *,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .card-lift,
+  .btn-press,
+  .tab-pill {
+    transition: none !important;
+  }
 }
