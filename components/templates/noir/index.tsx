@@ -44,7 +44,7 @@ export function NoirTemplate() {
         !search ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.description.toLowerCase().includes(search.toLowerCase())
-      const matchCat = selectedCategory === 'Todos' || p.category === selectedCategory
+      const matchCat = selectedCategory === 'Todos' || p.categories.includes(selectedCategory)
       return matchSearch && matchCat
     })
   }, [products, search, selectedCategory])

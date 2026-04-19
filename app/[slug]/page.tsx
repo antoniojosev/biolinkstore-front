@@ -4,7 +4,7 @@ import { StorePageClient } from '@/components/store-page-client'
 import { getStoreBySlug } from '@/lib/api'
 import type { TemplateId } from '@/lib/types'
 
-const VALID_TEMPLATES: TemplateId[] = ['vitrina', 'luxora', 'noir']
+const VALID_TEMPLATES: TemplateId[] = ['vitrina', 'luxora', 'noir', 'menu', 'inmuebles', 'servicios']
 
 interface Props {
   params: Promise<{ slug: string }>

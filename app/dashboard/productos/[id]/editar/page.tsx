@@ -154,6 +154,7 @@ export default function EditProductPage() {
             product.attributes.map((attr) => ({
               name: attr.name,
               type: (attr.type === 'color' ? 'color' : 'text') as 'text' | 'color',
+              role: (attr.role ?? 'variant') as 'variant' | 'spec' | 'tag',
               options: attr.options,
               optionsMeta: attr.optionsMeta ?? undefined,
             })),
@@ -177,7 +178,7 @@ export default function EditProductPage() {
     : 0
 
   const variantCombinations = useMemo(() => {
-    const validAttrs = attributeFields.filter((a) => a.name && a.options.length > 0)
+    const validAttrs = attributeFields.filter((a) => a.name && a.options.length > 0 && a.role === 'variant')
     if (validAttrs.length === 0) return []
     const result: Record<string, string>[] = []
     function recurse(index: number, current: Record<string, string>) {
@@ -273,6 +274,7 @@ export default function EditProductPage() {
           .map((a, i) => ({
             name: a.name.trim(),
             type: a.type ?? 'text',
+            role: a.role ?? 'variant',
             options: a.options,
             optionsMeta: a.type === 'color' ? a.optionsMeta : undefined,
             sortOrder: i,
@@ -652,18 +654,21 @@ export default function EditProductPage() {
               ) : (
                 <div className="grid grid-cols-2 gap-2">
                   {categories.map((cat) => {
-                    const isSelected = watchCategory?.[0] === cat.id
+                    const isSelected = watchCategory?.includes(cat.id)
                     return (
                       <button
                         key={cat.id}
                         type="button"
-                        onClick={() =>
+                        onClick={() => {
+                          const current = watchCategory ?? []
                           setValue(
                             'categoryIds',
-                            isSelected ? [] : [cat.id],
+                            isSelected
+                              ? current.filter((id) => id !== cat.id)
+                              : [...current, cat.id],
                             { shouldValidate: true },
                           )
-                        }
+                        }}
                         className={`px-3 py-2 rounded-lg text-xs font-medium transition-all text-left ${
                           isSelected
                             ? 'bg-[#33b380]/15 text-[#6ee490] border border-[#33b380]/30'

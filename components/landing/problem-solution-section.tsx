@@ -1,0 +1,80 @@
+"use client"
+
+import { X, Check } from "lucide-react"
+import { useScrollReveal } from "@/hooks/use-scroll-reveal"
+
+const problems = [
+  "Respondes 50 DMs con los mismos precios",
+  "Anotas pedidos en el bloc de notas",
+  "Envías catálogos por PDF que nadie abre",
+  "Pierdes pedidos entre tantos mensajes",
+]
+
+const solutions = [
+  "Tu catálogo siempre disponible en un link",
+  "Pedidos organizados directo a tu WhatsApp",
+  "Fotos, precios y tallas — todo en un solo lugar",
+  "Tu tienda abierta 24/7, incluso cuando duermes",
+]
+
+export function ProblemSolutionSection() {
+  const sectionRef = useScrollReveal<HTMLElement>()
+
+  return (
+    <section ref={sectionRef} className="reveal py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">
+      {/* Gradient divider */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#7C3AED]/20 to-transparent" />
+
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-10 sm:mb-14">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 text-balance">
+            De contestar DMs todo el día a{" "}
+            <span className="text-[#7C3AED]">tener tu propia tienda</span>
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+          {/* Problem */}
+          <div className="rounded-2xl border border-red-200/60 bg-gradient-to-br from-red-50 to-orange-50/40 p-6 sm:p-8 shadow-sm shadow-red-900/5 card-lift">
+            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                <X className="h-4 w-4 text-red-500" />
+              </span>
+              Así vendes hoy
+            </h3>
+            <div className="flex flex-col gap-4">
+              {problems.map((problem, i) => (
+                <div key={i} className="flex items-start gap-3 group">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 flex items-center justify-center mt-0.5 transition-transform group-hover:scale-110">
+                    <X className="h-3 w-3 text-red-400" />
+                  </span>
+                  <span className="text-gray-600 text-sm leading-relaxed">{problem}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Solution */}
+          <div className="rounded-2xl border border-[#7C3AED]/20 bg-gradient-to-br from-[#F5F0FF] to-white p-6 sm:p-8 shadow-sm shadow-[#7C3AED]/5 card-lift">
+            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-full bg-[#F5F0FF] flex items-center justify-center">
+                <Check className="h-4 w-4 text-[#7C3AED]" />
+              </span>
+              Así vendes con BioLinkStore
+            </h3>
+            <div className="flex flex-col gap-4">
+              {solutions.map((solution, i) => (
+                <div key={i} className="flex items-start gap-3 group">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#7C3AED] flex items-center justify-center mt-0.5 transition-transform group-hover:scale-110">
+                    <Check className="h-3 w-3 text-white" />
+                  </span>
+                  <span className="text-gray-600 text-sm leading-relaxed">{solution}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

@@ -77,9 +77,9 @@ interface LogoFullProps {
  * Full BioLinkStore logo — icon + wordmark.
  */
 export function LogoFull({ className, iconSize = 32, dark = false }: LogoFullProps) {
-  const textColor = dark ? '#1a1a1a' : '#ffffff'
-  const accentColor = '#33b380'
-  const fontClass = 'font-[family-name:var(--font-sora)]'
+  const textColor = dark ? '#1F2937' : '#ffffff'
+  const accentColor = '#7C3AED'
+  const fontClass = ''
 
   return (
     <div className={`flex items-center gap-2.5 ${className ?? ''}`}>

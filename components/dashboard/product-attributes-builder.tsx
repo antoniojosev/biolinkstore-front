@@ -5,9 +5,12 @@ import { Plus, X, Layers, ChevronDown, ChevronUp, ImagePlus, Loader2 } from 'luc
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
+export type AttributeRole = 'variant' | 'spec' | 'tag'
+
 export interface AttributeField {
   name: string
   type: 'text' | 'color'
+  role: AttributeRole
   options: string[]
   optionsMeta?: Record<string, { hex?: string; images?: string[] }>
 }
@@ -299,7 +302,7 @@ export function ProductAttributesBuilder({
   const [showCombinations, setShowCombinations] = useState(true)
 
   const addAttribute = () => {
-    onChange([...attributes, { name: '', type: 'text', options: [] }])
+    onChange([...attributes, { name: '', type: 'text', role: 'variant', options: [] }])
   }
 
   const updateAttribute = useCallback(
@@ -325,9 +328,14 @@ export function ProductAttributesBuilder({
     })
   }
 
-  const combinations = useMemo(
-    () => generateCombinations(attributes),
+  const variantAttributes = useMemo(
+    () => attributes.filter((a) => a.role === 'variant'),
     [attributes],
+  )
+
+  const combinations = useMemo(
+    () => generateCombinations(variantAttributes),
+    [variantAttributes],
   )
 
   const suggestedNames = ['Talla', 'Color', 'Material', 'Estilo']
@@ -340,6 +348,7 @@ export function ProductAttributesBuilder({
     onChange([...attributes, {
       name,
       type: isColor ? 'color' : 'text',
+      role: 'variant',
       options: [],
       optionsMeta: isColor ? {} : undefined,
     }])
@@ -359,6 +368,26 @@ export function ProductAttributesBuilder({
               placeholder="Nombre (ej: Talla, Color)"
               className="h-9 flex-1 bg-white/5 border-white/10 text-white text-sm placeholder:text-white/25 focus:border-[#33b380]/50 focus:ring-[#33b380]/20"
             />
+
+            {/* Role selector */}
+            <select
+              value={attr.role}
+              onChange={(e) => updateAttribute(index, { role: e.target.value as AttributeRole })}
+              className={`h-9 px-2 pr-7 rounded-lg text-xs font-medium transition-all appearance-none bg-no-repeat bg-[length:12px] bg-[center_right_6px] cursor-pointer [color-scheme:dark] ${
+                attr.role === 'spec'
+                  ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
+                  : attr.role === 'tag'
+                    ? 'bg-amber-500/15 text-amber-400 border border-amber-500/20'
+                    : 'bg-white/5 text-white/50 border border-white/10 hover:border-white/20'
+              }`}
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+              }}
+            >
+              <option value="variant" className="bg-[#0d1218] text-white">Variante</option>
+              <option value="spec" className="bg-[#0d1218] text-white">Info</option>
+              <option value="tag" className="bg-[#0d1218] text-white">Etiqueta</option>
+            </select>
 
             {/* Type selector */}
             <select

@@ -1,75 +1,75 @@
-import { Smartphone, Search, ShoppingCart, MessageCircle, Palette, BarChart3 } from "lucide-react"
+"use client"
+
+import { Store, MessageCircle, Palette, Smartphone, Search, BarChart3 } from "lucide-react"
+import { useStaggerReveal } from "@/hooks/use-scroll-reveal"
+
+const features = [
+  {
+    icon: Store,
+    title: "Tu catálogo, siempre listo",
+    description: "Como una vitrina que nunca cierra. Tus clientes ven todo sin preguntarte.",
+  },
+  {
+    icon: MessageCircle,
+    title: "Pedidos directo a WhatsApp",
+    description: "El pedido te llega con todos los detalles. Solo confirmas y listo.",
+  },
+  {
+    icon: Palette,
+    title: "Tu tienda con tu estilo",
+    description: "Colores, logo, tipografía. Que digan \"ay, qué bonita esta tienda\".",
+  },
+  {
+    icon: Smartphone,
+    title: "Funciona en celular",
+    description: "Tus clientes ven todo perfecto desde su teléfono. Diseñada mobile-first.",
+  },
+  {
+    icon: Search,
+    title: "Búsqueda inteligente",
+    description: "No más \"¿tienes esto en azul?\". Filtros por categoría, talla y precio.",
+  },
+  {
+    icon: BarChart3,
+    title: "Sabe qué les gusta",
+    description: "Conoce qué ven más tus clientes. Vende mejor, no a ciegas.",
+  },
+]
 
 export function FeaturesSection() {
-  const features = [
-    {
-      icon: Smartphone,
-      title: "Catálogo móvil optimizado",
-      description:
-        "Tu tienda se ve perfecta en cualquier dispositivo. Diseñada específicamente para la experiencia móvil de Instagram.",
-      color: "#33b380",
-    },
-    {
-      icon: Search,
-      title: "Búsqueda y filtros",
-      description:
-        "Tus clientes encuentran lo que buscan al instante con filtros por categoría, precio y búsqueda inteligente.",
-      color: "#327be2",
-    },
-    {
-      icon: ShoppingCart,
-      title: "Carrito de compras",
-      description: "Los clientes agregan múltiples productos y hacen una sola cotización. Más ventas, menos mensajes.",
-      color: "#6ee490",
-    },
-    {
-      icon: MessageCircle,
-      title: "Checkout por WhatsApp",
-      description:
-        "La cotización llega directo a tu WhatsApp con todos los detalles. Responde y cierra la venta al instante.",
-      color: "#33b380",
-    },
-    {
-      icon: Palette,
-      title: "Personalización total",
-      description: "Colores, logo, categorías. Tu tienda refleja tu marca con un diseño único y profesional.",
-      color: "#327be2",
-    },
-    {
-      icon: BarChart3,
-      title: "Analíticas en tiempo real",
-      description: "Conoce qué productos ven más, de dónde vienen tus clientes y optimiza tu negocio.",
-      color: "#6ee490",
-    },
-  ]
+  const gridRef = useStaggerReveal<HTMLDivElement>()
 
   return (
-    <section id="features" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-10 sm:mb-16 glass-panel-light py-6 sm:py-8 px-5 sm:px-6 rounded-2xl border border-white/10 max-w-3xl mx-auto">
-          <p className="text-sm text-[#6ee490] font-semibold mb-2">Funciones</p>
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-balance text-white">
-            Todo lo que necesitas para vender más
+    <section id="features" className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#F5F0FF]/40 to-[#EDE9FE]/60 overflow-hidden">
+      {/* Ambient glows */}
+      <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#7C3AED]/[0.04] rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -left-16 w-80 h-80 bg-[#F97316]/[0.03] rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-6xl mx-auto relative">
+        <div className="text-center mb-10 sm:mb-14">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 text-balance">
+            Todo lo que necesitas,{" "}
+            <span className="text-[#7C3AED]">sin lo que no</span>
           </h2>
-          <p className="text-white/80 max-w-2xl mx-auto">
-            Herramientas diseñadas específicamente para vendedores de Instagram que quieren profesionalizar su negocio.
+          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+            Herramientas pensadas para negocios reales que quieren vender más.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div ref={gridRef} className="stagger-children grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="p-6 rounded-2xl glass-panel border border-white/10 hover:border-white/20 transition-all group"
+              className="relative bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-200/60 group cursor-default transition-all duration-300 hover:shadow-md hover:shadow-[#7C3AED]/8 hover:-translate-y-0.5"
             >
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors"
-                style={{ backgroundColor: `${feature.color}25` }}
-              >
-                <feature.icon className="h-6 w-6" style={{ color: feature.color }} />
+              {/* Colored accent bar at top */}
+              <div className="absolute top-0 left-6 right-6 h-[3px] rounded-b-full bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] opacity-40 group-hover:opacity-100 transition-opacity duration-300" />
+
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#6D28D9] flex items-center justify-center mb-4 shadow-md shadow-[#7C3AED]/20 group-hover:scale-105 transition-transform duration-300">
+                <feature.icon className="h-5 w-5 text-white" />
               </div>
-              <h3 className="text-lg font-semibold mb-2 text-white">{feature.title}</h3>
-              <p className="text-sm text-white/80 leading-relaxed">{feature.description}</p>
+              <h3 className="text-[0.95rem] font-bold text-gray-900 mb-1.5">{feature.title}</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>

@@ -67,10 +67,12 @@ export function LuxoraProductDetail({ product }: Props) {
   const finalPrice = product.price + (selectedVariant?.priceAdjustment ?? 0)
   const isOnSale = product.comparePrice != null && product.comparePrice > finalPrice
 
+  const variantAttrs = product.attributes.filter((a) => a.role === 'variant')
+
   const canAdd =
     product.inStock &&
-    (product.attributes.length === 0 ||
-      Object.keys(selectedOptions).length === product.attributes.length)
+    (variantAttrs.length === 0 ||
+      Object.keys(selectedOptions).length === variantAttrs.length)
 
   const handleAdd = () => {
     if (!canAdd) return
@@ -79,7 +81,7 @@ export function LuxoraProductDetail({ product }: Props) {
       ? Object.entries(selectedOptions).map(([k, v]) => `${k}: ${v}`).join(', ')
       : undefined
     const variantDetails: VariantDetail[] | undefined = hasSelections
-      ? product.attributes
+      ? variantAttrs
           .filter((attr) => selectedOptions[attr.name])
           .map((attr) => ({
             attribute: attr.name,
@@ -125,7 +127,7 @@ export function LuxoraProductDetail({ product }: Props) {
   }
 
   // Shared variant selectors
-  const variantSelectors = product.attributes.sort((a, b) => a.sortOrder - b.sortOrder).map((attr) => (
+  const variantSelectors = variantAttrs.sort((a, b) => a.sortOrder - b.sortOrder).map((attr) => (
     <div key={attr.id} className="space-y-2.5">
       <p className="text-xs font-semibold text-[#999] uppercase tracking-wider">
         {attr.name}

@@ -29,6 +29,7 @@ function adaptProduct(p: ProductResponse, catMap: Map<string, string>): Product 
     images: p.images ?? [],
     image: p.images?.[0],
     category: catMap.get(p.categoryIds?.[0] ?? '') ?? '',
+    categories: (p.categoryIds ?? []).map((id) => catMap.get(id) ?? '').filter(Boolean),
     description: p.description ?? '',
     inStock: p.stock === null || p.stock > 0,
     featured: p.isFeatured,

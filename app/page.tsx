@@ -1,26 +1,30 @@
 import { Navbar } from "@/components/landing/navbar";
 import { HeroSection } from "@/components/landing/hero-section";
-import { StatsSection } from "@/components/landing/stats-section";
+import { UseCasesSection } from "@/components/landing/use-cases-section";
+import { ProblemSolutionSection } from "@/components/landing/problem-solution-section";
 import { FeaturesSection } from "@/components/landing/features-section";
 import { HowItWorksSection } from "@/components/landing/how-it-works-section";
 import { PricingSection } from "@/components/landing/pricing-section";
-import { TestimonialsSection } from "@/components/landing/testimonials-section";
+import { FaqSection } from "@/components/landing/faq-section";
 import { CtaSection } from "@/components/landing/cta-section";
 import { Footer } from "@/components/landing/footer";
 import { LandingTracker } from "@/components/landing/landing-tracker";
+import { ScrollProgress } from "@/components/landing/scroll-progress";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen gradient-background text-foreground">
+    <div className="min-h-screen bg-white text-gray-900">
+      <ScrollProgress />
       <LandingTracker />
       <Navbar />
       <main>
         <HeroSection />
-        <StatsSection />
+        <UseCasesSection />
+        <ProblemSolutionSection />
         <FeaturesSection />
         <HowItWorksSection />
         <PricingSection />
-        {/* <TestimonialsSection /> */}
+        <FaqSection />
         <CtaSection />
       </main>
       <Footer />

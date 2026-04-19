@@ -1,36 +1,36 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
+import { Inter } from "next/font/google"
 
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "sonner"
 import { AuthProvider } from "@/contexts/auth-context"
 import "./globals.css"
-import { Geist, Geist_Mono, Geist as V0_Font_Geist, Geist_Mono as V0_Font_Geist_Mono, Source_Serif_4 as V0_Font_Source_Serif_4, Sora } from 'next/font/google'
 
-// Initialize fonts
-const _geist = V0_Font_Geist({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
-const _geistMono = V0_Font_Geist_Mono({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
-const _sourceSerif_4 = V0_Font_Source_Serif_4({ subsets: ['latin'], weight: ["200","300","400","500","600","700","800","900"] })
-const sora = Sora({ subsets: ['latin'], weight: ['700'], variable: '--font-sora' })
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '700', '800'],
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
-  title: "Bio Link Store - Tu catalogo de Instagram",
-  description: "Crea tu tienda online desde Instagram. Comparte tu catalogo de productos con un solo link y recibe cotizaciones por WhatsApp.",
+  title: "BioLinkStore — Deja de perder pedidos en los DMs",
+  description: "Crea tu tienda online en minutos. Tus clientes exploran tu catálogo y te hacen pedidos directo por WhatsApp. Sin comisiones.",
   generator: "v0.app",
   metadataBase: new URL("https://biolinkstore.com"),
   openGraph: {
     type: "website",
-    siteName: "Bio Link Store",
-    title: "Bio Link Store — Tu tienda de Instagram, en un solo link",
-    description: "Crea tu catálogo digital en minutos. Tus clientes exploran productos y cotizan directo por WhatsApp. Sin comisiones.",
+    siteName: "BioLinkStore",
+    title: "BioLinkStore — Deja de perder pedidos en los DMs",
+    description: "Crea tu tienda online en minutos. Tus clientes exploran tu catálogo y te hacen pedidos directo por WhatsApp. Sin comisiones.",
     url: "https://biolinkstore.com",
-    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Bio Link Store" }],
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "BioLinkStore" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bio Link Store — Tu tienda de Instagram, en un solo link",
-    description: "Crea tu catálogo digital en minutos. Tus clientes exploran productos y cotizan directo por WhatsApp.",
+    title: "BioLinkStore — Deja de perder pedidos en los DMs",
+    description: "Crea tu tienda online en minutos. Tus clientes exploran tu catálogo y te hacen pedidos directo por WhatsApp.",
     images: ["/og-default.png"],
   },
   icons: {
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#1a1a1a",
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -80,7 +80,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={`font-sans antialiased ${sora.variable}`}>
+      <body className={`${inter.variable} font-sans antialiased`}>
         <AuthProvider>
           {children}
         </AuthProvider>
@@ -88,9 +88,9 @@ export default function RootLayout({
           position="bottom-right"
           toastOptions={{
             style: {
-              background: '#0d1218',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#fff',
+              background: '#ffffff',
+              border: '1px solid #E5E7EB',
+              color: '#1F2937',
             },
           }}
         />

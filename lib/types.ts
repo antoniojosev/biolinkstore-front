@@ -28,13 +28,18 @@ export interface Product {
   /** Prefer images[] over image */
   image?: string
   images: string[]
+  /** Primary category (first assigned) — for display */
   category: string
+  /** All assigned categories — for filtering */
+  categories: string[]
   description: string
   inStock: boolean
   featured?: boolean
   variants?: ProductVariant[]
-  tags?: string[]
+  /** Spec attributes (role='spec') — name → first option value */
   specs?: Record<string, string>
+  /** Tag attributes (role='tag') — flat list of tag values */
+  tags?: string[]
 }
 
 export interface VariantDetail {
@@ -65,11 +70,13 @@ export interface Category {
 
 // ─── Product detail types ─────────────────────────────────────────────────────
 
+export type AttributeRole = 'variant' | 'spec' | 'tag'
+
 export interface ProductAttribute {
   id: string
   name: string
   type: string
-  role?: string
+  role: AttributeRole
   options: string[]
   optionsMeta?: Record<string, { hex?: string; images?: string[] }>
   sortOrder: number
@@ -101,7 +108,7 @@ export interface ProductDetail {
   variants: ProductVariantDetail[]
 }
 
-export type TemplateId = 'vitrina' | 'luxora' | 'noir'
+export type TemplateId = 'vitrina' | 'luxora' | 'noir' | 'menu' | 'inmuebles' | 'servicios'
 
 export interface StoreProfile {
   id: string

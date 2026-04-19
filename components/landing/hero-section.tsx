@@ -1,62 +1,112 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Play } from "lucide-react"
 
 export function HeroSection() {
-  const router = useRouter()
-
   return (
-    <section className="pt-20 pb-0 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      <div className="max-w-7xl mx-auto">
-        {/* Mobile: centered card + image below | Desktop: side by side */}
-        <div className="flex flex-col lg:flex-row lg:gap-8 items-center lg:items-start">
-          <div className="space-y-5 sm:space-y-8 glass-panel-light p-5 sm:p-8 rounded-3xl border border-white/10 text-center lg:text-left lg:sticky lg:top-24 lg:shrink-0 lg:w-[480px]">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold leading-tight text-balance text-white">
-              Tu tienda de Instagram,{" "}
-              <span className="bg-gradient-to-r from-[#6ee490] via-[#33b380] to-[#327be2] bg-clip-text text-transparent">
-                en un solo link
+    <section className="pt-24 pb-16 sm:pt-32 sm:pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-gradient-to-b from-white to-[#F5F0FF]">
+      {/* Subtle background glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#7C3AED]/[0.04] rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto relative">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          {/* Text side */}
+          <div className="text-center lg:text-left">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#7C3AED]/20 bg-[#F5F0FF] px-4 py-1.5 mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#7C3AED] opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#7C3AED]" />
               </span>
+              <span className="text-sm font-medium text-[#7C3AED]">
+                Nuevo: Menús y portafolios inmobiliarios
+              </span>
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 text-balance leading-[1.1] animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+              Deja de perder pedidos{" "}
+              <span className="text-[#7C3AED]">en los DMs</span>
             </h1>
-            <p className="text-base sm:text-lg text-white/80 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Crea tu catálogo digital en minutos. Tus clientes pueden explorar productos, filtrar por categorías y
-              solicitar cotizaciones directamente por WhatsApp. Sin comisiones, sin complicaciones.
+
+            <p className="mt-6 text-lg text-gray-600 max-w-xl mx-auto lg:mx-0 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.35s', animationFillMode: 'both' }}>
+              Tus clientes te escriben, pero entre tantos mensajes se te escapan pedidos.
+              Pon un link en tu bio y listo — tu catálogo con precios, fotos y pedidos
+              directo a tu WhatsApp.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+
+            {/* CTA — violet, unified with rest of page */}
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
               <Link href="/registro">
                 <Button
                   size="lg"
-                  className="gap-2 bg-gradient-to-r from-[#33b380] to-[#2a9669] hover:from-[#2a9669] hover:to-[#228055] text-white border-0 shadow-lg shadow-[#33b380]/25 w-full sm:w-auto"
+                  className="gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white shadow-lg shadow-[#7C3AED]/25 w-full sm:w-auto text-base px-8 h-12 rounded-xl cursor-pointer btn-press btn-shimmer"
                 >
-                  Crear mi tienda gratis
-                  <ArrowRight className="h-4 w-4" />
+                  Montar mi tienda gratis
+                  <ArrowRight className="h-5 w-5" />
                 </Button>
               </Link>
-              <Button
-                size="lg"
-                variant="outline"
-                className="gap-2 bg-white/10 border-white/30 hover:bg-white/20 hover:border-white/50 text-white"
-                onClick={() => router.push("/login?demo=1")}
-              >
-                <Play className="h-4 w-4" />
-                Ver demo
-              </Button>
+            </div>
+
+            <p className="mt-4 text-sm text-gray-400 animate-fade-in-up" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
+              Gratis. Sin tarjeta. Lista en 5 minutos.
+            </p>
+
+            {/* Trust bullets */}
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
+              {["Sin comisiones", "WhatsApp nativo", "Listo en minutos"].map((text) => (
+                <div key={text} className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#F5F0FF] flex items-center justify-center">
+                    <span className="text-[#7C3AED] text-[10px] font-bold">&#10003;</span>
+                  </span>
+                  <span className="text-sm text-gray-600">{text}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="relative flex justify-center w-full lg:w-auto mt-8 lg:mt-0">
-            <img
-              src="/hero-phone2.png"
-              alt="Bio Link Store preview"
-              className="mx-auto max-h-[500px] sm:max-h-[600px] lg:max-h-[1000px] rounded-2xl object-contain"
-              style={{
-                maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
-                WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
-              }}
-            />
-            <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] bg-[#33b380]/15 rounded-full blur-3xl" />
+          {/* Phone mockup side */}
+          <div className="relative flex justify-center">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-[#7C3AED]/[0.08] rounded-full blur-3xl animate-gentle-pulse" />
+
+            <div className="relative w-[280px] sm:w-[300px] phone-reveal">
+              <div className="rounded-[2.5rem] border-[8px] border-gray-900 bg-white shadow-2xl overflow-hidden">
+                <div className="h-6 bg-gray-900 rounded-b-2xl mx-auto w-[40%]" />
+                <div className="aspect-[9/18] bg-gradient-to-b from-[#F5F0FF] to-white flex flex-col items-center p-4">
+                  <div className="w-16 h-16 rounded-full bg-[#7C3AED]/15 mt-4 mb-3" />
+                  <div className="h-3 w-24 bg-gray-200/80 rounded-full mb-1" />
+                  <div className="h-2 w-16 bg-gray-100 rounded-full mb-6" />
+                  <div className="grid grid-cols-2 gap-2 w-full">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="rounded-xl overflow-hidden bg-white shadow-sm">
+                        <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100" />
+                        <div className="p-2">
+                          <div className="h-2 w-full bg-gray-100 rounded-full mb-1" />
+                          <div className="h-2 w-12 bg-[#7C3AED]/15 rounded-full" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-auto mb-2 w-full">
+                    <div className="h-10 bg-[#25D366] rounded-xl flex items-center justify-center shadow-sm">
+                      <span className="text-white text-xs font-semibold">Pedir por WhatsApp</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Floating badges */}
+            <div className="absolute top-8 -right-2 sm:right-0 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3 badge-pop animate-float">
+              <div className="text-2xl font-extrabold text-[#7C3AED] count-pulse">0%</div>
+              <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Comisiones</div>
+            </div>
+
+            <div className="absolute bottom-12 -left-2 sm:left-0 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3 badge-pop-delayed animate-float-delayed">
+              <div className="text-lg">💬</div>
+              <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">WhatsApp</div>
+            </div>
           </div>
         </div>
       </div>

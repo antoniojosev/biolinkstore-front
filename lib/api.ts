@@ -52,7 +52,7 @@ interface BackendCategory {
 // ─── Adapters: backend DTO → frontend domain types ──────────────────────────
 
 function adaptStore(dto: BackendStore): StoreProfile {
-  const validTemplates: TemplateId[] = ['vitrina', 'luxora', 'noir']
+  const validTemplates: TemplateId[] = ['vitrina', 'luxora', 'noir', 'menu', 'inmuebles', 'servicios']
   const template: TemplateId = validTemplates.includes(dto.template as TemplateId)
     ? (dto.template as TemplateId)
     : 'vitrina'
@@ -79,11 +79,26 @@ function adaptStore(dto: BackendStore): StoreProfile {
 }
 
 function adaptProduct(dto: BackendProduct, categoryMap: Map<string, string>): Product {
-  // Resolve category name from the product's embedded categories or the global map
-  const categoryName =
-    dto.categories?.[0]?.name ||
-    (dto.categories?.[0]?.id ? categoryMap.get(dto.categories[0].id) : undefined) ||
-    ''
+  // Resolve all category names from the product's embedded categories or the global map
+  const categoryNames = (dto.categories ?? [])
+    .map((c) => c.name || categoryMap.get(c.id) || '')
+    .filter(Boolean)
+
+  // Extract specs and tags from attributes if available
+  const attrs = (dto as Record<string, unknown>).attributes as
+    | { name: string; options: string[]; role?: string }[]
+    | undefined
+  const specs: Record<string, string> = {}
+  const tags: string[] = []
+  if (attrs) {
+    for (const a of attrs) {
+      if (a.role === 'spec' && a.options[0]) {
+        specs[a.name] = a.options[0]
+      } else if (a.role === 'tag') {
+        tags.push(...a.options)
+      }
+    }
+  }
 
   return {
     id: dto.id,
@@ -92,10 +107,13 @@ function adaptProduct(dto: BackendProduct, categoryMap: Map<string, string>): Pr
     price: dto.basePrice,
     comparePrice: dto.compareAtPrice ?? undefined,
     images: dto.images ?? [],
-    category: categoryName,
+    category: categoryNames[0] ?? '',
+    categories: categoryNames,
     description: dto.description || '',
     inStock: dto.stock === null || dto.stock > 0,
     featured: dto.isFeatured,
+    specs: Object.keys(specs).length > 0 ? specs : undefined,
+    tags: tags.length > 0 ? tags : undefined,
   }
 }
 
@@ -110,7 +128,7 @@ function adaptCategory(dto: BackendCategory): Category {
 
 function adaptProductDetail(dto: BackendProduct): ProductDetail {
   const attrs = (dto as Record<string, unknown>).attributes as
-    | { id: string; name: string; type?: string; options: string[]; optionsMeta?: any; sortOrder: number }[]
+    | { id: string; name: string; type?: string; role?: string; options: string[]; optionsMeta?: any; sortOrder: number }[]
     | undefined
   const vars = (dto as Record<string, unknown>).variants as
     | {
@@ -141,6 +159,7 @@ function adaptProductDetail(dto: BackendProduct): ProductDetail {
       id: a.id,
       name: a.name,
       type: a.type ?? 'text',
+      role: (a.role ?? 'variant') as 'variant' | 'spec' | 'tag',
       options: a.options,
       optionsMeta: a.optionsMeta ?? undefined,
       sortOrder: a.sortOrder,

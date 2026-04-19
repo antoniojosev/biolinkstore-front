@@ -77,6 +77,57 @@ export const TEMPLATES: TemplateData[] = [
       text: '#F5F0E8',
     },
   },
+  {
+    id: 'menu',
+    name: 'Menú',
+    tagline: 'Ideal para restaurantes',
+    description:
+      'Diseño cálido con categorías por sección. Fotos de comida grandes, pedido directo por WhatsApp. Perfecto para restaurantes, cafés y delivery.',
+    plan: 'pro',
+    tags: ['Restaurante', 'Delivery', 'Cálido'],
+    preview: '/templates/menu-preview.png',
+    colors: {
+      bg: '#FFF8F0',
+      header: '#FFF8F0',
+      card: '#FFFFFF',
+      accent: '#B45309',
+      text: '#111827',
+    },
+  },
+  {
+    id: 'inmuebles',
+    name: 'Inmuebles',
+    tagline: 'Para agentes inmobiliarios',
+    description:
+      'Diseño premium con fotos grandes, specs de propiedad y consulta directa por WhatsApp. Ideal para agentes inmobiliarios y corredores.',
+    plan: 'pro',
+    tags: ['Inmuebles', 'Premium', 'Profesional'],
+    preview: '/templates/inmuebles-preview.png',
+    colors: {
+      bg: '#F8F9FA',
+      header: '#1A3A52',
+      card: '#FFFFFF',
+      accent: '#D4AF37',
+      text: '#1A3A52',
+    },
+  },
+  {
+    id: 'servicios',
+    name: 'Servicios',
+    tagline: 'Tu marca personal',
+    description:
+      'Perfil tipo Instagram con galería de trabajos y lista de servicios. Contacto directo por WhatsApp. Ideal para fotógrafos, estilistas, trainers y freelancers.',
+    plan: 'pro',
+    tags: ['Personal', 'Portfolio', 'Servicios'],
+    preview: '/templates/servicios-preview.png',
+    colors: {
+      bg: '#FFFFFF',
+      header: '#FFFFFF',
+      card: '#FFFFFF',
+      accent: '#2D2D2D',
+      text: '#111827',
+    },
+  },
 ]
 
 export function isTemplateLocked(templatePlan: TemplatePlan, userPlan: TemplatePlan): boolean {
