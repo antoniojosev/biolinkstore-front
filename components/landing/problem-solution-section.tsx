@@ -23,13 +23,13 @@ export function ProblemSolutionSection() {
   return (
     <section ref={sectionRef} className="reveal py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">
       {/* Gradient divider */}
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#7C3AED]/20 to-transparent" />
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[var(--bylink-primary)]/20 to-transparent" />
 
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10 sm:mb-14">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 text-balance">
             De contestar DMs todo el día a{" "}
-            <span className="text-[#7C3AED]">tener tu propia tienda</span>
+            <span className="text-[var(--bylink-primary)]">tener tu propia tienda</span>
           </h2>
         </div>
 
@@ -55,17 +55,17 @@ export function ProblemSolutionSection() {
           </div>
 
           {/* Solution */}
-          <div className="rounded-2xl border border-[#7C3AED]/20 bg-gradient-to-br from-[#F5F0FF] to-white p-6 sm:p-8 shadow-sm shadow-[#7C3AED]/5 card-lift">
+          <div className="rounded-2xl border border-[var(--bylink-primary)]/20 bg-gradient-to-br from-[var(--bylink-primary-soft)] to-white p-6 sm:p-8 shadow-sm shadow-[var(--bylink-primary)]/5 card-lift">
             <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <span className="w-8 h-8 rounded-full bg-[#F5F0FF] flex items-center justify-center">
-                <Check className="h-4 w-4 text-[#7C3AED]" />
+              <span className="w-8 h-8 rounded-full bg-[var(--bylink-primary-soft)] flex items-center justify-center">
+                <Check className="h-4 w-4 text-[var(--bylink-primary)]" />
               </span>
-              Así vendes con BioLinkStore
+              Así vendes con ByLink
             </h3>
             <div className="flex flex-col gap-4">
               {solutions.map((solution, i) => (
                 <div key={i} className="flex items-start gap-3 group">
-                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#7C3AED] flex items-center justify-center mt-0.5 transition-transform group-hover:scale-110">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[var(--bylink-primary)] flex items-center justify-center mt-0.5 transition-transform group-hover:scale-110">
                     <Check className="h-3 w-3 text-white" />
                   </span>
                   <span className="text-gray-600 text-sm leading-relaxed">{solution}</span>

@@ -22,12 +22,12 @@ const cases = [
       "Se ve profesional en tu bio",
     ],
     cta: "Crear mi tienda de ropa",
-    accent: "#7C3AED",
-    accentBg: "bg-[#7C3AED]",
-    accentLight: "bg-[#F5F0FF]",
-    accentText: "text-[#7C3AED]",
-    phoneBg: "from-[#F5F0FF] to-[#FAFAF7]",
-    phoneAccent: "bg-[#7C3AED]/15",
+    accent: "#0F6BA8",
+    accentBg: "bg-[#0F6BA8]",
+    accentLight: "bg-[#E7F2FA]",
+    accentText: "text-[#0F6BA8]",
+    phoneBg: "from-[#E7F2FA] to-[#FAFAF7]",
+    phoneAccent: "bg-[#0F6BA8]/15",
   },
   {
     id: "restaurantes",
@@ -42,12 +42,12 @@ const cases = [
       "Actualiza precios en segundos",
     ],
     cta: "Crear mi menú digital",
-    accent: "#F97316",
-    accentBg: "bg-[#F97316]",
-    accentLight: "bg-[#FFF7ED]",
-    accentText: "text-[#F97316]",
-    phoneBg: "from-[#FFF7ED] to-[#FAFAF7]",
-    phoneAccent: "bg-[#F97316]/15",
+    accent: "#FF6B4A",
+    accentBg: "bg-[#FF6B4A]",
+    accentLight: "bg-[#FFF0EC]",
+    accentText: "text-[#FF6B4A]",
+    phoneBg: "from-[#FFF0EC] to-[#FAFAF7]",
+    phoneAccent: "bg-[#FF6B4A]/15",
   },
   {
     id: "inmobiliarias",
@@ -62,12 +62,12 @@ const cases = [
       "Tu marca personal como agente",
     ],
     cta: "Crear mi portafolio",
-    accent: "#3B82F6",
-    accentBg: "bg-[#3B82F6]",
-    accentLight: "bg-[#EFF6FF]",
-    accentText: "text-[#3B82F6]",
-    phoneBg: "from-[#EFF6FF] to-[#FAFAF7]",
-    phoneAccent: "bg-[#3B82F6]/15",
+    accent: "#64748B",
+    accentBg: "bg-[#64748B]",
+    accentLight: "bg-[#F1F5F9]",
+    accentText: "text-[#64748B]",
+    phoneBg: "from-[#F1F5F9] to-[#FAFAF7]",
+    phoneAccent: "bg-[#64748B]/15",
   },
   {
     id: "servicios",
@@ -116,17 +116,17 @@ export function UseCasesSection() {
     <section
       id="casos"
       ref={sectionRef}
-      className="reveal py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#F5F0FF]/50"
+      className="reveal py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bylink-surface-soft)]/50"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10 sm:mb-14">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 text-balance">
             Un link para cada tipo de{" "}
-            <span className="text-[#7C3AED]">negocio</span>
+            <span className="text-[var(--bylink-primary)]">negocio</span>
           </h2>
           <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-            No importa qué vendas, BioLinkStore se adapta a ti.
+            No importa qué vendas, ByLink se adapta a ti.
           </p>
         </div>
 

@@ -21,7 +21,7 @@ export function Footer() {
             <Link href="/home/terminos#privacidad" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
               Privacidad
             </Link>
-            <Link href="#" className="text-gray-500 hover:text-[#7C3AED] transition-colors">
+            <Link href="#" className="text-gray-500 hover:text-[var(--bylink-primary)] transition-colors">
               <Instagram className="h-5 w-5" />
             </Link>
           </div>
@@ -29,7 +29,7 @@ export function Footer() {
 
         <div className="mt-8 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-3">
           <p className="text-sm text-gray-600">
-            © 2026 BioLinkStore. Todos los derechos reservados.
+            © 2026 ByLink. Todos los derechos reservados.
           </p>
           <p className="text-sm text-gray-500">
             Hecho en Venezuela 🇻🇪

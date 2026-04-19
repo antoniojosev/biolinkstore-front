@@ -62,7 +62,7 @@ export function Navbar() {
             <Link href="/registro">
               <Button
                 size="sm"
-                className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white"
+                className="bg-[var(--bylink-primary)] hover:bg-[var(--bylink-primary-hover)] text-white"
               >
                 Crear mi tienda gratis
               </Button>
@@ -111,7 +111,7 @@ export function Navbar() {
               <Link href="/registro" onClick={() => setIsMenuOpen(false)}>
                 <Button
                   size="sm"
-                  className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white w-full"
+                  className="bg-[var(--bylink-primary)] hover:bg-[var(--bylink-primary-hover)] text-white w-full"
                 >
                   Crear mi tienda gratis
                 </Button>

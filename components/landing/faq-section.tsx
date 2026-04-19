@@ -13,7 +13,7 @@ const faqs = [
   {
     question: "¿Necesito saber de tecnología?",
     answer:
-      "Si sabes subir una foto a Instagram, sabes usar BioLinkStore. Tu tienda está lista en 5 minutos. Sin código, sin configuraciones complicadas.",
+      "Si sabes subir una foto a Instagram, sabes usar ByLink. Tu tienda está lista en 5 minutos. Sin código, sin configuraciones complicadas.",
   },
   {
     question: "¿Cómo recibo los pedidos?",
@@ -23,7 +23,7 @@ const faqs = [
   {
     question: "¿Puedo cobrar con Pago Móvil?",
     answer:
-      "BioLinkStore no procesa pagos directamente — tus clientes te contactan por WhatsApp y tú coordinas el pago como siempre: Pago Móvil, Zelle, efectivo, lo que uses.",
+      "ByLink no procesa pagos directamente — tus clientes te contactan por WhatsApp y tú coordinas el pago como siempre: Pago Móvil, Zelle, efectivo, lo que uses.",
   },
   {
     question: "¿Y si quiero cambiar de plan?",
@@ -55,7 +55,7 @@ export function FaqSection() {
               key={i}
               className={`rounded-xl border bg-white overflow-hidden transition-all duration-300 ${
                 openIndex === i
-                  ? "border-[#7C3AED]/30 shadow-md shadow-[#7C3AED]/5"
+                  ? "border-[var(--bylink-primary)]/30 shadow-md shadow-[var(--bylink-primary)]/5"
                   : "border-gray-200 hover:border-gray-300"
               }`}
             >
@@ -63,12 +63,12 @@ export function FaqSection() {
                 onClick={() => toggle(i)}
                 className="w-full flex items-center justify-between p-5 text-left cursor-pointer group"
               >
-                <span className="text-base font-semibold text-gray-900 pr-4 group-hover:text-[#7C3AED] transition-colors">
+                <span className="text-base font-semibold text-gray-900 pr-4 group-hover:text-[var(--bylink-primary)] transition-colors">
                   {faq.question}
                 </span>
                 <ChevronDown
                   className={`h-5 w-5 shrink-0 transition-all duration-300 ${
-                    openIndex === i ? "rotate-180 text-[#7C3AED]" : "text-gray-400"
+                    openIndex === i ? "rotate-180 text-[var(--bylink-primary)]" : "text-gray-400"
                   }`}
                 />
               </button>
