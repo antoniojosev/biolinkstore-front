@@ -17,7 +17,7 @@ const features = [
   {
     icon: Palette,
     title: "Tu tienda con tu estilo",
-    description: "Colores, logo, tipografía. Que digan \"ay, qué bonita esta tienda\".",
+    description: "Colores, logo, tipografía. Que digan “ay, qué bonita esta tienda”.",
   },
   {
     icon: Smartphone,
@@ -27,7 +27,7 @@ const features = [
   {
     icon: Search,
     title: "Búsqueda inteligente",
-    description: "No más \"¿tienes esto en azul?\". Filtros por categoría, talla y precio.",
+    description: "No más “¿tienes esto en azul?”. Filtros por categoría, talla y precio.",
   },
   {
     icon: BarChart3,
@@ -41,9 +41,10 @@ export function FeaturesSection() {
 
   return (
     <section id="features" className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[var(--bylink-surface-soft)]/40 to-[var(--bylink-primary-softer)]/60 overflow-hidden">
-      {/* Ambient glows */}
-      <div className="absolute -top-24 -right-24 w-64 h-64 bg-[var(--bylink-primary)]/[0.05] rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-32 -left-16 w-80 h-80 bg-[var(--bylink-accent)]/[0.04] rounded-full blur-3xl pointer-events-none" />
+      <div
+        aria-hidden="true"
+        className="absolute -top-24 -right-24 w-64 h-64 bg-[var(--bylink-primary)]/[0.05] rounded-full blur-3xl pointer-events-none"
+      />
 
       <div className="max-w-6xl mx-auto relative">
         <div className="text-center mb-10 sm:mb-14">
@@ -60,10 +61,12 @@ export function FeaturesSection() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="relative bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-200/60 group cursor-default transition-all duration-300 hover:shadow-md hover:shadow-[var(--bylink-primary)]/10 hover:-translate-y-0.5"
+              className="relative bg-white rounded-2xl p-6 shadow-sm shadow-black/5 border border-gray-200/60 group cursor-default transition-[transform,box-shadow] duration-300 hover:shadow-md hover:shadow-[var(--bylink-primary)]/10 hover:-translate-y-0.5"
             >
-              {/* Colored accent bar at top */}
-              <div className="absolute top-0 left-6 right-6 h-[3px] rounded-b-full bg-gradient-to-r from-[var(--bylink-primary)] to-[#6FC2E8] opacity-40 group-hover:opacity-100 transition-opacity duration-300" />
+              <div
+                aria-hidden="true"
+                className="absolute top-0 left-6 right-6 h-[3px] rounded-b-full bg-gradient-to-r from-[var(--bylink-primary)] to-[var(--bylink-primary-light)] opacity-40 group-hover:opacity-100 transition-opacity duration-300"
+              />
 
               <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--bylink-primary)] to-[var(--bylink-primary-hover)] flex items-center justify-center mb-4 shadow-md shadow-[var(--bylink-primary)]/20 group-hover:scale-105 transition-transform duration-300">
                 <feature.icon className="h-5 w-5 text-white" />

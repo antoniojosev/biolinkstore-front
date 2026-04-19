@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useId } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
-import { useScrollReveal } from "@/hooks/use-scroll-reveal"
 
 const INTERVAL = 6000
 
@@ -23,7 +22,6 @@ const cases = [
     ],
     cta: "Crear mi tienda de ropa",
     accent: "#0F6BA8",
-    accentBg: "bg-[#0F6BA8]",
     accentLight: "bg-[#E7F2FA]",
     accentText: "text-[#0F6BA8]",
     phoneBg: "from-[#E7F2FA] to-[#FAFAF7]",
@@ -43,7 +41,6 @@ const cases = [
     ],
     cta: "Crear mi menú digital",
     accent: "#FF6B4A",
-    accentBg: "bg-[#FF6B4A]",
     accentLight: "bg-[#FFF0EC]",
     accentText: "text-[#FF6B4A]",
     phoneBg: "from-[#FFF0EC] to-[#FAFAF7]",
@@ -63,7 +60,6 @@ const cases = [
     ],
     cta: "Crear mi portafolio",
     accent: "#64748B",
-    accentBg: "bg-[#64748B]",
     accentLight: "bg-[#F1F5F9]",
     accentText: "text-[#64748B]",
     phoneBg: "from-[#F1F5F9] to-[#FAFAF7]",
@@ -79,11 +75,10 @@ const cases = [
     bullets: [
       "Muestra tu trabajo con fotos",
       "Agenda citas por WhatsApp",
-      "Precios claros, sin el \"escríbeme\"",
+      "Precios claros, sin el “escríbeme”",
     ],
     cta: "Crear mi catálogo",
     accent: "#10B981",
-    accentBg: "bg-[#10B981]",
     accentLight: "bg-[#ECFDF5]",
     accentText: "text-[#10B981]",
     phoneBg: "from-[#ECFDF5] to-[#FAFAF7]",
@@ -94,16 +89,17 @@ const cases = [
 export function UseCasesSection() {
   const [active, setActive] = useState(0)
   const [animKey, setAnimKey] = useState(0)
-  const sectionRef = useScrollReveal<HTMLElement>()
+  const [paused, setPaused] = useState(false)
+  const baseId = useId()
 
-  // Auto-advance: simple timeout that resets when `active` changes
   useEffect(() => {
+    if (paused) return
     const timer = setTimeout(() => {
       setActive((a) => (a + 1) % cases.length)
       setAnimKey((k) => k + 1)
     }, INTERVAL)
     return () => clearTimeout(timer)
-  }, [active])
+  }, [active, paused])
 
   const goTo = useCallback((idx: number) => {
     setActive(idx)
@@ -111,15 +107,19 @@ export function UseCasesSection() {
   }, [])
 
   const c = cases[active]
+  const panelId = `${baseId}-panel-${c.id}`
+  const tabId = (id: string) => `${baseId}-tab-${id}`
 
   return (
     <section
       id="casos"
-      ref={sectionRef}
       className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bylink-surface-soft)]/50"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={() => setPaused(false)}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-10 sm:mb-14">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 text-balance">
             Un link para cada tipo de{" "}
@@ -130,39 +130,52 @@ export function UseCasesSection() {
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex flex-wrap gap-2 justify-center mb-10 sm:mb-14">
-          {cases.map((cs, i) => (
-            <button
-              key={cs.id}
-              onClick={() => goTo(i)}
-              className={`relative px-4 sm:px-5 py-2.5 rounded-full text-sm font-semibold cursor-pointer overflow-hidden tab-pill ${
-                active === i
-                  ? "text-white shadow-md"
-                  : "bg-white border border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-700"
-              }`}
-              style={active === i ? { backgroundColor: cs.accent } : undefined}
-            >
-              {cs.tab}
-              {active === i && (
-                <div
-                  key={`prog-${animKey}`}
-                  className="absolute bottom-0 left-0 h-[3px] bg-white/30"
-                  style={{
-                    animation: `progressFill ${INTERVAL}ms linear forwards`,
-                  }}
-                />
-              )}
-            </button>
-          ))}
+        <div
+          role="tablist"
+          aria-label="Casos de uso por tipo de negocio"
+          className="flex flex-wrap gap-2 justify-center mb-10 sm:mb-14"
+        >
+          {cases.map((cs, i) => {
+            const selected = active === i
+            return (
+              <button
+                key={cs.id}
+                id={tabId(cs.id)}
+                role="tab"
+                aria-selected={selected}
+                aria-controls={panelId}
+                tabIndex={selected ? 0 : -1}
+                onClick={() => goTo(i)}
+                className={`relative px-4 sm:px-5 py-2.5 rounded-full text-sm font-semibold cursor-pointer overflow-hidden tab-pill focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--bylink-primary)] ${
+                  selected
+                    ? "text-white shadow-md"
+                    : "bg-white border border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-700"
+                }`}
+                style={selected ? { backgroundColor: cs.accent } : undefined}
+              >
+                {cs.tab}
+                {selected && !paused && (
+                  <span
+                    key={`prog-${animKey}`}
+                    aria-hidden="true"
+                    className="absolute bottom-0 left-0 h-[3px] bg-white/30"
+                    style={{
+                      animation: `progressFill ${INTERVAL}ms linear forwards`,
+                    }}
+                  />
+                )}
+              </button>
+            )
+          })}
         </div>
 
-        {/* Content */}
         <div
           key={c.id}
+          id={panelId}
+          role="tabpanel"
+          aria-labelledby={tabId(c.id)}
           className="case-fade-enter grid items-center gap-10 lg:grid-cols-2 lg:gap-16"
         >
-          {/* Text */}
           <div>
             <div
               className={`inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider mb-4 ${c.accentLight} ${c.accentText}`}
@@ -183,48 +196,61 @@ export function UseCasesSection() {
                 <div
                   key={i}
                   className="flex items-center gap-3"
-                  style={{ animation: `bulletSlideIn 0.4s ease ${i * 0.1}s both` }}
+                  style={{
+                    animation: `bulletSlideIn 0.4s ease ${i * 0.1}s both`,
+                  }}
                 >
                   <span
+                    aria-hidden="true"
                     className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs"
                     style={{ backgroundColor: c.accent }}
                   >
-                    &#10003;
+                    ✓
                   </span>
                   <span className="text-gray-600 text-sm">{bullet}</span>
                 </div>
               ))}
             </div>
 
-            <Link href="/registro">
-              <Button
-                className="gap-2 text-white shadow-md cursor-pointer btn-press"
-                style={{ backgroundColor: c.accent }}
-              >
+            <Button
+              asChild
+              className="gap-2 text-white shadow-md cursor-pointer btn-press"
+              style={{ backgroundColor: c.accent }}
+            >
+              <Link href="/registro">
                 {c.cta}
                 <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
 
-          {/* Phone mockup */}
-          <div className="flex justify-center">
+          <div className="flex justify-center" aria-hidden="true">
             <div className="relative w-[260px] sm:w-[280px]">
-              <div className="rounded-[2.5rem] border-[8px] border-gray-900 bg-white shadow-2xl overflow-hidden transition-shadow duration-500" style={{ boxShadow: `0 25px 60px -15px ${c.accent}20` }}>
+              <div
+                className="rounded-[2.5rem] border-[8px] border-gray-900 bg-white shadow-2xl overflow-hidden"
+                style={{ boxShadow: `0 25px 60px -15px ${c.accent}20` }}
+              >
                 <div className="h-6 bg-gray-900 rounded-b-2xl mx-auto w-[40%]" />
-                <div className={`aspect-[9/18] bg-gradient-to-b ${c.phoneBg} flex flex-col items-center p-4`}>
-                  <div className={`w-14 h-14 rounded-full ${c.phoneAccent} mt-3 mb-2 transition-colors duration-500`} />
+                <div
+                  className={`aspect-[9/18] bg-gradient-to-b ${c.phoneBg} flex flex-col items-center p-4`}
+                >
+                  <div
+                    className={`w-14 h-14 rounded-full ${c.phoneAccent} mt-3 mb-2`}
+                  />
                   <div className="h-3 w-20 bg-gray-200/80 rounded-full mb-1" />
                   <div className="h-2 w-14 bg-gray-100 rounded-full mb-4" />
 
                   <div className="grid grid-cols-2 gap-2 w-full">
                     {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="rounded-lg overflow-hidden bg-white shadow-sm">
+                      <div
+                        key={i}
+                        className="rounded-lg overflow-hidden bg-white shadow-sm"
+                      >
                         <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100" />
                         <div className="p-1.5">
                           <div className="h-1.5 w-full bg-gray-100 rounded-full mb-1" />
                           <div
-                            className="h-1.5 w-10 rounded-full transition-colors duration-500"
+                            className="h-1.5 w-10 rounded-full"
                             style={{ backgroundColor: `${c.accent}25` }}
                           />
                         </div>
@@ -234,10 +260,12 @@ export function UseCasesSection() {
 
                   <div className="mt-auto mb-2 w-full">
                     <div
-                      className="h-9 rounded-lg flex items-center justify-center transition-colors duration-500 shadow-sm"
+                      className="h-9 rounded-lg flex items-center justify-center shadow-sm"
                       style={{ backgroundColor: c.accent }}
                     >
-                      <span className="text-white text-[10px] font-semibold">Pedir por WhatsApp</span>
+                      <span className="text-white text-[10px] font-semibold">
+                        Pedir por WhatsApp
+                      </span>
                     </div>
                   </div>
                 </div>
