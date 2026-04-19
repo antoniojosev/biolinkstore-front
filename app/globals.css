@@ -4,40 +4,54 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Light mode — warm off-white, violeta + naranja */
+  /* ByLink brand tokens — turquesa profundo (trust/CTA) + coral (urgencia/disrupcion) */
+  --bylink-primary: #0F6BA8;
+  --bylink-primary-hover: #0A5285;
+  --bylink-primary-soft: #E7F2FA;
+  --bylink-primary-softer: #D4EAF5;
+  --bylink-accent: #FF6B4A;
+  --bylink-accent-hover: #E85535;
+  --bylink-accent-soft: #FFF0EC;
+  --bylink-surface-soft: #E7F2FA;
+  --bylink-surface-gradient-start: #D4EAF5;
+  --bylink-surface-gradient-end: #E7F2FA;
+  --bylink-neutral-slate: #64748B;
+  --bylink-neutral-slate-soft: #F1F5F9;
+
+  /* Light mode — warm off-white con paleta turquesa+coral */
   --background: oklch(0.985 0.002 90);    /* warm off-white #FAFAF7 */
   --foreground: oklch(0.2 0.02 250);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.02 250);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0.02 250);
-  --primary: oklch(0.53 0.24 290);       /* #7C3AED violeta */
+  --primary: oklch(0.52 0.11 235);       /* #0F6BA8 turquesa profundo */
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0.02 290);     /* #F5F0FF violeta muy claro */
+  --secondary: oklch(0.96 0.02 230);     /* #E7F2FA turquesa muy claro */
   --secondary-foreground: oklch(0.2 0.02 250);
   --muted: oklch(0.97 0.003 90);         /* warm #F5F5F2 */
   --muted-foreground: oklch(0.55 0.01 250);
-  --accent: oklch(0.7 0.16 50);          /* #F97316 naranja */
+  --accent: oklch(0.7 0.19 30);          /* #FF6B4A coral */
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.92 0.004 90);        /* warm gray border */
   --input: oklch(0.92 0.004 90);
-  --ring: oklch(0.53 0.24 290);
-  --chart-1: oklch(0.53 0.24 290);
-  --chart-2: oklch(0.7 0.16 50);
+  --ring: oklch(0.52 0.11 235);
+  --chart-1: oklch(0.52 0.11 235);
+  --chart-2: oklch(0.7 0.19 30);
   --chart-3: oklch(0.7 0.17 145);
   --chart-4: oklch(0.6 0.18 250);
   --chart-5: oklch(0.828 0.189 84.429);
   --radius: 0.75rem;
   --sidebar: oklch(0.97 0.003 90);
   --sidebar-foreground: oklch(0.2 0.02 250);
-  --sidebar-primary: oklch(0.53 0.24 290);
+  --sidebar-primary: oklch(0.52 0.11 235);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.96 0.02 290);
+  --sidebar-accent: oklch(0.96 0.02 230);
   --sidebar-accent-foreground: oklch(0.2 0.02 250);
   --sidebar-border: oklch(0.92 0.004 90);
-  --sidebar-ring: oklch(0.53 0.24 290);
+  --sidebar-ring: oklch(0.52 0.11 235);
 }
 
 @theme inline {
@@ -169,11 +183,11 @@
 }
 .btn-press:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 8px 25px -5px rgba(15, 107, 168, 0.3);
 }
 .btn-press:active {
   transform: translateY(0) scale(0.97);
-  box-shadow: 0 2px 8px -2px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 2px 8px -2px rgba(15, 107, 168, 0.3);
 }
 
 /* CTA button shimmer — draws eye periodically */
@@ -299,7 +313,7 @@
   100% { background-position: 0% 50%; }
 }
 .text-gradient-animated {
-  background: linear-gradient(90deg, #7C3AED, #F97316, #7C3AED);
+  background: linear-gradient(90deg, #0F6BA8, #FF6B4A, #0F6BA8);
   background-size: 200% auto;
   background-clip: text;
   -webkit-background-clip: text;
@@ -320,7 +334,7 @@
   width: 60%;
   max-width: 600px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(15, 107, 168, 0.2), transparent);
 }
 
 /* Carousel case fade — smoother than abrupt swap */
@@ -364,10 +378,10 @@
   animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Badge glow pulse — pricing "Recomendado" */
+/* Badge glow pulse — pricing "Recomendado" (coral accent) */
 @keyframes badge-pulse {
-  0%, 100% { box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); }
-  50% { box-shadow: 0 4px 20px rgba(124, 58, 237, 0.5); }
+  0%, 100% { box-shadow: 0 4px 12px rgba(255, 107, 74, 0.35); }
+  50% { box-shadow: 0 4px 20px rgba(255, 107, 74, 0.55); }
 }
 .badge-glow {
   animation: badge-pulse 2.5s ease-in-out infinite;
