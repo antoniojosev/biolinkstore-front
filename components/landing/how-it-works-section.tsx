@@ -41,7 +41,7 @@ export function HowItWorksSection() {
             Lista en <span className="text-[var(--bylink-primary)]">5 minutos</span>
           </h2>
           <p className="mt-4 text-lg text-gray-600 max-w-xl mx-auto">
-            Si sabes subir una foto a Instagram, sabes usar BioLinkStore.
+            Si sabes subir una foto a Instagram, sabes usar ByLink.
           </p>
         </div>
 
