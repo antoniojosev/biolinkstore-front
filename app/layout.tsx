@@ -15,22 +15,22 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "BioLinkStore — Deja de perder pedidos en los DMs",
-  description: "Crea tu tienda online en minutos. Tus clientes exploran tu catálogo y te hacen pedidos directo por WhatsApp. Sin comisiones.",
+  title: "ByLink — Deja de perder pedidos en los DMs",
+  description: "Tu catálogo en un link. Tus clientes exploran, arman el pedido y te escriben directo por WhatsApp. Sin comisiones, sin código, en minutos.",
   generator: "v0.app",
   metadataBase: new URL("https://biolinkstore.com"),
   openGraph: {
     type: "website",
-    siteName: "BioLinkStore",
-    title: "BioLinkStore — Deja de perder pedidos en los DMs",
-    description: "Crea tu tienda online en minutos. Tus clientes exploran tu catálogo y te hacen pedidos directo por WhatsApp. Sin comisiones.",
+    siteName: "ByLink",
+    title: "ByLink — Deja de perder pedidos en los DMs",
+    description: "Tu catálogo en un link. Tus clientes exploran, arman el pedido y te escriben directo por WhatsApp. Sin comisiones, sin código, en minutos.",
     url: "https://biolinkstore.com",
-    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "BioLinkStore" }],
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "ByLink — el link en bio que vende por ti" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "BioLinkStore — Deja de perder pedidos en los DMs",
-    description: "Crea tu tienda online en minutos. Tus clientes exploran tu catálogo y te hacen pedidos directo por WhatsApp.",
+    title: "ByLink — Deja de perder pedidos en los DMs",
+    description: "Tu catálogo en un link. Tus clientes exploran, arman el pedido y te escriben directo por WhatsApp.",
     images: ["/og-default.png"],
   },
   icons: {
