@@ -44,7 +44,7 @@ export function CtaSection() {
             Gratis. Sin tarjeta. Lista en 5 minutos.
           </p>
           <p className="mt-1 text-sm text-white/60">
-            Hecho en Venezuela 🇻🇪
+            Hecho por venezolanos, para negocios venezolanos 🇻🇪
           </p>
         </div>
       </div>

@@ -31,7 +31,9 @@ export function Footer() {
           <p className="text-sm text-gray-600">
             © 2026 ByLink. Todos los derechos reservados.
           </p>
-          <p className="text-sm text-gray-500">Hecho en Venezuela 🇻🇪</p>
+          <p className="text-sm text-gray-500">
+            Hecho por venezolanos, para negocios venezolanos 🇻🇪
+          </p>
         </div>
       </div>
     </footer>
