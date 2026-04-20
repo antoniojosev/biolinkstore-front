@@ -4,7 +4,7 @@ import Link from "next/link"
 import { LogoFull } from "@/components/brand/logo"
 
 export const metadata: Metadata = {
-  title: "Configura tu tienda - biolinkstore",
+  title: "Configura tu tienda - ByLink",
   description: "Configura tu tienda y empieza a vender.",
 }
 

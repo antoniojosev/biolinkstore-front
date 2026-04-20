@@ -4,8 +4,8 @@ import { LogoFull } from "@/components/brand/logo"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Terminos y Condiciones - Bio Link Store",
-  description: "Terminos de uso, politica de privacidad y politica de reembolso de Bio Link Store.",
+  title: "Terminos y Condiciones - ByLink",
+  description: "Terminos de uso, politica de privacidad y politica de reembolso de ByLink.",
 }
 
 export default function TerminosPage() {
@@ -37,14 +37,14 @@ export default function TerminosPage() {
           <div className="space-y-4 text-white/80 leading-relaxed">
             <h3 className="text-lg font-medium text-white">1.1 Aceptacion de los Terminos</h3>
             <p>
-              Al acceder y utilizar Bio Link Store (&quot;la Plataforma&quot;), operada por Bio Link Store
+              Al acceder y utilizar ByLink (&quot;la Plataforma&quot;), operada por ByLink
               (&quot;nosotros&quot;, &quot;nuestro&quot;), usted acepta cumplir y estar sujeto a estos Terminos y
               Condiciones. Si no esta de acuerdo con alguna parte de estos terminos, no debe utilizar la Plataforma.
             </p>
 
             <h3 className="text-lg font-medium text-white">1.2 Descripcion del Servicio</h3>
             <p>
-              Bio Link Store es una plataforma SaaS (Software como Servicio) que permite a los vendedores de
+              ByLink es una plataforma SaaS (Software como Servicio) que permite a los vendedores de
               Instagram crear catalogos web para sus productos. Los clientes finales pueden explorar los productos
               y enviar solicitudes de pedido a traves de WhatsApp. La Plataforma actua unicamente como
               intermediario tecnologico y no participa en las transacciones comerciales entre vendedores y
@@ -78,8 +78,8 @@ export default function TerminosPage() {
             <h3 className="text-lg font-medium text-white">1.6 Propiedad Intelectual</h3>
             <p>
               Todo el contenido de la Plataforma, incluyendo pero no limitado a disenos, logotipos, textos,
-              graficos y software, es propiedad de Bio Link Store y esta protegido por las leyes de propiedad
-              intelectual. Los usuarios conservan la propiedad de su contenido, pero otorgan a Bio Link Store
+              graficos y software, es propiedad de ByLink y esta protegido por las leyes de propiedad
+              intelectual. Los usuarios conservan la propiedad de su contenido, pero otorgan a ByLink
               una licencia limitada para mostrar dicho contenido en la Plataforma.
             </p>
 
@@ -92,7 +92,7 @@ export default function TerminosPage() {
 
             <h3 className="text-lg font-medium text-white">1.8 Limitacion de Responsabilidad</h3>
             <p>
-              Bio Link Store no se responsabiliza por las transacciones entre vendedores y compradores. La
+              ByLink no se responsabiliza por las transacciones entre vendedores y compradores. La
               Plataforma se proporciona &quot;tal cual&quot; y &quot;segun disponibilidad&quot;. No garantizamos que el servicio
               sea ininterrumpido, seguro o libre de errores. En la medida permitida por la ley, nuestra
               responsabilidad total no excedera el monto pagado por usted en los ultimos 12 meses.
@@ -167,7 +167,7 @@ export default function TerminosPage() {
               </li>
               <li>
                 <strong>Proteccion de derechos:</strong> para proteger los derechos, propiedad o seguridad de
-                Bio Link Store, nuestros usuarios u otros
+                ByLink, nuestros usuarios u otros
               </li>
             </ul>
 
@@ -198,8 +198,8 @@ export default function TerminosPage() {
             </ul>
             <p>
               Para ejercer estos derechos, contactenos a traves de{" "}
-              <a href="mailto:soporte@biolinkstore.com" className="text-[#33b380] hover:underline">
-                soporte@biolinkstore.com
+              <a href="mailto:soporte@bylink.app" className="text-[var(--bylink-primary)] hover:underline">
+                soporte@bylink.app
               </a>.
             </p>
 
@@ -276,8 +276,8 @@ export default function TerminosPage() {
             <ol className="list-decimal list-inside space-y-1 ml-4">
               <li>
                 Envie un correo a{" "}
-                <a href="mailto:soporte@biolinkstore.com" className="text-[#33b380] hover:underline">
-                  soporte@biolinkstore.com
+                <a href="mailto:soporte@bylink.app" className="text-[var(--bylink-primary)] hover:underline">
+                  soporte@bylink.app
                 </a>{" "}
                 con el asunto &quot;Solicitud de reembolso&quot;
               </li>
@@ -288,9 +288,9 @@ export default function TerminosPage() {
 
             <h3 className="text-lg font-medium text-white">3.6 Transacciones entre Usuarios</h3>
             <p>
-              Bio Link Store no procesa pagos entre vendedores y compradores. Las transacciones se realizan
+              ByLink no procesa pagos entre vendedores y compradores. Las transacciones se realizan
               directamente entre las partes a traves de los medios que el vendedor disponga (WhatsApp,
-              transferencia bancaria, etc.). Por lo tanto, Bio Link Store no es responsable de reembolsos
+              transferencia bancaria, etc.). Por lo tanto, ByLink no es responsable de reembolsos
               relacionados con productos o servicios adquiridos a traves de las tiendas creadas en la
               Plataforma. Cualquier disputa debe resolverse directamente entre el vendedor y el comprador.
             </p>
@@ -308,14 +308,14 @@ export default function TerminosPage() {
             <ul className="list-disc list-inside space-y-1 ml-4">
               <li>
                 Correo electronico:{" "}
-                <a href="mailto:soporte@biolinkstore.com" className="text-[#33b380] hover:underline">
-                  soporte@biolinkstore.com
+                <a href="mailto:soporte@bylink.app" className="text-[var(--bylink-primary)] hover:underline">
+                  soporte@bylink.app
                 </a>
               </li>
               <li>
                 Sitio web:{" "}
-                <a href="https://biolinkstore.com" className="text-[#33b380] hover:underline">
-                  biolinkstore.com
+                <a href="https://bylink.app" className="text-[var(--bylink-primary)] hover:underline">
+                  bylink.app
                 </a>
               </li>
             </ul>
@@ -325,7 +325,7 @@ export default function TerminosPage() {
         <div className="border-t border-white/10 pt-8 text-center">
           <Link
             href="/home"
-            className="text-[#33b380] hover:underline text-sm"
+            className="text-[var(--bylink-primary)] hover:underline text-sm"
           >
             Volver al inicio
           </Link>

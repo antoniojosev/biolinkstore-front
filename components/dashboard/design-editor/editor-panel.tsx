@@ -165,7 +165,7 @@ export function EditorPanel({ draft, onChange, currentTemplate }: EditorPanelPro
           />
         </div>
         {draft.username && (
-          <p className="text-xs text-white/30">biolinkstore.com/{draft.username}</p>
+          <p className="text-xs text-white/30">bylink.app/{draft.username}</p>
         )}
       </section>
 

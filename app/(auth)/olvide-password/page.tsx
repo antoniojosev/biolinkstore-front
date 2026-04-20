@@ -2,8 +2,8 @@ import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Olvide Mi Contrasena - Bio Link Store",
-  description: "Recupera el acceso a tu cuenta de Bio Link Store.",
+  title: "Olvide Mi Contrasena - ByLink",
+  description: "Recupera el acceso a tu cuenta de ByLink.",
 };
 
 export default function ForgotPasswordPage() {

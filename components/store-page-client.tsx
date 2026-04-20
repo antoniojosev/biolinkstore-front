@@ -14,7 +14,7 @@ function PoweredByBadge() {
   return (
     <div className="flex justify-center py-4 bg-transparent">
       <Link
-        href="https://biolinkstore.com"
+        href="https://bylink.app"
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium text-white/40 hover:text-white/70 border border-white/8 hover:border-white/20 bg-black/20 backdrop-blur-sm transition-all"
@@ -36,7 +36,7 @@ function PoweredByBadge() {
             </linearGradient>
           </defs>
         </svg>
-        Creado con <span className="text-white/60 font-semibold">Bio Link Store</span>
+        Creado con <span className="text-white/60 font-semibold">ByLink</span>
       </Link>
     </div>
   )

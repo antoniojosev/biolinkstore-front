@@ -51,7 +51,7 @@ export function LoginForm() {
               Bienvenido de vuelta
             </h1>
             <p className="text-sm text-white/60 mt-1">
-              Inicia sesion en tu cuenta de biolinkstore
+              Inicia sesion en tu cuenta de ByLink
             </p>
           </div>
         </div>

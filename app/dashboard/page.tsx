@@ -28,7 +28,7 @@ export default function DashboardPage() {
 
   const ordersRepo = useMemo(() => new OrdersHttpRepository(http), [http])
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://biolinkstore.com'
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://bylink.app'
   const storeUrl = store?.slug ? `${origin}/${store.slug}` : ''
   const displayUrl = store?.username ? `${origin.replace(/^https?:\/\//, '')}/${store.slug}` : 'Pendiente — completá el onboarding'
 

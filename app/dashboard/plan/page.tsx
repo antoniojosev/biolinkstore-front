@@ -42,7 +42,7 @@ const plans = [
       "Soporte por email",
     ],
     limitations: [
-      "Marca de agua Bio Link Store",
+      "Marca de agua ByLink",
     ],
     color: "#6ee490",
     colorBg: "rgba(110, 228, 144, 0.1)",
@@ -453,7 +453,7 @@ export default function PlanPage() {
             </div>
             <div>
               <p className="text-base font-semibold text-white">Dominio personalizado</p>
-              <p className="text-sm text-white/50">Usa tu propio dominio en vez de biolinkstore.com/tu-tienda</p>
+              <p className="text-sm text-white/50">Usa tu propio dominio en vez de bylink.app/tu-tienda</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -510,7 +510,7 @@ export default function PlanPage() {
             },
             {
               q: "Hay comisiones por venta?",
-              a: "No, Bio Link Store no cobra comisiones por venta. Solo pagas tu suscripcion mensual o anual.",
+              a: "No, ByLink no cobra comisiones por venta. Solo pagas tu suscripcion mensual o anual.",
             },
             {
               q: "Puedo cambiar de plan en cualquier momento?",

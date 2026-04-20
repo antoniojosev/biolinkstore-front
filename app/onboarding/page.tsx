@@ -57,7 +57,7 @@ const PLANS = [
 ]
 
 const WA_SALES   = "5491100000000"
-const SALES_EMAIL = "ventas@biolinkstore.com"
+const SALES_EMAIL = "ventas@bylink.app"
 type ContactMethod = "whatsapp" | "email"
 
 // ── Modal de contacto para planes ─────────────────────────────────────────────
@@ -72,10 +72,10 @@ function PlanContactModal({
 
   const handleSend = () => {
     if (method === "whatsapp") {
-      const msg = encodeURIComponent(`Hola! Me interesa el plan ${planName} de Bio Link Store. Mi WhatsApp es: ${phone}`)
+      const msg = encodeURIComponent(`Hola! Me interesa el plan ${planName} de ByLink. Mi WhatsApp es: ${phone}`)
       window.open(`https://wa.me/${WA_SALES}?text=${msg}`, "_blank")
     } else {
-      const sub  = encodeURIComponent(`Consulta plan ${planName} — Bio Link Store`)
+      const sub  = encodeURIComponent(`Consulta plan ${planName} — ByLink`)
       const body = encodeURIComponent(`Hola!\n\nMe interesa el plan ${planName}.\n\nContactarme al email: ${email}`)
       window.open(`mailto:${SALES_EMAIL}?subject=${sub}&body=${body}`, "_blank")
     }
@@ -374,7 +374,7 @@ export default function OnboardingPage() {
 
               {username && usernameStatus.available !== false && (
                 <p className="text-sm text-white/30 mt-3 font-mono">
-                  biolinkstore.com/<span className="text-white/60">{username}</span>
+                  bylink.app/<span className="text-white/60">{username}</span>
                 </p>
               )}
               {usernameStatus.available === false && (

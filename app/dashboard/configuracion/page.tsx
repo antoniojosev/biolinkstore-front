@@ -204,7 +204,7 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-sm text-white/70">
-                Marca de agua &ldquo;Bio Link Store&rdquo; en fotos de productos
+                Marca de agua &ldquo;ByLink&rdquo; en fotos de productos
               </p>
               {storePlan === "FREE" && (
                 <p className="text-xs text-amber-400/80 flex items-center gap-1">

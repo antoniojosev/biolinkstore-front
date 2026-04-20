@@ -48,7 +48,7 @@ export function PreviewPanel({ store, products, categories }: PreviewPanelProps)
     '--ring': store.primaryColor,
   } as React.CSSProperties
 
-  const storeUrl = `biolinkstore.com/${store.slug}`
+  const storeUrl = `bylink.app/${store.slug}`
 
   return (
     <div className="flex flex-col h-full">

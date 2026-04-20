@@ -18,13 +18,13 @@ export const metadata: Metadata = {
   title: "ByLink — Deja de perder pedidos en los DMs",
   description: "Tu catálogo en un link. Tus clientes exploran, arman el pedido y te escriben directo por WhatsApp. Sin comisiones, sin código, en minutos.",
   generator: "v0.app",
-  metadataBase: new URL("https://biolinkstore.com"),
+  metadataBase: new URL("https://bylink.app"),
   openGraph: {
     type: "website",
     siteName: "ByLink",
     title: "ByLink — Deja de perder pedidos en los DMs",
     description: "Tu catálogo en un link. Tus clientes exploran, arman el pedido y te escriben directo por WhatsApp. Sin comisiones, sin código, en minutos.",
-    url: "https://biolinkstore.com",
+    url: "https://bylink.app",
     images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "ByLink — el link en bio que vende por ti" }],
   },
   twitter: {

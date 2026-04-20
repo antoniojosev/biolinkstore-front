@@ -19,15 +19,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { store } = data
   const title = `${store.name} — Catálogo`
   const description = store.bio ?? `Explorá el catálogo de ${store.name} y cotizá por WhatsApp.`
-  const image = store.avatar ?? store.coverImage ?? 'https://biolinkstore.com/og-default.png'
-  const url = `https://biolinkstore.com/${slug}`
+  const image = store.avatar ?? store.coverImage ?? 'https://bylink.app/og-default.png'
+  const url = `https://bylink.app/${slug}`
 
   return {
     title,
     description,
     openGraph: {
       type: 'website',
-      siteName: 'Bio Link Store',
+      siteName: 'ByLink',
       title,
       description,
       url,
