@@ -12,14 +12,14 @@ import {
 import { Button } from '@/components/ui/button'
 import { useStore } from '@/lib/store-context'
 import { trackEvent } from '@/lib/analytics'
-import { ServiciosCartDrawer } from './cart-drawer'
+import { PersonaCartDrawer } from './cart-drawer'
 import type { ProductDetail } from '@/lib/types'
 
 interface Props {
   product: ProductDetail
 }
 
-export function ServiciosProductDetail({ product }: Props) {
+export function PersonaProductDetail({ product }: Props) {
   const { store, paymentProvider } = useStore()
   const searchParams = useSearchParams()
   const preview = searchParams.get('preview')
@@ -228,7 +228,7 @@ export function ServiciosProductDetail({ product }: Props) {
         </div>
       </div>
 
-      <ServiciosCartDrawer />
+      <PersonaCartDrawer />
     </div>
   )
 }

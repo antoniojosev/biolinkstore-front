@@ -4,7 +4,11 @@ import { ProductDetailClient } from '@/components/product-detail-client'
 import { getStoreBySlug, getProductBySlug } from '@/lib/api'
 import type { TemplateId } from '@/lib/types'
 
-const VALID_TEMPLATES: TemplateId[] = ['vitrina', 'luxora', 'noir', 'menu', 'inmuebles', 'servicios']
+const VALID_TEMPLATES: TemplateId[] = [
+  'vitrina', 'luxora', 'noir', 'menu',
+  'estate', 'persona',
+  'poster', 'atelier', 'inmuebles', 'rosier',
+]
 
 interface Props {
   params: Promise<{ slug: string; productSlug: string }>

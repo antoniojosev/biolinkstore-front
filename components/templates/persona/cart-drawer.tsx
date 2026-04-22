@@ -1,13 +1,13 @@
 'use client'
 
-// Servicios template uses direct WhatsApp inquiry per service.
+// Persona template uses direct WhatsApp inquiry per service.
 // This is a minimal cart drawer kept for structural compatibility.
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { useCart } from '@/lib/cart-context'
 import { MessageCircle } from 'lucide-react'
 
-export function ServiciosCartDrawer() {
+export function PersonaCartDrawer() {
   const { isOpen, setIsOpen } = useCart()
 
   return (
@@ -16,7 +16,7 @@ export function ServiciosCartDrawer() {
         <SheetHeader className="px-6 py-4 border-b border-gray-200">
           <SheetTitle className="text-gray-900 flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
-            Servicios
+            Persona
           </SheetTitle>
         </SheetHeader>
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6 gap-4">

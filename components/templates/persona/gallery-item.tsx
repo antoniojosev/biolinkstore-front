@@ -10,7 +10,7 @@ interface Props {
   storeSlug: string
 }
 
-export function ServiciosGalleryItem({ src, product, storeSlug }: Props) {
+export function PersonaGalleryItem({ src, product, storeSlug }: Props) {
   const searchParams = useSearchParams()
   const preview = searchParams.get('preview')
 

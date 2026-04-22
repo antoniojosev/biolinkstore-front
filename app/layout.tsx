@@ -1,7 +1,7 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
-import { Inter } from "next/font/google"
+import { Inter, Fraunces, Anton, Allura } from "next/font/google"
 
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "sonner"
@@ -12,6 +12,32 @@ const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '700', '800'],
   variable: '--font-inter',
+})
+
+// Used by editorial templates (rosier, noir, etc). Loaded with display:swap so
+// non-editorial routes don't block on it.
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-fraunces',
+  display: 'swap',
+})
+
+// Used by Poster template (restaurant). Anton is a condensed sans for big
+// display type; Allura is the script companion for kickers.
+const anton = Anton({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-anton',
+  display: 'swap',
+})
+
+const allura = Allura({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-allura',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -80,7 +106,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${fraunces.variable} ${anton.variable} ${allura.variable} font-sans antialiased`}>
         <AuthProvider>
           {children}
         </AuthProvider>

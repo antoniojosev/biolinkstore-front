@@ -13,7 +13,7 @@ interface Props {
   accent: string
 }
 
-export function ServiciosProductCard({ product, currency = 'USD', accent }: Props) {
+export function PersonaProductCard({ product, currency = 'USD', accent }: Props) {
   const { store, paymentProvider } = useStore()
   const searchParams = useSearchParams()
   const preview = searchParams.get('preview')

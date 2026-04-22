@@ -5,10 +5,10 @@ import { Instagram, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { useStore } from '@/lib/store-context'
-import { ServiciosProductCard } from './product-card'
-import { ServiciosGalleryItem } from './gallery-item'
+import { PersonaProductCard } from './product-card'
+import { PersonaGalleryItem } from './gallery-item'
 
-export function ServiciosTemplate() {
+export function PersonaTemplate() {
   const { store, products, categories } = useStore()
   const [activeTab, setActiveTab] = useState<'servicios' | 'portfolio'>('servicios')
   const [selectedCategory, setSelectedCategory] = useState('Todos')
@@ -122,7 +122,7 @@ export function ServiciosTemplate() {
                   {products.length}
                 </p>
                 <p className="text-[11px] text-gray-400 uppercase tracking-wide">
-                  Servicios
+                  Persona
                 </p>
               </div>
             </div>
@@ -141,7 +141,7 @@ export function ServiciosTemplate() {
                 : 'text-gray-400 hover:text-gray-600'
             }`}
           >
-            Servicios
+            Persona
             {activeTab === 'servicios' && (
               <div
                 className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full"
@@ -203,7 +203,7 @@ export function ServiciosTemplate() {
           /* Services list */
           <div className="px-4 pt-4 space-y-3">
             {filtered.map((product) => (
-              <ServiciosProductCard
+              <PersonaProductCard
                 key={product.id}
                 product={product}
                 currency={store.currency}
@@ -220,7 +220,7 @@ export function ServiciosTemplate() {
           /* Portfolio grid */
           <div className="grid grid-cols-3 gap-0.5">
             {galleryImages.map((item, idx) => (
-              <ServiciosGalleryItem
+              <PersonaGalleryItem
                 key={`${item.product.id}-${idx}`}
                 src={item.src}
                 product={item.product}
