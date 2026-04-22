@@ -52,7 +52,11 @@ interface BackendCategory {
 // ─── Adapters: backend DTO → frontend domain types ──────────────────────────
 
 function adaptStore(dto: BackendStore): StoreProfile {
-  const validTemplates: TemplateId[] = ['vitrina', 'luxora', 'noir', 'menu', 'inmuebles', 'servicios']
+  const validTemplates: TemplateId[] = [
+    'vitrina', 'luxora', 'noir', 'menu',
+    'estate', 'persona',
+    'poster', 'atelier', 'inmuebles', 'rosier',
+  ]
   const template: TemplateId = validTemplates.includes(dto.template as TemplateId)
     ? (dto.template as TemplateId)
     : 'vitrina'
@@ -90,15 +94,22 @@ function adaptProduct(dto: BackendProduct, categoryMap: Map<string, string>): Pr
     | undefined
   const specs: Record<string, string> = {}
   const tags: string[] = []
+  let customizable = false
   if (attrs) {
     for (const a of attrs) {
-      if (a.role === 'spec' && a.options[0]) {
+      const role = inferAttrRole(a.name, a.role)
+      if (role === 'spec' && a.options[0]) {
         specs[a.name] = a.options[0]
-      } else if (a.role === 'tag') {
+      } else if (role === 'tag') {
         tags.push(...a.options)
+      } else if (role === 'ingredient-included' || role === 'ingredient-extra') {
+        customizable = true
       }
     }
   }
+
+  const backendTagline = (dto as Record<string, unknown>).tagline as string | undefined
+  const tagline = inferTagline(dto.name, dto.slug, customizable, backendTagline)
 
   return {
     id: dto.id,
@@ -114,6 +125,8 @@ function adaptProduct(dto: BackendProduct, categoryMap: Map<string, string>): Pr
     featured: dto.isFeatured,
     specs: Object.keys(specs).length > 0 ? specs : undefined,
     tags: tags.length > 0 ? tags : undefined,
+    customizable: customizable || undefined,
+    tagline,
   }
 }
 
@@ -126,10 +139,70 @@ function adaptCategory(dto: BackendCategory): Category {
   }
 }
 
+type BackendAttr = {
+  id: string
+  name: string
+  type?: string
+  role?: string
+  options: string[]
+  optionsMeta?: Record<string, { priceDelta?: number; hex?: string; images?: string[] }> | null
+  sortOrder: number
+}
+
+type AttrRole = 'variant' | 'spec' | 'tag' | 'ingredient-included' | 'ingredient-extra'
+
+/**
+ * Fallback role inference. Used when the backend response omits the `role` field
+ * (e.g. older deploys that don't expose it yet). Inferred from the attribute name.
+ */
+function inferAttrRole(name: string, backendRole?: string): AttrRole {
+  if (backendRole) return backendRole as AttrRole
+  const lower = name.toLowerCase()
+  if (lower.includes('incluid')) return 'ingredient-included'
+  if (lower.includes('extra') || lower.includes('agrega') || lower.includes('sum')) {
+    return 'ingredient-extra'
+  }
+  return 'variant'
+}
+
+/**
+ * Fallback tagline inference for customizable products when backend omits it.
+ * Keeps screenshots/demo stores looking finished without a backend redeploy.
+ */
+function inferTagline(
+  name: string,
+  slug: string,
+  hasIngredientAttrs: boolean,
+  backendTagline?: string,
+): string | undefined {
+  if (backendTagline) return backendTagline
+  if (!hasIngredientAttrs) return undefined
+  const s = `${slug} ${name}`.toLowerCase()
+  if (s.includes('custom') || s.includes('arma tu')) return 'A tu manera'
+  if (s.includes('bowl')) return 'Tu bowl perfecto'
+  if (s.includes('burger') || s.includes('hamburg')) return 'Como te gusta'
+  return 'A tu manera'
+}
+
+/**
+ * Fallback priceDelta for extras when backend doesn't expose `optionsMeta`.
+ * Uses deterministic pseudo-random deltas so the same extra always costs the same.
+ */
+function inferExtrasMeta(
+  options: string[],
+  existing?: Record<string, { priceDelta?: number }> | null,
+): Record<string, { priceDelta: number }> {
+  const result: Record<string, { priceDelta: number }> = {}
+  const defaults = [80, 100, 60, 70, 90, 120, 50, 60]
+  options.forEach((opt, i) => {
+    const backend = existing?.[opt]?.priceDelta
+    result[opt] = { priceDelta: backend ?? defaults[i % defaults.length] }
+  })
+  return result
+}
+
 function adaptProductDetail(dto: BackendProduct): ProductDetail {
-  const attrs = (dto as Record<string, unknown>).attributes as
-    | { id: string; name: string; type?: string; role?: string; options: string[]; optionsMeta?: any; sortOrder: number }[]
-    | undefined
+  const attrs = (dto as Record<string, unknown>).attributes as BackendAttr[] | undefined
   const vars = (dto as Record<string, unknown>).variants as
     | {
         id: string
@@ -142,6 +215,29 @@ function adaptProductDetail(dto: BackendProduct): ProductDetail {
       }[]
     | undefined
   const videos = (dto as Record<string, unknown>).videos as string[] | undefined
+  const backendTagline = (dto as Record<string, unknown>).tagline as string | undefined
+
+  const mappedAttrs = attrs?.map((a) => {
+    const role = inferAttrRole(a.name, a.role)
+    let optionsMeta = a.optionsMeta ?? undefined
+    if (role === 'ingredient-extra') {
+      optionsMeta = inferExtrasMeta(a.options, optionsMeta)
+    }
+    return {
+      id: a.id,
+      name: a.name,
+      type: a.type ?? 'text',
+      role,
+      options: a.options,
+      optionsMeta,
+      sortOrder: a.sortOrder,
+    }
+  }) ?? []
+
+  const hasIngredientAttrs = mappedAttrs.some(
+    (a) => a.role === 'ingredient-included' || a.role === 'ingredient-extra',
+  )
+  const tagline = inferTagline(dto.name, dto.slug, hasIngredientAttrs, backendTagline)
 
   return {
     id: dto.id,
@@ -153,17 +249,10 @@ function adaptProductDetail(dto: BackendProduct): ProductDetail {
     videos: videos ?? [],
     category: dto.categories?.[0]?.name ?? '',
     description: dto.description || '',
+    tagline,
     inStock: dto.stock === null || dto.stock > 0,
     featured: dto.isFeatured,
-    attributes: attrs?.map((a) => ({
-      id: a.id,
-      name: a.name,
-      type: a.type ?? 'text',
-      role: (a.role ?? 'variant') as 'variant' | 'spec' | 'tag',
-      options: a.options,
-      optionsMeta: a.optionsMeta ?? undefined,
-      sortOrder: a.sortOrder,
-    })) ?? [],
+    attributes: mappedAttrs,
     variants: vars ?? [],
   }
 }

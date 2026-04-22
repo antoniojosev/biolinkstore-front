@@ -40,6 +40,10 @@ export interface Product {
   specs?: Record<string, string>
   /** Tag attributes (role='tag') — flat list of tag values */
   tags?: string[]
+  /** Product has at least one ingredient-based attribute — show "Arma tu …" flow */
+  customizable?: boolean
+  /** Optional short script-line (e.g. "Crispy", "Doble carne") */
+  tagline?: string
 }
 
 export interface VariantDetail {
@@ -70,7 +74,12 @@ export interface Category {
 
 // ─── Product detail types ─────────────────────────────────────────────────────
 
-export type AttributeRole = 'variant' | 'spec' | 'tag'
+export type AttributeRole =
+  | 'variant'
+  | 'spec'
+  | 'tag'
+  | 'ingredient-included'
+  | 'ingredient-extra'
 
 export interface ProductAttribute {
   id: string
@@ -78,7 +87,10 @@ export interface ProductAttribute {
   type: string
   role: AttributeRole
   options: string[]
-  optionsMeta?: Record<string, { hex?: string; images?: string[] }>
+  optionsMeta?: Record<
+    string,
+    { hex?: string; images?: string[]; priceDelta?: number; default?: boolean }
+  >
   sortOrder: number
 }
 
@@ -102,13 +114,24 @@ export interface ProductDetail {
   videos: string[]
   category: string
   description: string
+  tagline?: string
   inStock: boolean
   featured?: boolean
   attributes: ProductAttribute[]
   variants: ProductVariantDetail[]
 }
 
-export type TemplateId = 'vitrina' | 'luxora' | 'noir' | 'menu' | 'inmuebles' | 'servicios'
+export type TemplateId =
+  | 'vitrina'
+  | 'luxora'
+  | 'noir'
+  | 'menu'
+  | 'estate'      // classic real-estate (was: inmuebles)
+  | 'persona'     // classic instagram-style profile (was: servicios)
+  | 'poster'      // new: restaurant
+  | 'atelier'     // new: services portfolio
+  | 'inmuebles'   // new: realtor landing
+  | 'rosier'      // new: fashion ecommerce
 
 export interface StoreProfile {
   id: string
