@@ -1,11 +1,9 @@
 "use client"
 
-import { useState, useEffect, useCallback, useId } from "react"
+import { useState, useEffect, useCallback, useId, useRef } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
-
-const INTERVAL = 6000
 
 const cases = [
   {
@@ -24,8 +22,7 @@ const cases = [
     accent: "#0F6BA8",
     accentLight: "bg-[#E7F2FA]",
     accentText: "text-[#0F6BA8]",
-    phoneBg: "from-[#E7F2FA] to-[#FAFAF7]",
-    phoneAccent: "bg-[#0F6BA8]/15",
+    video: "/videos/rosier-v5.mp4",
   },
   {
     id: "restaurantes",
@@ -43,8 +40,7 @@ const cases = [
     accent: "#FF6B4A",
     accentLight: "bg-[#FFF0EC]",
     accentText: "text-[#FF6B4A]",
-    phoneBg: "from-[#FFF0EC] to-[#FAFAF7]",
-    phoneAccent: "bg-[#FF6B4A]/15",
+    video: "/videos/poster-v12.mp4",
   },
   {
     id: "inmobiliarias",
@@ -62,8 +58,7 @@ const cases = [
     accent: "#64748B",
     accentLight: "bg-[#F1F5F9]",
     accentText: "text-[#64748B]",
-    phoneBg: "from-[#F1F5F9] to-[#FAFAF7]",
-    phoneAccent: "bg-[#64748B]/15",
+    video: "/videos/inmuebles-v5.mp4",
   },
   {
     id: "servicios",
@@ -81,8 +76,7 @@ const cases = [
     accent: "#10B981",
     accentLight: "bg-[#ECFDF5]",
     accentText: "text-[#10B981]",
-    phoneBg: "from-[#ECFDF5] to-[#FAFAF7]",
-    phoneAccent: "bg-[#10B981]/15",
+    video: "/videos/atelier-v8.mp4",
   },
 ]
 
@@ -90,21 +84,35 @@ export function UseCasesSection() {
   const [active, setActive] = useState(0)
   const [animKey, setAnimKey] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [durationMs, setDurationMs] = useState(6000)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const baseId = useId()
-
-  useEffect(() => {
-    if (paused) return
-    const timer = setTimeout(() => {
-      setActive((a) => (a + 1) % cases.length)
-      setAnimKey((k) => k + 1)
-    }, INTERVAL)
-    return () => clearTimeout(timer)
-  }, [active, paused])
 
   const goTo = useCallback((idx: number) => {
     setActive(idx)
     setAnimKey((k) => k + 1)
   }, [])
+
+  const advance = useCallback(() => {
+    setActive((a) => (a + 1) % cases.length)
+    setAnimKey((k) => k + 1)
+  }, [])
+
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v) return
+    if (paused) v.pause()
+    else v.play().catch(() => {})
+  }, [paused, active])
+
+  const onLoadedMeta = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const d = e.currentTarget.duration
+    if (d && Number.isFinite(d)) setDurationMs(Math.round(d * 1000))
+  }, [])
+
+  const onEnded = useCallback(() => {
+    if (!paused) advance()
+  }, [paused, advance])
 
   const c = cases[active]
   const panelId = `${baseId}-panel-${c.id}`
@@ -158,7 +166,7 @@ export function UseCasesSection() {
                     aria-hidden="true"
                     className="absolute bottom-0 left-0 h-[3px] bg-white/30"
                     style={{
-                      animation: `progressFill ${INTERVAL}ms linear forwards`,
+                      animation: `progressFill ${durationMs}ms linear forwards`,
                     }}
                   />
                 )}
@@ -222,51 +230,30 @@ export function UseCasesSection() {
             </Button>
           </div>
 
-          <div className="flex justify-center" aria-hidden="true">
+          <div className="flex justify-center">
             <div className="relative w-[260px] sm:w-[280px]">
               <div
-                className="rounded-[2.5rem] border-[8px] border-gray-900 bg-white shadow-2xl overflow-hidden"
-                style={{ boxShadow: `0 25px 60px -15px ${c.accent}20` }}
+                className="relative rounded-[2.75rem] bg-gray-900 shadow-2xl p-[10px] aspect-[1170/2532] overflow-hidden"
+                style={{ boxShadow: `0 25px 60px -15px ${c.accent}40` }}
+                aria-label={`Demo ${c.tab} en móvil`}
+                role="img"
               >
-                <div className="h-6 bg-gray-900 rounded-b-2xl mx-auto w-[40%]" />
+                <video
+                  key={c.video}
+                  ref={videoRef}
+                  src={c.video}
+                  autoPlay
+                  muted
+                  playsInline
+                  preload="metadata"
+                  onLoadedMetadata={onLoadedMeta}
+                  onEnded={onEnded}
+                  className="w-full h-full object-cover rounded-[calc(2.75rem-10px)] block"
+                />
                 <div
-                  className={`aspect-[9/18] bg-gradient-to-b ${c.phoneBg} flex flex-col items-center p-4`}
-                >
-                  <div
-                    className={`w-14 h-14 rounded-full ${c.phoneAccent} mt-3 mb-2`}
-                  />
-                  <div className="h-3 w-20 bg-gray-200/80 rounded-full mb-1" />
-                  <div className="h-2 w-14 bg-gray-100 rounded-full mb-4" />
-
-                  <div className="grid grid-cols-2 gap-2 w-full">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div
-                        key={i}
-                        className="rounded-lg overflow-hidden bg-white shadow-sm"
-                      >
-                        <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100" />
-                        <div className="p-1.5">
-                          <div className="h-1.5 w-full bg-gray-100 rounded-full mb-1" />
-                          <div
-                            className="h-1.5 w-10 rounded-full"
-                            style={{ backgroundColor: `${c.accent}25` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-auto mb-2 w-full">
-                    <div
-                      className="h-9 rounded-lg flex items-center justify-center shadow-sm"
-                      style={{ backgroundColor: c.accent }}
-                    >
-                      <span className="text-white text-[10px] font-semibold">
-                        Pedir por WhatsApp
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                  aria-hidden="true"
+                  className="absolute top-[14px] left-1/2 -translate-x-1/2 w-[90px] h-[26px] bg-gray-900 rounded-full z-10"
+                />
               </div>
             </div>
           </div>

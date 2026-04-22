@@ -93,36 +93,28 @@ export function HeroSection() {
           </div>
 
           {/* Phone mockup side */}
-          <div className="relative flex justify-center" aria-hidden="true">
+          <div className="relative flex justify-center">
             <div className="relative w-[280px] sm:w-[300px] phone-reveal">
-              <div className="rounded-[2.5rem] border-[8px] border-gray-900 bg-white shadow-2xl overflow-hidden">
-                <div className="h-6 bg-gray-900 rounded-b-2xl mx-auto w-[40%]" />
-                <div className="aspect-[9/18] bg-gradient-to-b from-[var(--bylink-surface-soft)] to-white flex flex-col items-center p-4">
-                  <div className="w-16 h-16 rounded-full bg-[var(--bylink-primary)]/15 mt-4 mb-3" />
-                  <div className="h-3 w-24 bg-gray-200/80 rounded-full mb-1" />
-                  <div className="h-2 w-16 bg-gray-100 rounded-full mb-6" />
-                  <div className="grid grid-cols-2 gap-2 w-full">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div
-                        key={i}
-                        className="rounded-xl overflow-hidden bg-white shadow-sm"
-                      >
-                        <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100" />
-                        <div className="p-2">
-                          <div className="h-2 w-full bg-gray-100 rounded-full mb-1" />
-                          <div className="h-2 w-12 bg-[var(--bylink-primary)]/15 rounded-full" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-auto mb-2 w-full">
-                    <div className="h-10 bg-[#25D366] rounded-xl flex items-center justify-center shadow-sm">
-                      <span className="text-white text-xs font-semibold">
-                        Pedir por WhatsApp
-                      </span>
-                    </div>
-                  </div>
-                </div>
+              {/* Phone frame: bezel + dynamic island as absolute overlays; video fills the screen */}
+              <div
+                className="relative rounded-[2.75rem] bg-gray-900 shadow-2xl p-[10px] aspect-[1170/2532] overflow-hidden"
+                aria-label="Demo de una tienda ByLink en móvil"
+                role="img"
+              >
+                <video
+                  src="/videos/rosier-v5.mp4"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className="w-full h-full object-cover rounded-[calc(2.75rem-10px)] block"
+                />
+                {/* Dynamic Island */}
+                <div
+                  aria-hidden="true"
+                  className="absolute top-[14px] left-1/2 -translate-x-1/2 w-[90px] h-[26px] bg-gray-900 rounded-full z-10"
+                />
               </div>
             </div>
 
