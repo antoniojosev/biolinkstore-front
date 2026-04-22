@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 
 export function HeroSection() {
   return (
-    <section className="pt-24 pb-16 sm:pt-32 sm:pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-gradient-to-b from-white to-[var(--bylink-surface-soft)]">
+    <section className="pt-20 pb-8 sm:pt-32 sm:pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-gradient-to-b from-white to-[var(--bylink-surface-soft)]">
       {/* Single ambient glow behind phone mockup */}
       <div
         aria-hidden="true"
@@ -64,7 +64,7 @@ export function HeroSection() {
             </div>
 
             <p
-              className="mt-4 text-sm text-gray-500 animate-fade-in-up"
+              className="mt-4 text-sm text-gray-600 animate-fade-in-up"
               style={{ animationDelay: "0.6s", animationFillMode: "both" }}
             >
               Gratis. Sin tarjeta. Lista en 5 minutos.
@@ -118,9 +118,9 @@ export function HeroSection() {
               </div>
             </div>
 
-            {/* Floating badges — decorative, static */}
-            <div className="absolute top-8 -right-2 sm:right-0 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3">
-              <div className="text-2xl font-extrabold text-[var(--bylink-primary)]">
+            {/* Floating badges — decorative, static. Hidden on mobile to avoid overflow. */}
+            <div className="hidden sm:block absolute top-8 right-0 bg-white rounded-xl shadow-lg border border-gray-100 px-3 py-2.5">
+              <div className="text-xl font-extrabold text-[var(--bylink-primary)]">
                 0%
               </div>
               <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
@@ -128,8 +128,8 @@ export function HeroSection() {
               </div>
             </div>
 
-            <div className="absolute bottom-12 -left-2 sm:left-0 bg-white rounded-xl shadow-lg border border-gray-100 px-4 py-3">
-              <div className="text-lg">💬</div>
+            <div className="hidden sm:block absolute bottom-12 left-0 bg-white rounded-xl shadow-lg border border-gray-100 px-3 py-2.5">
+              <div className="text-base">💬</div>
               <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
                 WhatsApp
               </div>

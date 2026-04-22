@@ -119,11 +119,13 @@ export function PricingSection() {
                 {rate && plan.priceUsd && (
                   <p
                     className={`text-sm mt-1 ${
-                      plan.highlighted ? "text-gray-500" : "text-gray-400"
+                      plan.highlighted ? "text-gray-600" : "text-gray-400"
                     }`}
                   >
                     {formatBs(plan.priceUsd, rate)}{" "}
-                    <span className="text-gray-500">/ tasa BCV</span>
+                    <span className={plan.highlighted ? "text-gray-600" : "text-gray-500"}>
+                      / tasa BCV
+                    </span>
                   </p>
                 )}
                 <p

@@ -84,14 +84,32 @@ export function UseCasesSection() {
   const [active, setActive] = useState(0)
   const [animKey, setAnimKey] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [offscreen, setOffscreen] = useState(false)
   const [durationMs, setDurationMs] = useState(6000)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
   const baseId = useId()
 
-  const goTo = useCallback((idx: number) => {
-    setActive(idx)
-    setAnimKey((k) => k + 1)
+  const restartVideo = useCallback(() => {
+    const v = videoRef.current
+    if (!v) return
+    try {
+      v.currentTime = 0
+    } catch {
+      // currentTime may throw if metadata not loaded yet; play() below will still trigger from 0
+    }
+    v.play().catch(() => {})
   }, [])
+
+  const goTo = useCallback((idx: number) => {
+    setAnimKey((k) => k + 1)
+    setActive((prev) => {
+      // Re-clicking the active tab: no remount will happen (same key), so reset explicitly.
+      // Switching to a different tab: <video key={c.video}> remounts and autoplays from 0.
+      if (prev === idx) restartVideo()
+      return idx
+    })
+  }, [restartVideo])
 
   const advance = useCallback(() => {
     setActive((a) => (a + 1) % cases.length)
@@ -99,11 +117,22 @@ export function UseCasesSection() {
   }, [])
 
   useEffect(() => {
+    const el = sectionRef.current
+    if (!el || typeof IntersectionObserver === "undefined") return
+    const io = new IntersectionObserver(
+      ([entry]) => setOffscreen(!entry.isIntersecting),
+      { threshold: 0.15 }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
     const v = videoRef.current
     if (!v) return
-    if (paused) v.pause()
+    if (paused || offscreen) v.pause()
     else v.play().catch(() => {})
-  }, [paused, active])
+  }, [paused, offscreen, active])
 
   const onLoadedMeta = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
     const d = e.currentTarget.duration
@@ -111,8 +140,8 @@ export function UseCasesSection() {
   }, [])
 
   const onEnded = useCallback(() => {
-    if (!paused) advance()
-  }, [paused, advance])
+    if (!paused && !offscreen) advance()
+  }, [paused, offscreen, advance])
 
   const c = cases[active]
   const panelId = `${baseId}-panel-${c.id}`
@@ -120,10 +149,9 @@ export function UseCasesSection() {
 
   return (
     <section
+      ref={sectionRef}
       id="casos"
       className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bylink-surface-soft)]/50"
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={() => setPaused(false)}
     >
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10 sm:mb-14">
@@ -139,7 +167,7 @@ export function UseCasesSection() {
         <div
           role="tablist"
           aria-label="Casos de uso por tipo de negocio"
-          className="flex flex-wrap gap-2 justify-center mb-10 sm:mb-14"
+          className="flex gap-2 overflow-x-auto scrollbar-hidden snap-x snap-mandatory px-4 -mx-4 mb-10 sm:flex-wrap sm:justify-center sm:overflow-visible sm:snap-none sm:px-0 sm:mx-0 sm:mb-14"
         >
           {cases.map((cs, i) => {
             const selected = active === i
@@ -152,7 +180,7 @@ export function UseCasesSection() {
                 aria-controls={panelId}
                 tabIndex={selected ? 0 : -1}
                 onClick={() => goTo(i)}
-                className={`relative px-4 sm:px-5 py-2.5 rounded-full text-sm font-semibold cursor-pointer overflow-hidden tab-pill focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--bylink-primary)] ${
+                className={`relative shrink-0 snap-start sm:shrink px-4 sm:px-5 py-3 min-h-[44px] rounded-full text-sm font-semibold cursor-pointer overflow-hidden tab-pill focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--bylink-primary)] ${
                   selected
                     ? "text-white shadow-md"
                     : "bg-white border border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-700"
@@ -181,6 +209,8 @@ export function UseCasesSection() {
           role="tabpanel"
           aria-labelledby={tabId(c.id)}
           className="case-fade-enter grid items-center gap-10 lg:grid-cols-2 lg:gap-16"
+          onFocusCapture={() => setPaused(true)}
+          onBlurCapture={() => setPaused(false)}
         >
           <div>
             <div
@@ -231,7 +261,7 @@ export function UseCasesSection() {
           </div>
 
           <div className="flex justify-center">
-            <div className="relative w-[260px] sm:w-[280px]">
+            <div className="relative w-[280px] xs:w-[300px] sm:w-[320px]">
               <div
                 className="relative rounded-[2.75rem] bg-gray-900 shadow-2xl p-[10px] aspect-[1170/2532] overflow-hidden"
                 style={{ boxShadow: `0 25px 60px -15px ${c.accent}40` }}

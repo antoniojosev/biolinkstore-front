@@ -1,3 +1,5 @@
+// TODO: legacy — no usado en app/page.tsx (landing ByLink). Solo activo en app/home/page.tsx.
+// Pendiente de rebrand a tokens ByLink (primary/accent) y numeros reales antes de reintroducir.
 export function StatsSection() {
   const stats = [
     { value: "+5,000", label: "Tiendas activas", description: "confían en InstaShop", color: "text-[#6ee490]" },

@@ -36,7 +36,7 @@ export function ProblemSolutionSection() {
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+        <div className="grid md:grid-cols-2 gap-8">
           <div className="rounded-2xl border border-red-200/60 bg-gradient-to-br from-red-50 to-rose-50/40 p-6 sm:p-8 shadow-sm shadow-red-900/5 card-lift">
             <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
               <span

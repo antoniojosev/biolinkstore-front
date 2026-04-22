@@ -82,7 +82,7 @@ export function Navbar() {
             aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
             aria-expanded={isMenuOpen}
             aria-controls="mobile-menu"
-            className="md:hidden p-2 text-gray-700 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--bylink-primary)]"
+            className="md:hidden p-2.5 -mr-2.5 text-gray-700 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--bylink-primary)]"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
