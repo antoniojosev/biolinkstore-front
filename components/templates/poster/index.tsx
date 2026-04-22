@@ -76,7 +76,7 @@ export function PosterTemplate() {
 
   return (
     <div
-      className="min-h-[100dvh] text-[#fff4e0]"
+      className="min-h-[100dvh] overflow-x-clip text-[#fff4e0]"
       style={{
         fontFamily: 'var(--font-inter), system-ui, sans-serif',
         background:

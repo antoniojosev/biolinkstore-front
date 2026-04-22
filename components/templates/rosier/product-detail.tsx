@@ -402,7 +402,7 @@ export function RosierProductDetail({ product }: Props) {
             type="button"
             onClick={handleAdd}
             disabled={!canAdd}
-            className={`w-full h-[54px] rounded-full text-sm font-semibold flex items-center justify-between px-6 transition-all active:scale-[0.99] ${
+            className={`w-full h-[54px] rounded-full text-sm font-semibold hidden lg:flex items-center justify-between px-6 transition-all active:scale-[0.99] ${
               added
                 ? 'bg-[#c8334c] text-white'
                 : canAdd
@@ -477,23 +477,28 @@ export function RosierProductDetail({ product }: Props) {
       </div>
 
       {/* Mobile sticky CTA */}
-      {canAdd && (
-        <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[rgba(253,250,246,0.96)] backdrop-blur-[14px] border-t border-[#e8dfd8] px-4 pt-3 pb-[max(14px,env(safe-area-inset-bottom))]">
-          <button
-            type="button"
-            onClick={handleAdd}
-            className={`w-full h-[52px] rounded-full text-sm font-semibold flex items-center justify-between px-5 transition-all active:scale-[0.99] ${
-              added ? 'bg-[#c8334c] text-white' : 'bg-[#1a1413] text-white hover:bg-[#c8334c]'
-            }`}
-          >
-            <span className="inline-flex items-center gap-2">
-              {added ? <Check className="w-4 h-4" strokeWidth={2.2} /> : <ShoppingBag className="w-4 h-4" strokeWidth={1.6} />}
-              {added ? 'Añadido' : 'Añadir a la bolsa'}
-            </span>
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[rgba(253,250,246,0.96)] backdrop-blur-[14px] border-t border-[#e8dfd8] px-4 pt-3 pb-[max(14px,env(safe-area-inset-bottom))]">
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={!canAdd}
+          className={`w-full h-[52px] rounded-full text-sm font-semibold flex items-center justify-between px-5 transition-all active:scale-[0.99] ${
+            added
+              ? 'bg-[#c8334c] text-white'
+              : canAdd
+                ? 'bg-[#1a1413] text-white hover:bg-[#c8334c]'
+                : 'bg-[#ead9c6] text-[#78685f] cursor-not-allowed'
+          }`}
+        >
+          <span className="inline-flex items-center gap-2">
+            {added ? <Check className="w-4 h-4" strokeWidth={2.2} /> : <ShoppingBag className="w-4 h-4" strokeWidth={1.6} />}
+            {added ? 'Añadido' : canAdd ? 'Añadir a la bolsa' : variantAttrs.length > 0 ? 'Elige opciones' : 'Agotado'}
+          </span>
+          {canAdd && !added && (
             <span className="font-semibold tabular-nums">{fmt(finalPrice * quantity)}</span>
-          </button>
-        </div>
-      )}
+          )}
+        </button>
+      </div>
 
       <RosierCartDrawer />
       <WishlistDrawer

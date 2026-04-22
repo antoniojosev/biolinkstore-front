@@ -9,15 +9,43 @@ import { TemplateRenderer } from '@/components/templates/renderer'
 import { WhatsAppPaymentProvider } from '@/lib/payment-providers/whatsapp'
 import { trackEvent } from '@/lib/analytics'
 import type { StorePageData } from '@/lib/api'
+import type { TemplateId } from '@/lib/types'
 
-function PoweredByBadge() {
+/**
+ * Terminal background color for each template — matches the bottom of each
+ * template's gradient/wrapper. Used by the outer storefront wrapper so the
+ * body's off-white `--background` never bleeds through (e.g. behind the
+ * PoweredByBadge or on mobile overscroll bounce).
+ */
+const TEMPLATE_BG: Record<TemplateId, string> = {
+  vitrina: '#FAFAF7',
+  luxora: '#FAFAF8',
+  noir: '#0A0A0A',
+  menu: '#FFF8F0',
+  estate: '#F8F9FA',
+  persona: '#FFFFFF',
+  poster: '#2c0505',
+  atelier: '#e2dccf',
+  inmuebles: '#0a0a0a',
+  rosier: '#fdfaf6',
+}
+
+/** Templates with a dark terminal color — badge keeps its dark-glass style. */
+const DARK_TEMPLATES = new Set<TemplateId>(['noir', 'poster', 'inmuebles'])
+
+function PoweredByBadge({ template }: { template: TemplateId }) {
+  const isDark = DARK_TEMPLATES.has(template)
+  const badgeClass = isDark
+    ? 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium text-white/40 hover:text-white/70 border border-white/8 hover:border-white/20 bg-black/20 backdrop-blur-sm transition-all'
+    : 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium text-black/40 hover:text-black/70 border border-black/8 hover:border-black/20 bg-white/40 backdrop-blur-sm transition-all'
+  const brandClass = isDark ? 'text-white/60 font-semibold' : 'text-black/70 font-semibold'
   return (
     <div className="flex justify-center py-4 bg-transparent">
       <Link
         href="https://bylink.app"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium text-white/40 hover:text-white/70 border border-white/8 hover:border-white/20 bg-black/20 backdrop-blur-sm transition-all"
+        className={badgeClass}
       >
         <svg viewBox="0 0 64 64" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="44" height="38" x="10" y="20" fill="url(#badge-a)" rx="8"/>
@@ -36,7 +64,7 @@ function PoweredByBadge() {
             </linearGradient>
           </defs>
         </svg>
-        Creado con <span className="text-white/60 font-semibold">ByLink</span>
+        Creado con <span className={brandClass}>ByLink</span>
       </Link>
     </div>
   )
@@ -66,6 +94,19 @@ export function StorePageClient({ data }: { data: StorePageData }) {
   }, [data.store.slug])
 
   const wishlistEnabled = data.store.plan === 'PRO' || data.store.plan === 'BUSINESS'
+  const terminalBg = TEMPLATE_BG[data.store.template] ?? '#FAFAF7'
+
+  // Paint <html> with the template's terminal bg so iOS/Android overscroll
+  // bounce never reveals the body's off-white `--background` token. Restored
+  // on unmount so dashboard/landing routes keep their original styling.
+  useEffect(() => {
+    const html = document.documentElement
+    const prevBg = html.style.backgroundColor
+    html.style.backgroundColor = terminalBg
+    return () => {
+      html.style.backgroundColor = prevBg
+    }
+  }, [terminalBg])
 
   return (
     <CartProvider storeSlug={data.store.slug}>
@@ -76,8 +117,10 @@ export function StorePageClient({ data }: { data: StorePageData }) {
           categories={data.categories}
           paymentProvider={paymentProvider}
         >
-          <TemplateRenderer template={data.store.template} />
-          <PoweredByBadge />
+          <div className="min-h-[100dvh]" style={{ backgroundColor: terminalBg }}>
+            <TemplateRenderer template={data.store.template} />
+            <PoweredByBadge template={data.store.template} />
+          </div>
         </StoreProvider>
       </WishlistProvider>
     </CartProvider>

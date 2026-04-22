@@ -428,7 +428,7 @@ export function PosterProductDetail({ product }: Props) {
             'linear-gradient(180deg, rgba(30,3,3,0) 0%, #2e0606 30%)',
         }}
       >
-        <div className="mx-auto flex max-w-[540px] items-center justify-between gap-3 rounded-[24px] bg-[#fff4e0] p-3.5 px-[18px] text-[#4a0a0a] shadow-[0_18px_40px_-8px_rgba(0,0,0,.6)]">
+        <div className="mx-auto flex max-w-[540px] items-center justify-between gap-3 rounded-[24px] bg-[#fff4e0] py-3 pl-5 pr-3 text-[#4a0a0a] shadow-[0_18px_40px_-8px_rgba(0,0,0,.6)]">
           <div className="flex flex-col">
             <span className="text-[11px] uppercase tracking-[.08em] opacity-65">
               Total
@@ -443,7 +443,7 @@ export function PosterProductDetail({ product }: Props) {
           <button
             type="button"
             onClick={handleAdd}
-            className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#4a0a0a] px-5 py-3.5 text-[13px] font-bold uppercase tracking-wider text-[#fff4e0] transition-all hover:scale-[1.03] hover:bg-[#962020] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#4a0a0a]"
+            className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#4a0a0a] px-5 py-3 text-[13px] font-bold uppercase tracking-wider text-[#fff4e0] transition-all hover:scale-[1.03] hover:bg-[#962020] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#4a0a0a]"
             aria-label={`Agregar al carrito — ${fmt(totalPrice)}`}
           >
             {added ? (
@@ -454,7 +454,9 @@ export function PosterProductDetail({ product }: Props) {
             ) : (
               <>
                 <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={2.2} />
-                Agregar al carrito
+                <span>
+                  Agregar<span className="hidden sm:inline"> al carrito</span>
+                </span>
               </>
             )}
           </button>
