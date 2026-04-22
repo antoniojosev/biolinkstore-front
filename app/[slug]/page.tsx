@@ -25,10 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = store.bio ?? `Explorá el catálogo de ${store.name} y cotizá por WhatsApp.`
   const image = store.avatar ?? store.coverImage ?? 'https://bylink.app/og-default.png'
   const url = `https://bylink.app/${slug}`
+  const isDemo = slug.startsWith('demo-')
 
   return {
     title,
     description,
+    robots: isDemo ? { index: false, follow: false } : undefined,
     openGraph: {
       type: 'website',
       siteName: 'ByLink',

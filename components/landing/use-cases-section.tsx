@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useId, useRef } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, ArrowUpRight } from "lucide-react"
 
 const cases = [
   {
@@ -23,6 +23,8 @@ const cases = [
     accentLight: "bg-[#E7F2FA]",
     accentText: "text-[#0F6BA8]",
     video: "/videos/rosier-v5.mp4",
+    demoSlug: "demo-noire-boutique",
+    demoLabel: "Noire Boutique",
   },
   {
     id: "restaurantes",
@@ -41,6 +43,8 @@ const cases = [
     accentLight: "bg-[#FFF0EC]",
     accentText: "text-[#FF6B4A]",
     video: "/videos/poster-v12.mp4",
+    demoSlug: "demo-brooklyn-burger-house",
+    demoLabel: "Brooklyn Burger House",
   },
   {
     id: "inmobiliarias",
@@ -59,6 +63,8 @@ const cases = [
     accentLight: "bg-[#F1F5F9]",
     accentText: "text-[#64748B]",
     video: "/videos/inmuebles-v5.mp4",
+    demoSlug: "demo-andrea-torres-propiedades",
+    demoLabel: "Andrea Torres Propiedades",
   },
   {
     id: "servicios",
@@ -77,6 +83,8 @@ const cases = [
     accentLight: "bg-[#ECFDF5]",
     accentText: "text-[#10B981]",
     video: "/videos/atelier-v8.mp4",
+    demoSlug: "demo-daniel-mendoza-foto",
+    demoLabel: "Daniel Mendoza",
   },
 ]
 
@@ -167,7 +175,7 @@ export function UseCasesSection() {
         <div
           role="tablist"
           aria-label="Casos de uso por tipo de negocio"
-          className="flex gap-2 overflow-x-auto scrollbar-hidden snap-x snap-mandatory px-4 -mx-4 mb-10 sm:flex-wrap sm:justify-center sm:overflow-visible sm:snap-none sm:px-0 sm:mx-0 sm:mb-14"
+          className="flex gap-2 overflow-x-auto scrollbar-hidden snap-x snap-mandatory mb-10 pr-4 scroll-pl-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:snap-none sm:pr-0 sm:mb-14"
         >
           {cases.map((cs, i) => {
             const selected = active === i
@@ -248,16 +256,35 @@ export function UseCasesSection() {
               ))}
             </div>
 
-            <Button
-              asChild
-              className="gap-2 text-white shadow-md cursor-pointer btn-press"
-              style={{ backgroundColor: c.accent }}
-            >
-              <Link href="/registro">
-                {c.cta}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                asChild
+                className="gap-2 text-white shadow-md cursor-pointer btn-press"
+                style={{ backgroundColor: c.accent }}
+              >
+                <Link href="/registro">
+                  {c.cta}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+
+              <Button
+                asChild
+                variant="outline"
+                className="gap-2 cursor-pointer bg-white/60 backdrop-blur-sm"
+                style={{ borderColor: c.accent, color: c.accent }}
+              >
+                <Link
+                  href={`/${c.demoSlug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Abrir demo en vivo: ${c.demoLabel} (se abre en una pestaña nueva)`}
+                >
+                  Ver demo en vivo
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
 
           <div className="flex justify-center">
