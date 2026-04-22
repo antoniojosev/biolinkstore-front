@@ -24,7 +24,7 @@ interface Props {
 
 export function MenuProductDetail({ product }: Props) {
   const { store } = useStore()
-  const { addItem, setIsOpen, totalItems } = useCart()
+  const { addItem, updateQuantity, items, setIsOpen, totalItems } = useCart()
   const searchParams = useSearchParams()
   const preview = searchParams.get('preview')
   const backHref = `/${store.slug}${preview ? `?preview=${preview}` : ''}`
@@ -91,8 +91,10 @@ export function MenuProductDetail({ product }: Props) {
           .map(([, v]) => v)
           .join('-')
       : ''
+    const id = optionsKey ? `${product.id}-${optionsKey}` : product.id
+    const existing = items.find((i) => i.id === id)
     addItem({
-      id: optionsKey ? `${product.id}-${optionsKey}` : product.id,
+      id,
       productId: product.id,
       name: product.name,
       price: finalPrice,
@@ -100,6 +102,10 @@ export function MenuProductDetail({ product }: Props) {
       variant: variantLabel,
       variantDetails,
     })
+    if (quantity > 1) {
+      const baseQty = existing ? existing.quantity : 0
+      updateQuantity(id, baseQty + quantity)
+    }
     setAdded(true)
     setIsOpen(true)
     setTimeout(() => setAdded(false), 1800)
@@ -133,13 +139,16 @@ export function MenuProductDetail({ product }: Props) {
             return (
               <button
                 key={option}
+                type="button"
                 onClick={() => handleSelectOption(attr.name, option)}
                 disabled={!isAvailable}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                aria-pressed={isSelected}
+                aria-label={`${attr.name}: ${option}${isAvailable ? '' : ' — no disponible'}`}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B45309] ${
                   isSelected
                     ? 'text-white shadow-sm'
                     : isAvailable
-                      ? 'bg-white text-gray-600 border border-gray-200 hover:border-amber-400 hover:text-gray-900'
+                      ? 'bg-white text-gray-600 border border-gray-200 hover:border-[#B45309]/50 hover:text-gray-900'
                       : 'bg-gray-100 text-gray-300 line-through cursor-not-allowed'
                 }`}
                 style={isSelected ? { backgroundColor: '#B45309' } : undefined}
@@ -203,16 +212,21 @@ export function MenuProductDetail({ product }: Props) {
         </div>
 
         {images.length > 1 && (
-          <div className="flex gap-2 px-4 py-3 overflow-x-auto">
+          <div className="flex gap-2 px-4 py-3 overflow-x-auto" role="tablist" aria-label="Imágenes del plato">
             {images.map((img, idx) => (
               <button
                 key={idx}
+                type="button"
+                role="tab"
+                aria-selected={idx === selectedImage}
+                aria-label={`Ver imagen ${idx + 1} de ${images.length}`}
                 onClick={() => setSelectedImage(idx)}
-                className={`shrink-0 w-14 h-14 rounded-lg overflow-hidden transition-all duration-200 border-2 ${
+                className={`shrink-0 w-14 h-14 rounded-lg overflow-hidden transition-all duration-200 border-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B45309] ${
                   idx === selectedImage
-                    ? 'opacity-100 border-amber-700'
+                    ? 'opacity-100'
                     : 'opacity-60 hover:opacity-100 border-transparent'
                 }`}
+                style={idx === selectedImage ? { borderColor: '#B45309' } : undefined}
               >
                 <img src={img} alt="" className="w-full h-full object-cover" />
               </button>
@@ -248,21 +262,28 @@ export function MenuProductDetail({ product }: Props) {
               <Button
                 variant="secondary"
                 size="icon"
+                aria-label="Disminuir cantidad"
                 className="h-9 w-9 rounded-lg"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={quantity <= 1}
               >
-                <Minus className="h-3.5 w-3.5" />
+                <Minus className="h-3.5 w-3.5" aria-hidden="true" />
               </Button>
-              <span className="w-10 text-center text-sm font-medium text-gray-900">
+              <span
+                className="w-10 text-center text-sm font-medium text-gray-900 tabular-nums"
+                aria-live="polite"
+                aria-label={`Cantidad: ${quantity}`}
+              >
                 {quantity}
               </span>
               <Button
                 variant="secondary"
                 size="icon"
+                aria-label="Aumentar cantidad"
                 className="h-9 w-9 rounded-lg"
                 onClick={() => setQuantity((q) => q + 1)}
               >
-                <Plus className="h-3.5 w-3.5" />
+                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
               </Button>
             </div>
           </div>
@@ -270,17 +291,21 @@ export function MenuProductDetail({ product }: Props) {
           {product.description && (
             <div className="space-y-2">
               <button
+                type="button"
                 onClick={() => setShowFullDesc(!showFullDesc)}
-                className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-gray-500 font-medium hover:text-gray-900 transition-colors"
+                aria-expanded={showFullDesc}
+                aria-controls="menu-desc"
+                className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-gray-500 font-medium hover:text-gray-900 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B45309] rounded"
               >
                 Descripción
                 {showFullDesc ? (
-                  <ChevronUp className="h-3.5 w-3.5" />
+                  <ChevronUp className="h-3.5 w-3.5" aria-hidden="true" />
                 ) : (
-                  <ChevronDown className="h-3.5 w-3.5" />
+                  <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
                 )}
               </button>
               <p
+                id="menu-desc"
                 className={`text-sm text-gray-600 leading-relaxed transition-all duration-300 ${showFullDesc ? '' : 'line-clamp-3'}`}
               >
                 {product.description}
@@ -298,21 +323,28 @@ export function MenuProductDetail({ product }: Props) {
           }}
         >
           <Button
-            className="w-full max-w-2xl mx-auto h-13 text-base gap-3 text-white rounded-xl flex shadow-lg"
+            className="w-full max-w-2xl mx-auto h-12 text-base gap-3 text-white rounded-xl flex shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B45309]"
             style={{ backgroundColor: '#B45309' }}
             onClick={handleAdd}
             disabled={!canAdd}
+            aria-label={
+              canAdd
+                ? `Agregar ${quantity} al pedido — ${fmt(finalPrice * quantity)}`
+                : 'Selecciona las opciones requeridas'
+            }
           >
             {added ? (
               <>
-                <Check className="h-5 w-5" />
+                <Check className="h-5 w-5" aria-hidden="true" />
                 Agregado
               </>
             ) : (
               <>
-                <ShoppingBag className="h-5 w-5" />
-                <span className="flex-1 text-left">Agregar al pedido</span>
-                <span className="font-bold">{fmt(finalPrice * quantity)}</span>
+                <ShoppingBag className="h-5 w-5" aria-hidden="true" />
+                <span className="flex-1 text-left">
+                  {canAdd ? 'Agregar al pedido' : 'Selecciona las opciones'}
+                </span>
+                <span className="font-bold tabular-nums">{fmt(finalPrice * quantity)}</span>
               </>
             )}
           </Button>

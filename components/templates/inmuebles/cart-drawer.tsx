@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Trash2, MessageCircle, Building2, ExternalLink } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Trash2, MessageCircle, Building2 } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useCart } from '@/lib/cart-context'
@@ -15,7 +14,7 @@ export function InmueblesCartDrawer() {
   const [loading, setLoading] = useState(false)
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat('es-VE', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: store.currency,
       minimumFractionDigits: 0,
@@ -45,13 +44,13 @@ export function InmueblesCartDrawer() {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent className="flex flex-col w-full sm:max-w-md p-0 bg-[#F8F9FA]">
-        <SheetHeader className="px-6 py-4 border-b border-gray-200 bg-white">
-          <SheetTitle className="text-[#1A3A52] flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-[#D4AF37]" />
+      <SheetContent className="flex flex-col w-full sm:max-w-md p-0 bg-white border-[#e5e3df]">
+        <SheetHeader className="px-6 py-4 border-b border-[#e5e3df]">
+          <SheetTitle className="text-[#0a0a0a] flex items-center gap-2 text-base font-semibold tracking-tight">
+            <Building2 className="h-4 w-4 text-[#1a3550]" />
             Propiedades de interés
             {items.length > 0 && (
-              <span className="bg-[#1A3A52] text-white text-xs font-bold px-2 py-0.5 rounded-full ml-auto">
+              <span className="ml-auto bg-[#1a3550] text-white text-[11px] font-semibold px-2 py-0.5 rounded-full tabular-nums">
                 {items.length}
               </span>
             )}
@@ -60,28 +59,28 @@ export function InmueblesCartDrawer() {
 
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center px-6 gap-4">
-            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm">
-              <Building2 className="h-7 w-7 text-gray-400" />
+            <div className="w-16 h-16 rounded-full bg-[#f6f5f3] flex items-center justify-center">
+              <Building2 className="h-7 w-7 text-[#8a8a8a]" />
             </div>
             <div>
-              <p className="font-medium text-gray-900">
-                No tienes propiedades guardadas
+              <p className="font-medium text-[#0a0a0a]">
+                Aún no guardaste propiedades
               </p>
-              <p className="text-sm text-gray-500 mt-1">
-                Guarda las propiedades que te interesen para consultar por todas a la vez
+              <p className="text-sm text-[#8a8a8a] mt-1">
+                Guarda las que te interesen y consulta por todas en un mensaje.
               </p>
             </div>
           </div>
         ) : (
           <>
             <ScrollArea className="flex-1 px-6 py-4">
-              <div className="space-y-3">
+              <ul className="flex flex-col gap-3">
                 {items.map((item) => (
-                  <div
+                  <li
                     key={item.id}
-                    className="flex gap-3 bg-white rounded-xl p-3 border border-gray-100 shadow-sm"
+                    className="flex gap-3 bg-white rounded-lg p-3 border border-[#e5e3df]"
                   >
-                    <div className="relative h-20 w-28 shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                    <div className="relative h-20 w-28 shrink-0 rounded overflow-hidden bg-[#ebe9e4]">
                       <img
                         src={item.image || '/placeholder.svg'}
                         alt={item.name}
@@ -89,43 +88,43 @@ export function InmueblesCartDrawer() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[#1A3A52] line-clamp-2">
+                      <p className="text-sm font-semibold text-[#0a0a0a] line-clamp-2 leading-snug">
                         {item.name}
                       </p>
-                      <p className="text-sm font-bold text-[#D4AF37] mt-1">
+                      <p className="text-sm font-semibold text-[#1a3550] mt-1 tabular-nums">
                         {fmt(item.price)}
                       </p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 shrink-0 text-gray-400 hover:text-red-500"
+                    <button
+                      type="button"
                       onClick={() => removeItem(item.id)}
+                      aria-label={`Quitar ${item.name} de propiedades guardadas`}
+                      className="shrink-0 w-8 h-8 grid place-items-center rounded-full text-[#8a8a8a] hover:text-red-500 hover:bg-red-50 transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </ScrollArea>
 
-            <div className="px-6 py-4 border-t border-gray-200 bg-white space-y-3">
-              <p className="text-xs text-gray-500 text-center">
-                Se enviará una consulta por WhatsApp con{' '}
+            <div className="px-6 py-4 border-t border-[#e5e3df] bg-[#f6f5f3] space-y-3">
+              <p className="text-xs text-[#8a8a8a] text-center">
+                Se enviará una consulta con{' '}
                 {items.length === 1
                   ? 'esta propiedad'
                   : `estas ${items.length} propiedades`}
+                .
               </p>
-              <Button
-                className="w-full h-12 text-base gap-2 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white"
+              <button
+                type="button"
                 onClick={handleInquiry}
                 disabled={loading}
+                className="w-full h-12 rounded-full bg-[#0a0a0a] hover:bg-[#1a3550] text-white text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99]"
               >
-                <MessageCircle className="h-5 w-5" />
-                {loading
-                  ? 'Enviando...'
-                  : `Consultar por WhatsApp`}
-              </Button>
+                <MessageCircle className="h-4 w-4" />
+                {loading ? 'Enviando…' : 'Consultar por WhatsApp'}
+              </button>
             </div>
           </>
         )}
