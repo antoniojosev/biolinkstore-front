@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { fetchOfficialRates, fetchStoreVisibleRates } from './api'
 import type { Rate, StoreVisibleRates } from './types'
 
@@ -13,6 +13,7 @@ interface OfficialState {
   byCode: Map<string, Rate>
   loading: boolean
   error: string | null
+  refresh: () => void
 }
 
 interface StoreState {
@@ -29,16 +30,23 @@ interface StoreState {
  */
 export function useOfficialRates(): OfficialState {
   const initial = officialCache?.data ?? []
-  const [state, setState] = useState<OfficialState>({
+  const [tick, setTick] = useState(0)
+  const [state, setState] = useState<Omit<OfficialState, 'refresh'>>({
     rates: initial,
     byCode: new Map(initial.map((r) => [r.code, r])),
     loading: !officialCache,
     error: null,
   })
 
+  const refresh = useCallback(() => {
+    officialCache = null
+    setTick((t) => t + 1)
+  }, [])
+
   useEffect(() => {
     if (officialCache && Date.now() - officialCache.at < CACHE_TTL) return
     let cancelled = false
+    setState((s) => ({ ...s, loading: true }))
     fetchOfficialRates()
       .then((data) => {
         if (cancelled) return
@@ -57,9 +65,9 @@ export function useOfficialRates(): OfficialState {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [tick])
 
-  return state
+  return { ...state, refresh }
 }
 
 /**

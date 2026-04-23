@@ -20,6 +20,7 @@ import {
   Palette,
   Tags,
   LayoutTemplate,
+  Coins,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
@@ -33,6 +34,7 @@ const navItems = [
   { label: "Productos", href: "/dashboard/productos", icon: Package },
   { label: "Categorias", href: "/dashboard/categorias", icon: Tags },
   { label: "Cotizaciones", href: "/dashboard/cotizaciones", icon: ClipboardList, badgeKey: "quotes" as const },
+  { label: "Monedas", href: "/dashboard/monedas", icon: Coins },
   { label: "Estadisticas", href: "/dashboard/estadisticas", icon: BarChart3 },
   { label: "Mi tienda", href: "/dashboard/diseno", icon: Palette },
   { label: "Plantillas", href: "/dashboard/plantillas", icon: LayoutTemplate },
