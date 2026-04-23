@@ -8,7 +8,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { StoreHttpRepository } from "@/lib/stores-api/store.http-repository"
-import { useExchangeRate, formatBs } from "@/lib/hooks/use-exchange-rate"
+import { useOfficialRates, formatBs } from "@/lib/currency"
 import { TemplateGallery } from "@/components/templates/template-gallery"
 import { CustomDesignBar } from "@/components/templates/custom-cta-versions"
 import {
@@ -181,7 +181,8 @@ export default function OnboardingPage() {
   const router  = useRouter()
   const { user, store, isLoading, http, refreshStore } = useAuth()
   const storeRepo = useMemo(() => new StoreHttpRepository(http), [http])
-  const { rate } = useExchangeRate()
+  const { byCode } = useOfficialRates()
+  const rate = byCode.get("USD_BCV") ?? null
 
   const [step, setStep]               = useState(0)
   const [sliding, setSliding]         = useState(false)

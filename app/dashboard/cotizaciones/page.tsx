@@ -168,7 +168,7 @@ export default function CotizacionesPage() {
                         {STATUS_LABELS[order.status] || order.status}
                       </span>
                       <span className="text-xs text-white/30">
-                        {new Date(order.createdAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        {new Date(order.createdAt).toLocaleDateString('es-VE', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                     <div>

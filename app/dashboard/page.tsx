@@ -205,7 +205,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-sm font-medium text-white">
-                        ${order.total.toLocaleString('es-AR')}
+                        ${order.total.toLocaleString('en-US')}
                       </span>
                       <span
                         className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${getStatusStyle(order.status)}`}

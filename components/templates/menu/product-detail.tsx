@@ -36,7 +36,7 @@ export function MenuProductDetail({ product }: Props) {
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat('es-AR', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: store.currency,
       minimumFractionDigits: 0,

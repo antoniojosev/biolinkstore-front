@@ -16,7 +16,7 @@ interface Props {
   featured?: boolean
 }
 
-export function NoirProductCard({ product, currency = 'ARS', featured = false }: Props) {
+export function NoirProductCard({ product, currency = 'USD', featured = false }: Props) {
   const { store } = useStore()
   const { addItem, setIsOpen } = useCart()
   const { toggle: toggleWishlist, isWishlisted, setIsOpen: openWishlist } = useWishlist()
@@ -42,7 +42,7 @@ export function NoirProductCard({ product, currency = 'ARS', featured = false }:
   }
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat('es-AR', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency,
       minimumFractionDigits: 0,

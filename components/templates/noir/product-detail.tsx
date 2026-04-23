@@ -52,7 +52,7 @@ export function NoirProductDetail({ product }: Props) {
   const [colorImages, setColorImages] = useState<string[] | null>(null)
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat('es-AR', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: store.currency,
       minimumFractionDigits: 0,

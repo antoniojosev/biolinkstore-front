@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/auth-context"
 import { PaymentReportForm } from "@/components/dashboard/payment-report-form"
-import { useExchangeRate, formatBs } from "@/lib/hooks/use-exchange-rate"
+import { useOfficialRates, formatBs } from "@/lib/currency"
 
 
 const plansMeta: Record<string, { icon: typeof Zap; color: string; colorBg: string }> = {
@@ -220,7 +220,8 @@ function formatCount(count: number, max: number) {
 
 export default function PlanPage() {
   const { user, store, http } = useAuth()
-  const { rate } = useExchangeRate()
+  const { byCode } = useOfficialRates()
+  const rate = byCode.get("USD_BCV") ?? null
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
   const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; planName: string }>({
     open: false,

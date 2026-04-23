@@ -3,7 +3,7 @@
 import { useState, useRef } from "react"
 import { Upload, Loader2, CheckCircle2, FileText, X, Copy, Check } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
-import { useExchangeRate, formatBs } from "@/lib/hooks/use-exchange-rate"
+import { useOfficialRates, formatBs } from "@/lib/currency"
 
 const BANK_INFO = {
   bankDisplay: 'Banco Mercantil · 0105',
@@ -80,7 +80,8 @@ export function PaymentReportForm({
   onCancel,
 }: PaymentReportFormProps) {
   const { http } = useAuth()
-  const { rate } = useExchangeRate()
+  const { byCode } = useOfficialRates()
+  const rate = byCode.get('USD_BCV') ?? null
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [name, setName] = useState(defaultName)

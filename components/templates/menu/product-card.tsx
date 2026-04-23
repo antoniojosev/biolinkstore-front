@@ -21,7 +21,7 @@ export function MenuProductCard({ product, currency = 'USD' }: Props) {
   const [added, setAdded] = useState(false)
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat('es-AR', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency,
       minimumFractionDigits: 0,

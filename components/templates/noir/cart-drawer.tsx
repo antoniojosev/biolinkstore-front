@@ -15,7 +15,7 @@ export function NoirCartDrawer() {
   const [loading, setLoading] = useState(false)
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat('es-AR', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: store.currency,
       minimumFractionDigits: 0,

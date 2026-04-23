@@ -15,7 +15,7 @@ interface Props {
   currency?: string
 }
 
-export function LuxoraProductCard({ product, currency = 'ARS' }: Props) {
+export function LuxoraProductCard({ product, currency = 'USD' }: Props) {
   const { store } = useStore()
   const { addItem, setIsOpen } = useCart()
   const { toggle: toggleWishlist, isWishlisted, setIsOpen: openWishlist } = useWishlist()
@@ -41,7 +41,7 @@ export function LuxoraProductCard({ product, currency = 'ARS' }: Props) {
   }
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat('es-AR', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency,
       minimumFractionDigits: 0,

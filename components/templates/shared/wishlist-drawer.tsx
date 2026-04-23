@@ -42,7 +42,7 @@ export function WishlistDrawer({
   const preview = searchParams.get('preview')
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat('es-AR', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: store.currency,
       minimumFractionDigits: 0,

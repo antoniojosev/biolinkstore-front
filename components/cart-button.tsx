@@ -8,10 +8,10 @@ export function CartButton() {
   const { totalItems, setIsOpen, totalPrice } = useCart()
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("es-AR", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "ARS",
-      minimumFractionDigits: 0,
+      currency: "USD",
+      minimumFractionDigits: 2,
     }).format(price)
   }
 

@@ -102,7 +102,7 @@ export function VariantPricingTable({
 
                 {/* Final price */}
                 <span className="text-sm font-medium text-white/50 w-20 text-right tabular-nums">
-                  ${finalPrice.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
+                  ${finalPrice.toLocaleString('en-US', { minimumFractionDigits: 0 })}
                 </span>
               </div>
             </div>
@@ -112,7 +112,7 @@ export function VariantPricingTable({
 
       {combinations.length > 0 && (
         <p className="text-[10px] text-white/25 px-1">
-          Precio base: ${basePrice.toLocaleString('es-AR', { minimumFractionDigits: 0 })} + ajuste por variante
+          Precio base: ${basePrice.toLocaleString('en-US', { minimumFractionDigits: 0 })} + ajuste por variante
         </p>
       )}
     </div>

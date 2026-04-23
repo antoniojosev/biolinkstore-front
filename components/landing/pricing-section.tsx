@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Check, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { useExchangeRate, formatBs } from "@/lib/hooks/use-exchange-rate";
+import { useOfficialRates, formatBs } from "@/lib/currency";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const plans = [
@@ -49,7 +49,8 @@ const plans = [
 
 export function PricingSection() {
   const { isAuthenticated } = useAuth();
-  const { rate } = useExchangeRate();
+  const { byCode } = useOfficialRates();
+  const usdBcv = byCode.get("USD_BCV") ?? null;
   const sectionRef = useScrollReveal<HTMLElement>();
 
   return (
@@ -116,13 +117,13 @@ export function PricingSection() {
                     {plan.period}
                   </span>
                 </div>
-                {rate && plan.priceUsd && (
+                {usdBcv && plan.priceUsd && (
                   <p
                     className={`text-sm mt-1 ${
                       plan.highlighted ? "text-gray-600" : "text-gray-400"
                     }`}
                   >
-                    {formatBs(plan.priceUsd, rate)}{" "}
+                    {formatBs(plan.priceUsd, usdBcv)}{" "}
                     <span className={plan.highlighted ? "text-gray-600" : "text-gray-500"}>
                       / tasa BCV
                     </span>

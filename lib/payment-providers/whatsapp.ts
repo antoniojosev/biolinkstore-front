@@ -9,7 +9,7 @@ export class WhatsAppPaymentProvider implements PaymentProvider {
 
   constructor(
     private readonly whatsappNumber: string,
-    private readonly currency: string = 'ARS',
+    private readonly currency: string = 'USD',
   ) {}
 
   async checkout(payload: CheckoutPayload): Promise<CheckoutResult> {
@@ -62,7 +62,7 @@ export class WhatsAppPaymentProvider implements PaymentProvider {
   }
 
   private buildMessage(payload: CheckoutPayload): string {
-    const fmt = new Intl.NumberFormat('es-AR', {
+    const fmt = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: this.currency,
       minimumFractionDigits: 0,

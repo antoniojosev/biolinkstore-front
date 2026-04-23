@@ -20,7 +20,7 @@ export function LuxoraTemplate() {
   const wishlistEnabled = store.plan === 'PRO' || store.plan === 'BUSINESS'
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat('es-AR', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: store.currency,
       minimumFractionDigits: 0,
