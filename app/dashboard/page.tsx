@@ -10,6 +10,7 @@ import {
   Copy,
   Check,
   MessageCircle,
+  QrCode,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -50,6 +51,19 @@ export default function DashboardPage() {
     navigator.clipboard.writeText(storeUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleDownloadQr = () => {
+    if (!store?.slug) return
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    const qrUrl = `${apiUrl}/public/${store.slug}/qr.png`
+    // Force download via anchor with download attribute
+    const a = document.createElement('a')
+    a.href = qrUrl
+    a.download = `${store.slug}-qr.png`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
   }
 
   const statCards = [
@@ -115,6 +129,18 @@ export default function DashboardPage() {
             {copied ? <Check className="w-3.5 h-3.5 mr-1.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
             {copied ? "Copiado" : "Copiar"}
           </Button>
+          {store?.username && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleDownloadQr}
+              className="h-8 text-xs border-[#33b380]/30 text-[#6ee490] hover:bg-[#33b380]/20 hover:text-white bg-transparent"
+              title="Descargar codigo QR"
+            >
+              <QrCode className="w-3.5 h-3.5 mr-1.5" />
+              QR
+            </Button>
+          )}
           {store?.username ? (
             <Button
               size="sm"

@@ -25,6 +25,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { StoreHttpRepository } from "@/lib/stores-api/store.http-repository"
 import type { UpdateStoreDto } from "@/lib/stores-api/types"
 import { toast } from "sonner"
+import { RatesConfigCard } from "@/components/dashboard/rates-config-card"
 
 export default function SettingsPage() {
   const { store, http, refreshStore } = useAuth()
@@ -232,6 +233,9 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Moneda y tasas (BE-129 multi-currency) */}
+      <RatesConfigCard />
 
       {/* Custom Domain */}
       <Card className="bg-[#0d1218] border-white/5">

@@ -26,6 +26,7 @@ export interface DashboardStore {
   address?: string
   customDomain?: string
   domainVerified?: boolean
+  currencyConfig?: { visibleRates?: string[]; defaultRate?: string; [k: string]: unknown } | null
 }
 
 export interface CreateStoreDto {
@@ -54,4 +55,5 @@ export interface UpdateStoreDto {
   email?: string
   address?: string
   showBranding?: boolean
+  currencyConfig?: { visibleRates?: string[]; defaultRate?: string; [k: string]: unknown } | null
 }

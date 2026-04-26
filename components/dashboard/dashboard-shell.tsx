@@ -28,6 +28,7 @@ import { LogoFull } from "@/components/brand/logo"
 import { OrdersHttpRepository } from "@/lib/orders-api"
 import { ProfileCompletionModal } from "@/components/dashboard/profile-completion-modal"
 import { DemoBanner } from "@/components/demo-banner"
+import { StoreSwitcher } from "@/components/dashboard/store-switcher"
 
 const navItems = [
   { label: "Resumen", href: "/dashboard", icon: LayoutDashboard },
@@ -107,6 +108,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           >
             <X className="w-5 h-5" />
           </button>
+        </div>
+
+        {/* Store switcher */}
+        <div className="px-2 py-3 border-b border-white/5">
+          <StoreSwitcher />
         </div>
 
         {/* Navigation */}

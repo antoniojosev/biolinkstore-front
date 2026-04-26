@@ -1,5 +1,6 @@
 import type { PaymentProvider, CheckoutPayload, CheckoutResult } from './types'
 import { getOrCreateVisitorId, trackEvent } from '@/lib/analytics'
+import { trackEvent as trackStoreEvent } from '@/lib/storefront-tracking'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -38,6 +39,8 @@ export class WhatsAppPaymentProvider implements PaymentProvider {
       if (response.ok) {
         const order = await response.json()
         trackEvent(payload.storeSlug, 'CHECKOUT_COMPLETE')
+        // BE-125: granular event for funnel analytics
+        trackStoreEvent(payload.storeSlug, 'WHATSAPP_CLICK', undefined, { noDedupe: true })
         if (order.whatsappUrl) {
           window.open(order.whatsappUrl, '_blank')
         } else {
@@ -51,6 +54,7 @@ export class WhatsAppPaymentProvider implements PaymentProvider {
     }
 
     // Fallback: open WhatsApp without server-side order
+    trackStoreEvent(payload.storeSlug, 'WHATSAPP_CLICK', undefined, { noDedupe: true })
     this.openWhatsApp(payload)
     return { success: true, message: 'Redirigido a WhatsApp' }
   }

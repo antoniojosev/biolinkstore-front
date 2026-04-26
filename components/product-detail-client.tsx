@@ -7,6 +7,7 @@ import { StoreProvider } from '@/lib/store-context'
 import { ProductDetailRenderer } from '@/components/templates/product-detail-renderer'
 import { WhatsAppPaymentProvider } from '@/lib/payment-providers/whatsapp'
 import { trackEvent } from '@/lib/analytics'
+import { trackEvent as trackStoreEvent } from '@/lib/storefront-tracking'
 import type { StorePageData } from '@/lib/api'
 import type { ProductDetail } from '@/lib/types'
 
@@ -28,6 +29,8 @@ export function ProductDetailClient({ storeData, product }: Props) {
 
   useEffect(() => {
     trackEvent(storeData.store.slug, 'PRODUCT_VIEW', product.id)
+    // BE-125: granular event for funnel/top-products analytics
+    trackStoreEvent(storeData.store.slug, 'PRODUCT_VIEW', product.id)
   }, [storeData.store.slug, product.id])
 
   const wishlistEnabled = storeData.store.plan === 'PRO' || storeData.store.plan === 'BUSINESS'
