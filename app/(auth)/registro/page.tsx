@@ -1,11 +1,11 @@
-import { RegisterForm } from "@/components/auth/register-form"
+import { SignupDesktop } from "@/components/auth-v2/signup-desktop"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Crear Cuenta - Bio Link Store",
-  description: "Crea tu cuenta en Bio Link Store y empieza a vender desde Instagram.",
+  title: "Crea tu tienda — bylink",
+  description: "Crea tu cuenta en bylink y empieza a vender desde Instagram.",
 }
 
 export default function RegisterPage() {
-  return <RegisterForm />
+  return <SignupDesktop />
 }
