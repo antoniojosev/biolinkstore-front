@@ -232,7 +232,7 @@ export function SignupDesktop() {
                   ))}
                 </div>
 
-                <Link href="/demo-vitrina" className="su-btn su-btn-primary" style={{ marginTop: 32, padding: "16px 24px", fontSize: 16, width: "100%" }}>Ver mi tienda en vivo →</Link>
+                <Link href="/tienda-demo" className="su-btn su-btn-primary" style={{ marginTop: 32, padding: "16px 24px", fontSize: 16, width: "100%" }}>Ver mi tienda en vivo →</Link>
                 <Link href="/" style={{ display: "block", textAlign: "center", marginTop: 12, fontSize: 13, color: "var(--ink-3)" }}>Volver a la landing</Link>
               </div>
             )}

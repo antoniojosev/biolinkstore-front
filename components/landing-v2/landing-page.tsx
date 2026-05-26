@@ -3,7 +3,7 @@ import { BrandMark } from "./brand-mark"
 
 const SIGNUP = "/registro"
 const LOGIN = "/login"
-const DEMO = "/demo-vitrina"
+const DEMO = "/tienda-demo"
 
 const landingStyles = `
 .lp-root {
