@@ -18,7 +18,8 @@ const landingStyles = `
 }
 .lp-root .mono { font-family: var(--font-mono); }
 .lp-root .serif-it { font-family: var(--font-serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
-.lp-root a { color: inherit; text-decoration: none; }
+.lp-root a { text-decoration: none; }
+.lp-root a:not(.lp-btn) { color: inherit; }
 .lp-btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; letter-spacing: -0.01em; border-radius: 12px; white-space: nowrap; transition: all .18s ease; border: none; cursor: pointer; }
 .lp-btn-primary { background: var(--brand); color: #fff; box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 6px 16px -4px rgba(25,71,229,0.4); }
 .lp-btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 10px 24px -4px rgba(25,71,229,0.5); }
