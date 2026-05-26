@@ -53,8 +53,8 @@ const ONB_TITLES = [
 const ONB_PREVIEW: PreviewMode[] = ["identity", "identity", "identity", "instagram", "instagram-found", "template", "template", "template"]
 const ONB_CTA: (string | null)[] = [null, null, null, "Buscar mi perfil →", "Sí, soy yo · Importar →", null, null, "¡Crear mi tienda! 🎉"]
 
-export function AuthDesktopFlow() {
-  const [screen, setScreen] = useState<Screen>("welcome")
+export function AuthDesktopFlow({ initialScreen = "welcome" }: { initialScreen?: Screen }) {
+  const [screen, setScreen] = useState<Screen>(initialScreen)
   const [onbStep, setOnbStep] = useState(0)
   const [navOpen, setNavOpen] = useState(false)
   const [scraping, setScraping] = useState(false)
