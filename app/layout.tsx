@@ -5,31 +5,46 @@ import Script from "next/script"
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "sonner"
 import { AuthProvider } from "@/contexts/auth-context"
+import { IconSprite } from "@/components/bylink/icon-sprite"
 import "./globals.css"
-import { Geist, Geist_Mono, Geist as V0_Font_Geist, Geist_Mono as V0_Font_Geist_Mono, Source_Serif_4 as V0_Font_Source_Serif_4, Sora } from 'next/font/google'
+import { Plus_Jakarta_Sans, Instrument_Serif, JetBrains_Mono } from 'next/font/google'
 
-// Initialize fonts
-const _geist = V0_Font_Geist({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
-const _geistMono = V0_Font_Geist_Mono({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
-const _sourceSerif_4 = V0_Font_Source_Serif_4({ subsets: ['latin'], weight: ["200","300","400","500","600","700","800","900"] })
-const sora = Sora({ subsets: ['latin'], weight: ['700'], variable: '--font-sora' })
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-jakarta',
+  display: 'swap',
+})
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: ['400'],
+  style: ['normal', 'italic'],
+  variable: '--font-instrument',
+  display: 'swap',
+})
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-jetbrains',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: "Bio Link Store - Tu catalogo de Instagram",
-  description: "Crea tu tienda online desde Instagram. Comparte tu catalogo de productos con un solo link y recibe cotizaciones por WhatsApp.",
-  generator: "v0.app",
-  metadataBase: new URL("https://biolinkstore.com"),
+  title: "bylink — Tu tienda de Instagram en un link",
+  description: "Crea tu catálogo digital en minutos. Tus clientes exploran productos y cotizan directo por WhatsApp. Sin comisiones.",
+  generator: "bylink",
+  metadataBase: new URL("https://bylink.app"),
   openGraph: {
     type: "website",
-    siteName: "Bio Link Store",
-    title: "Bio Link Store — Tu tienda de Instagram, en un solo link",
+    siteName: "bylink",
+    title: "bylink — Tu tienda de Instagram, en un solo link",
     description: "Crea tu catálogo digital en minutos. Tus clientes exploran productos y cotizan directo por WhatsApp. Sin comisiones.",
-    url: "https://biolinkstore.com",
-    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Bio Link Store" }],
+    url: "https://bylink.app",
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "bylink" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bio Link Store — Tu tienda de Instagram, en un solo link",
+    title: "bylink — Tu tienda de Instagram, en un solo link",
     description: "Crea tu catálogo digital en minutos. Tus clientes exploran productos y cotizan directo por WhatsApp.",
     images: ["/og-default.png"],
   },
@@ -53,7 +68,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#1a1a1a",
+  themeColor: "#1E3A8A",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -65,7 +80,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${jakarta.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}>
       <head>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-F4T3MGMXZS"
@@ -80,7 +95,8 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={`font-sans antialiased ${sora.variable}`}>
+      <body className="font-sans antialiased">
+        <IconSprite />
         <AuthProvider>
           {children}
         </AuthProvider>
