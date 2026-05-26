@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Link from "next/link"
 import { BrandMark } from "@/components/landing-v2/brand-mark"
 import { PhonePreview, type PreviewMode } from "./phone-preview"
 import { CinematicScraper } from "./cinematic-scraper"
@@ -527,9 +528,9 @@ function ReadyScreen({ store }: { store: StoreState }) {
   const [copied, setCopied] = useState(false)
   const slug = store.slug || "rosa-atelier"
   const nextSteps = [
-    { icon: "👀", bg: "rgba(30,58,138,0.1)", color: "var(--brand)", title: "Ver mi tienda en vivo", desc: "Como la verán tus clientes" },
-    { icon: "📦", bg: "rgba(220,74,61,0.1)", color: "var(--accent)", title: "Revisar mis productos", desc: "Importamos 12 desde tu Instagram" },
-    { icon: "📊", bg: "rgba(16,185,129,0.1)", color: "var(--success)", title: "Ir al dashboard", desc: "Estadísticas, pedidos y configuración" },
+    { icon: "👀", bg: "rgba(30,58,138,0.1)", color: "var(--brand)", title: "Ver mi tienda en vivo", desc: "Como la verán tus clientes", href: "/tienda-demo" },
+    { icon: "📦", bg: "rgba(220,74,61,0.1)", color: "var(--accent)", title: "Revisar mis productos", desc: "Importamos 12 desde tu Instagram", href: "/panel-demo" },
+    { icon: "📊", bg: "rgba(16,185,129,0.1)", color: "var(--success)", title: "Ir al dashboard", desc: "Estadísticas, pedidos y configuración", href: "/panel-demo" },
   ]
   return (
     <div className="ad-shell">
@@ -554,13 +555,13 @@ function ReadyScreen({ store }: { store: StoreState }) {
           <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.1em", margin: "32px 0 12px" }}>SIGUIENTES PASOS</div>
           <div style={{ display: "grid", gap: 10 }}>
             {nextSteps.map((s) => (
-              <button key={s.title} type="button" className="ad-opt">
+              <Link key={s.title} href={s.href} className="ad-opt">
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: s.bg, color: s.color, display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>{s.icon}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 600, fontSize: 14 }}>{s.title}</div>
                   <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{s.desc}</div>
                 </div>
-              </button>
+              </Link>
             ))}
           </div>
         </div>

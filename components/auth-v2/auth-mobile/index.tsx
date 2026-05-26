@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 import {
   PAYMENT_METHODS,
   REFERRAL_SOURCES,
@@ -328,9 +329,9 @@ function Ready({ store }: { store: StoreState }) {
   const [copied, setCopied] = useState(false)
   const slug = store.slug || "rosa-atelier"
   const steps = [
-    { icon: "👀", bg: "rgba(30,58,138,0.1)", color: "var(--brand)", title: "Ver mi tienda en vivo", desc: "Como la verán tus clientes" },
-    { icon: "📦", bg: "rgba(220,74,61,0.1)", color: "var(--accent)", title: "Agregar más productos", desc: "Importamos 12 desde tu IG" },
-    { icon: "📊", bg: "rgba(16,185,129,0.1)", color: "var(--success)", title: "Ver mis estadísticas", desc: "Visitas, clicks, ventas" },
+    { icon: "👀", bg: "rgba(30,58,138,0.1)", color: "var(--brand)", title: "Ver mi tienda en vivo", desc: "Como la verán tus clientes", href: "/tienda-demo" },
+    { icon: "📦", bg: "rgba(220,74,61,0.1)", color: "var(--accent)", title: "Agregar más productos", desc: "Importamos 12 desde tu IG", href: "/panel-demo" },
+    { icon: "📊", bg: "rgba(16,185,129,0.1)", color: "var(--success)", title: "Ver mis estadísticas", desc: "Visitas, clicks, ventas", href: "/panel-demo" },
   ]
   return (
     <div className="am-screen">
@@ -356,14 +357,14 @@ function Ready({ store }: { store: StoreState }) {
         <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", margin: "28px 0 12px" }}>— próximos pasos</div>
         <div style={{ display: "grid", gap: 10 }}>
           {steps.map((s) => (
-            <button key={s.title} type="button" className="am-opt">
+            <Link key={s.title} href={s.href} className="am-opt">
               <div style={{ width: 40, height: 40, borderRadius: 10, background: s.bg, color: s.color, display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>{s.icon}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{s.title}</div>
                 <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{s.desc}</div>
               </div>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            </button>
+            </Link>
           ))}
         </div>
         <div style={{ marginTop: "auto", padding: 16, background: "var(--warm)", borderRadius: 14, display: "flex", gap: 12, alignItems: "flex-start" }}>
