@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { SummaryWidget, TopProductsWidget, FunnelWidget, SourcesWidget } from "@/components/dashboard-v2/analytics-widgets"
 
-type View = "dashboard" | "catalog" | "design"
+type View = "dashboard" | "catalog" | "design" | "data"
 
 interface PanelProduct {
   name: string; sku: string; price: number; stock: number
@@ -306,7 +307,7 @@ export function PanelOfficial() {
           <button type="button" className={`td-tab${view === "dashboard" ? " active" : ""}`} onClick={() => setView("dashboard")}><I id="home" />Inicio</button>
           <button type="button" className={`td-tab${view === "catalog" ? " active" : ""}`} onClick={() => setView("catalog")}><I id="package" />Productos</button>
           <button type="button" className={`td-tab${view === "design" ? " active" : ""}`} onClick={() => setView("design")}><I id="layout" />Diseño</button>
-          <button type="button" className="td-tab"><I id="chart" />Datos</button>
+          <button type="button" className={`td-tab${view === "data" ? " active" : ""}`} onClick={() => setView("data")}><I id="chart" />Datos</button>
           <div className="td-divider" />
           <div className="td-pill"><span className="dot" /><span>bylink.app/rosa</span><I id="external" /></div>
         </div>
@@ -555,6 +556,23 @@ export function PanelOfficial() {
               </div>
             </div>
           </div>
+          {/* DATOS */}
+          <div className={`view${view === "data" ? " active" : ""}`}>
+            <div className="cat-wrap">
+              <div className="cat-header">
+                <div>
+                  <h1>Tus <em>datos</em></h1>
+                  <div className="meta">resumen, embudo, top productos y tráfico</div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(auto-fit, minmax(300px, 1fr))", gap: 18, alignItems: "start" }}>
+                <SummaryWidget />
+                <TopProductsWidget />
+                <FunnelWidget />
+                <SourcesWidget />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* MOBILE BOTTOM NAV */}
@@ -562,7 +580,7 @@ export function PanelOfficial() {
           <button type="button" className={view === "dashboard" ? "active" : ""} onClick={() => setView("dashboard")}><I id="home" />Inicio</button>
           <button type="button" className={view === "catalog" ? "active" : ""} onClick={() => setView("catalog")}><I id="package" />Productos</button>
           <button type="button" className={view === "design" ? "active" : ""} onClick={() => setView("design")}><I id="layout" />Diseño</button>
-          <button type="button"><I id="chart" />Datos</button>
+          <button type="button" className={view === "data" ? "active" : ""} onClick={() => setView("data")}><I id="chart" />Datos</button>
         </nav>
 
         <button type="button" ref={fabRef} className="m-fab" onClick={() => setSheetOpen((o) => !o)}><I id="plus" /></button>
