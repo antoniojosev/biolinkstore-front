@@ -81,6 +81,7 @@ export default function CreateProductPage() {
       description: '',
       basePrice: undefined as unknown as number,
       compareAtPrice: null,
+      priceCurrency: 'USD',
       stock: null,
       sku: '',
       isVisible: true,
@@ -222,6 +223,7 @@ export default function CreateProductPage() {
         const createdProduct = await productRepo.create(store.id, {
           name: data.name,
           basePrice: data.basePrice,
+          priceCurrency: data.priceCurrency,
           ...(data.description ? { description: data.description } : {}),
           ...(data.sku ? { sku: data.sku } : {}),
           ...(data.compareAtPrice != null ? { compareAtPrice: data.compareAtPrice } : {}),
@@ -374,7 +376,37 @@ export default function CreateProductPage() {
                 Precio
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
+            <CardContent className="pt-0 space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-white/60">
+                  Moneda del precio
+                </label>
+                <Controller
+                  name="priceCurrency"
+                  control={form.control}
+                  render={({ field }) => (
+                    <div className="inline-flex rounded-md border border-white/10 bg-white/5 p-0.5">
+                      {(['USD', 'EUR', 'VES'] as const).map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => field.onChange(c)}
+                          className={`px-3 h-8 text-xs font-medium rounded transition-colors ${
+                            field.value === c
+                              ? 'bg-[#33b380] text-white'
+                              : 'text-white/60 hover:text-white/90'
+                          }`}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                />
+                <p className="text-[11px] text-white/40">
+                  La moneda en la que defines el precio. Los compradores ven la conversion segun la tasa publica de la tienda.
+                </p>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-white/60">

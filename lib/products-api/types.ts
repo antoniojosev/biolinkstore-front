@@ -1,3 +1,7 @@
+export type PriceCurrency = 'USD' | 'EUR' | 'VES'
+
+export const PRICE_CURRENCIES: PriceCurrency[] = ['USD', 'EUR', 'VES']
+
 export interface ProductResponse {
   id: string
   storeId: string
@@ -6,6 +10,7 @@ export interface ProductResponse {
   description: string | null
   basePrice: number
   compareAtPrice: number | null
+  priceCurrency: PriceCurrency
   prices: unknown
   images: string[]
   videos: string[]
@@ -46,6 +51,7 @@ export interface CreateProductDto {
   description?: string
   basePrice: number
   compareAtPrice?: number
+  priceCurrency?: PriceCurrency
   images?: string[]
   videos?: string[]
   stock?: number
@@ -70,6 +76,7 @@ export interface UpdateProductDto {
   description?: string
   basePrice?: number
   compareAtPrice?: number
+  priceCurrency?: PriceCurrency
   images?: string[]
   videos?: string[]
   stock?: number

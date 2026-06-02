@@ -12,6 +12,7 @@ export const createProductSchema = z.object({
     .number({ required_error: 'Precio es requerido', invalid_type_error: 'Ingresa un numero valido' })
     .min(0, 'El precio no puede ser negativo'),
   compareAtPrice: z.number().min(0).optional().nullable(),
+  priceCurrency: z.enum(['USD', 'EUR', 'VES']).default('USD'),
   stock: z.number().int().min(0).optional().nullable(),
   sku: z.string().optional().or(z.literal('')),
   isVisible: z.boolean().default(true),

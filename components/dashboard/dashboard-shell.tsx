@@ -20,6 +20,7 @@ import {
   Palette,
   Tags,
   LayoutTemplate,
+  CreditCard,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
@@ -27,12 +28,14 @@ import { LogoFull } from "@/components/brand/logo"
 import { OrdersHttpRepository } from "@/lib/orders-api"
 import { ProfileCompletionModal } from "@/components/dashboard/profile-completion-modal"
 import { DemoBanner } from "@/components/demo-banner"
+import { StoreSwitcher } from "@/components/dashboard/store-switcher"
 
 const navItems = [
   { label: "Resumen", href: "/dashboard", icon: LayoutDashboard },
   { label: "Productos", href: "/dashboard/productos", icon: Package },
   { label: "Categorias", href: "/dashboard/categorias", icon: Tags },
   { label: "Cotizaciones", href: "/dashboard/cotizaciones", icon: ClipboardList, badgeKey: "quotes" as const },
+  { label: "Metodos de pago", href: "/dashboard/pagos", icon: CreditCard },
   { label: "Estadisticas", href: "/dashboard/estadisticas", icon: BarChart3 },
   { label: "Mi tienda", href: "/dashboard/diseno", icon: Palette },
   { label: "Plantillas", href: "/dashboard/plantillas", icon: LayoutTemplate },
@@ -105,6 +108,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           >
             <X className="w-5 h-5" />
           </button>
+        </div>
+
+        {/* Store switcher */}
+        <div className="px-2 py-3 border-b border-white/5">
+          <StoreSwitcher />
         </div>
 
         {/* Navigation */}
