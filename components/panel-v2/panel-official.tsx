@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { SummaryWidget, TopProductsWidget, FunnelWidget, SourcesWidget } from "@/components/dashboard-v2/analytics-widgets"
+import { AnalyticsBoard } from "@/components/dashboard-v2/analytics-board"
 
 type View = "dashboard" | "catalog" | "design" | "data"
 
@@ -565,12 +565,7 @@ export function PanelOfficial() {
                   <div className="meta">resumen, embudo, top productos y tráfico</div>
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "repeat(auto-fit, minmax(300px, 1fr))", gap: 18, alignItems: "start" }}>
-                <SummaryWidget />
-                <TopProductsWidget />
-                <FunnelWidget />
-                <SourcesWidget />
-              </div>
+              <AnalyticsBoard layout={mobile ? "single" : "auto"} />
             </div>
           </div>
         </div>
