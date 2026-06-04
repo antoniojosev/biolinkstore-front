@@ -35,6 +35,7 @@ interface AuthContextValue {
   logout(): void
   clearError(): void
   refreshStore(): Promise<void>
+  loadSession(): Promise<void>
 
   /**
    * Pre-configured HttpClient shared across all repositories.
@@ -185,6 +186,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clearError = useCallback(() => setError(null), [])
 
+  const loadSession = useCallback(async () => {
+    try {
+      await loadUserAndStore()
+    } catch {
+      setUser(null)
+      setStore(null)
+    }
+  }, [loadUserAndStore])
+
   const refreshStore = useCallback(async () => {
     try {
       const stores = await storeRepo.findAll()
@@ -208,6 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         clearError,
         refreshStore,
+        loadSession,
         http,
       }}
     >

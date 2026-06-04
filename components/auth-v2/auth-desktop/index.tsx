@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
+import { useAuth } from "@/contexts/auth-context"
+import { ApiError } from "@/lib/http/types"
 import { BrandMark } from "@/components/landing-v2/brand-mark"
 import { PhonePreview, type PreviewMode } from "./phone-preview"
 import { CinematicScraper } from "./cinematic-scraper"
@@ -61,6 +63,7 @@ export function AuthDesktopFlow({ initialScreen = "welcome" }: { initialScreen?:
   const [scraping, setScraping] = useState(false)
   const [magicSent, setMagicSent] = useState(false)
   const [slugTouched, setSlugTouched] = useState(false)
+  const [conflictEmail, setConflictEmail] = useState("")
   const [store, setStore] = useState<StoreState>({ name: "", slug: "", vertical: null, instagram: "", template: null, payments: ["pm", "usd"], referral: null })
 
   const patch = (p: Partial<StoreState>) => setStore((s) => ({ ...s, ...p }))
@@ -141,11 +144,17 @@ export function AuthDesktopFlow({ initialScreen = "welcome" }: { initialScreen?:
       </div>
 
       {screen === "welcome" && <WelcomeScreen onRegister={() => goScreen("register")} onLogin={() => goScreen("login")} />}
-      {screen === "login" && <LoginScreen onSubmit={() => goScreen("celebration")} onRegister={() => goScreen("register")} onForgot={() => goScreen("forgot")} />}
-      {screen === "login-error" && <LoginErrorScreen onRegister={() => goScreen("register")} onBack={() => goScreen("login")} onForgot={() => goScreen("forgot")} />}
+      {screen === "login" && <LoginScreen onRegister={() => goScreen("register")} onForgot={() => goScreen("forgot")} />}
+      {screen === "login-error" && <LoginErrorScreen email={conflictEmail} onRegister={() => goScreen("register")} onBack={() => goScreen("login")} onForgot={() => goScreen("forgot")} />}
       {screen === "forgot" && <ForgotScreen sent={magicSent} onSend={() => setMagicSent(true)} onBack={() => goScreen("login")} />}
-      {screen === "register" && <RegisterScreen onSubmit={() => goOnb(0)} onLogin={() => goScreen("login")} />}
-      {screen === "register-exists" && <RegisterExistsScreen onLogin={() => goScreen("login")} onForgot={() => goScreen("forgot")} onRegister={() => goScreen("register")} />}
+      {screen === "register" && (
+        <RegisterScreen
+          onLogin={() => goScreen("login")}
+          onRegistered={() => goOnb(0)}
+          onExisting={(email) => { setConflictEmail(email); goScreen("register-exists") }}
+        />
+      )}
+      {screen === "register-exists" && <RegisterExistsScreen email={conflictEmail} onLogin={() => goScreen("login")} onForgot={() => goScreen("forgot")} onRegister={() => goScreen("register")} />}
       {screen === "scraper-failed" && <ScraperFailedScreen onScratch={() => goOnb(5)} />}
       {screen === "celebration" && <CelebrationScreen onReady={() => goScreen("ready")} />}
       {screen === "ready" && <ReadyScreen store={store} />}
@@ -225,30 +234,54 @@ function WelcomeScreen({ onRegister, onLogin }: { onRegister: () => void; onLogi
   )
 }
 
-function LoginScreen({ onSubmit, onRegister, onForgot }: { onSubmit: () => void; onRegister: () => void; onForgot: () => void }) {
+function LoginScreen({ onRegister, onForgot }: { onRegister: () => void; onForgot: () => void }) {
+  const { login } = useAuth()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email || !password) return
+    setError(null); setPending(true)
+    try {
+      await login({ email, password })
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Error al iniciar sesión"
+      setError(msg)
+      setPending(false)
+    }
+  }
+
   return (
     <div className="ad-shell">
       <div className="ad-left">
         <Logo />
-        <div className="ad-center-card">
+        <form className="ad-center-card" onSubmit={handleSubmit}>
           <div className="mono" style={{ fontSize: 11, color: "var(--brand)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>— iniciar sesión</div>
           <h1 style={{ fontSize: 44, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 700, margin: "0 0 10px" }}>¡Qué bueno <span className="serif-it" style={{ color: "var(--brand)" }}>verte!</span></h1>
           <p style={{ fontSize: 16, color: "var(--ink-2)", margin: "0 0 28px" }}>Entra a tu tienda en bylink.</p>
           <button type="button" className="ad-btn ad-btn-ghost" style={{ width: "100%", marginBottom: 18 }}><GoogleIcon /> <span>Continuar con Google</span></button>
           <Divider />
+          {error && (
+            <div role="alert" style={{ display: "flex", gap: 8, padding: "10px 12px", background: "#FEF2F0", border: "1px solid #FECACA", borderRadius: 10, marginBottom: 14, fontSize: 13, color: "#991B1B" }}>
+              <span aria-hidden="true">⚠</span><span>{error}</span>
+            </div>
+          )}
           <label className="ad-label">Email</label>
-          <input className="ad-input" type="email" placeholder="hola@tunegocio.com" />
+          <input className="ad-input" type="email" placeholder="hola@tunegocio.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", margin: "16px 0 8px" }}>
             <label className="ad-label" style={{ margin: 0 }}>Contraseña</label>
             <button type="button" onClick={onForgot} style={{ fontSize: 12, color: "var(--brand)", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>¿Olvidaste tu contraseña?</button>
           </div>
-          <input className="ad-input" type="password" placeholder="••••••••" />
+          <input className="ad-input" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
           <label style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 18, fontSize: 13, color: "var(--ink-2)", cursor: "pointer" }}>
             <input type="checkbox" defaultChecked style={{ width: 18, height: 18, accentColor: "var(--brand)" }} /> Recordar mi sesión
           </label>
-          <button type="button" onClick={onSubmit} className="ad-btn ad-btn-primary" style={{ width: "100%", marginTop: 22 }}>Entrar a mi tienda →</button>
+          <button type="submit" disabled={pending || !email || !password} className="ad-btn ad-btn-primary" style={{ width: "100%", marginTop: 22 }}>{pending ? "Entrando…" : "Entrar a mi tienda →"}</button>
           <p style={{ textAlign: "center", fontSize: 14, color: "var(--ink-2)", margin: "22px 0 0" }}>¿Aún no tienes cuenta? <button type="button" onClick={onRegister} style={{ color: "var(--brand)", fontWeight: 700, cursor: "pointer", background: "none", border: "none" }}>Regístrate gratis</button></p>
-        </div>
+        </form>
         <div />
       </div>
       <ShellRight>
@@ -278,7 +311,8 @@ function Divider() {
   )
 }
 
-function LoginErrorScreen({ onRegister, onBack, onForgot }: { onRegister: () => void; onBack: () => void; onForgot: () => void }) {
+function LoginErrorScreen({ email, onRegister, onBack, onForgot }: { email?: string; onRegister: () => void; onBack: () => void; onForgot: () => void }) {
+  const shown = email || "maria@ejemplo.com"
   return (
     <div className="ad-shell">
       <div className="ad-left">
@@ -288,7 +322,7 @@ function LoginErrorScreen({ onRegister, onBack, onForgot }: { onRegister: () => 
             <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#FBBF24", display: "grid", placeItems: "center", color: "#fff", fontWeight: 800, flexShrink: 0 }}>!</div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: "#92400E" }}>No encontramos esa cuenta</div>
-              <div style={{ fontSize: 12, color: "#92400E", opacity: 0.85 }}>El email <span className="mono">maria@ejemplo.com</span> no está registrado.</div>
+              <div style={{ fontSize: 12, color: "#92400E", opacity: 0.85 }}>El email <span className="mono">{shown}</span> no está registrado.</div>
             </div>
           </div>
           <h1 style={{ fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.03em", fontWeight: 700, margin: "0 0 10px" }}>¿Quieres <span className="serif-it" style={{ color: "var(--brand)" }}>crear tu cuenta</span>?</h1>
@@ -344,7 +378,57 @@ function ForgotScreen({ sent, onSend, onBack }: { sent: boolean; onSend: () => v
   )
 }
 
-function RegisterScreen({ onSubmit, onLogin }: { onSubmit: () => void; onLogin: () => void }) {
+interface RegisterScreenProps {
+  onLogin: () => void
+  onRegistered: () => void
+  onExisting: (email: string) => void
+}
+
+function RegisterScreen({ onLogin, onRegistered, onExisting }: RegisterScreenProps) {
+  const { loadSession } = useAuth()
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [whatsapp, setWhatsapp] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirm, setConfirm] = useState("")
+  const [accept, setAccept] = useState(true)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const passwordValid = password.length >= 8
+  const passwordsMatch = password === confirm && confirm.length > 0
+  const canSubmit = name.trim().length > 0 && email.trim().length > 0 && passwordValid && passwordsMatch && accept
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!canSubmit) return
+    setError(null); setPending(true)
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        if (res.status === 409) { onExisting(email.trim()); return }
+        const msg = Array.isArray(data.message) ? data.message[0] : (data.message ?? "Error al crear la cuenta")
+        setError(typeof msg === "string" ? msg : "Error al crear la cuenta")
+        return
+      }
+      await loadSession()
+      onRegistered()
+    } catch {
+      setError("No se pudo conectar con el servidor")
+    } finally {
+      setPending(false)
+    }
+  }
+
+  // unused linter guard — whatsapp captured for slice 2 (onboarding wire)
+  void whatsapp
+
   const features = [
     { icon: "🔗", bg: "rgba(30,58,138,0.1)", color: "var(--brand)", title: "Tu link público", desc: "bylink.app/tu-negocio listo en segundos." },
     { icon: "🛍️", bg: "rgba(220,74,61,0.1)", color: "var(--accent)", title: "Tienda con productos", desc: "Importamos automáticamente desde tu Instagram." },
@@ -355,7 +439,7 @@ function RegisterScreen({ onSubmit, onLogin }: { onSubmit: () => void; onLogin: 
     <div className="ad-shell">
       <div className="ad-left">
         <Logo />
-        <div className="ad-center-card" style={{ maxWidth: 440 }}>
+        <form className="ad-center-card" style={{ maxWidth: 440 }} onSubmit={handleSubmit}>
           <div className="mono" style={{ fontSize: 11, color: "var(--brand)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>— crear cuenta</div>
           <h1 style={{ fontSize: 40, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 700, margin: "0 0 8px" }}>Tu tienda en <span className="serif-it" style={{ color: "var(--brand)" }}>3 minutos</span>.</h1>
           <p style={{ fontSize: 15, color: "var(--ink-2)", margin: "0 0 22px" }}>Empieza gratis, sin tarjeta de crédito.</p>
@@ -365,28 +449,39 @@ function RegisterScreen({ onSubmit, onLogin }: { onSubmit: () => void; onLogin: 
             <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>o con email</span>
             <div style={{ flex: 1, height: 1, background: "var(--line)" }} />
           </div>
+          {error && (
+            <div role="alert" style={{ display: "flex", gap: 8, padding: "10px 12px", background: "#FEF2F0", border: "1px solid #FECACA", borderRadius: 10, marginBottom: 12, fontSize: 13, color: "#991B1B" }}>
+              <span aria-hidden="true">⚠</span><span>{error}</span>
+            </div>
+          )}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div><label className="ad-label">Tu nombre</label><input className="ad-input" placeholder="María González" /></div>
-            <div><label className="ad-label">Email</label><input className="ad-input" type="email" placeholder="maria@ejemplo.com" /></div>
+            <div><label className="ad-label">Tu nombre</label><input className="ad-input" placeholder="María González" value={name} onChange={(e) => setName(e.target.value)} required autoComplete="name" /></div>
+            <div><label className="ad-label">Email</label><input className="ad-input" type="email" placeholder="maria@ejemplo.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" /></div>
           </div>
-          <label className="ad-label" style={{ marginTop: 14 }}>WhatsApp <span style={{ color: "var(--accent)", fontWeight: 700 }}>*</span></label>
+          <label className="ad-label" style={{ marginTop: 14 }}>WhatsApp <span style={{ color: "var(--ink-3)", fontWeight: 500 }}>(opcional)</span></label>
           <div style={{ display: "flex", alignItems: "center", padding: "0 0 0 14px", border: "1.5px solid var(--line)", borderRadius: 12, background: "#fff" }}>
             <span style={{ fontSize: 18 }}>🇻🇪</span>
             <span className="mono" style={{ fontSize: 14, color: "var(--ink-3)", marginLeft: 8 }}>+58</span>
-            <input style={{ flex: 1, border: "none", padding: "14px 12px", fontSize: 15, background: "none", outline: "none" }} placeholder="412-1234567" />
+            <input style={{ flex: 1, border: "none", padding: "14px 12px", fontSize: 15, background: "none", outline: "none" }} placeholder="412-1234567" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} autoComplete="tel" />
           </div>
           <p style={{ fontSize: 11, color: "var(--ink-3)", margin: "6px 0 0", paddingLeft: 4 }}>Es por aquí que tus clientes te van a contactar.</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 14 }}>
-            <div><label className="ad-label">Contraseña</label><input className="ad-input" type="password" placeholder="Mín. 8 caracteres" /></div>
-            <div><label className="ad-label">Confirmar</label><input className="ad-input" type="password" placeholder="Repite la contraseña" /></div>
+            <div><label className="ad-label">Contraseña</label><input className="ad-input" type="password" placeholder="Mín. 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" /></div>
+            <div><label className="ad-label">Confirmar</label><input className="ad-input" type="password" placeholder="Repite la contraseña" value={confirm} onChange={(e) => setConfirm(e.target.value)} required autoComplete="new-password" /></div>
           </div>
+          {password.length > 0 && (
+            <div style={{ display: "flex", gap: 14, marginTop: 8, fontSize: 11 }}>
+              <span style={{ color: passwordValid ? "var(--success)" : "var(--ink-3)" }}>{passwordValid ? "✓" : "·"} mínimo 8 caracteres</span>
+              {confirm.length > 0 && <span style={{ color: passwordsMatch ? "var(--success)" : "var(--accent)" }}>{passwordsMatch ? "✓ coinciden" : "✗ no coinciden"}</span>}
+            </div>
+          )}
           <label style={{ display: "flex", alignItems: "flex-start", gap: 10, marginTop: 18, fontSize: 13, color: "var(--ink-2)", cursor: "pointer", lineHeight: 1.5 }}>
-            <input type="checkbox" defaultChecked style={{ width: 18, height: 18, accentColor: "var(--brand)", marginTop: 2 }} />
+            <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} style={{ width: 18, height: 18, accentColor: "var(--brand)", marginTop: 2 }} />
             <span>Acepto los <a href="#" style={{ color: "var(--brand)", fontWeight: 600 }}>términos</a> y la <a href="#" style={{ color: "var(--brand)", fontWeight: 600 }}>política de privacidad</a>.</span>
           </label>
-          <button type="button" onClick={onSubmit} className="ad-btn ad-btn-primary" style={{ width: "100%", marginTop: 20 }}>Crear mi cuenta →</button>
+          <button type="submit" disabled={pending || !canSubmit} className="ad-btn ad-btn-primary" style={{ width: "100%", marginTop: 20 }}>{pending ? "Creando cuenta…" : "Crear mi cuenta →"}</button>
           <p style={{ textAlign: "center", fontSize: 14, color: "var(--ink-2)", margin: "18px 0 0" }}>¿Ya tienes cuenta? <button type="button" onClick={onLogin} style={{ color: "var(--brand)", fontWeight: 700, cursor: "pointer", background: "none", border: "none" }}>Inicia sesión</button></p>
-        </div>
+        </form>
         <div />
       </div>
       <ShellRight>
@@ -409,7 +504,8 @@ function RegisterScreen({ onSubmit, onLogin }: { onSubmit: () => void; onLogin: 
   )
 }
 
-function RegisterExistsScreen({ onLogin, onForgot, onRegister }: { onLogin: () => void; onForgot: () => void; onRegister: () => void }) {
+function RegisterExistsScreen({ email, onLogin, onForgot, onRegister }: { email?: string; onLogin: () => void; onForgot: () => void; onRegister: () => void }) {
+  const shown = email || "maria@ejemplo.com"
   return (
     <div className="ad-shell">
       <div className="ad-left">
@@ -419,7 +515,7 @@ function RegisterExistsScreen({ onLogin, onForgot, onRegister }: { onLogin: () =
             <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #C63E2A, #7A1F10)", flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: "#1E40AF" }}>Ya tienes cuenta con este email</div>
-              <div className="mono" style={{ fontSize: 12, color: "#1E40AF", opacity: 0.8 }}>maria@ejemplo.com</div>
+              <div className="mono" style={{ fontSize: 12, color: "#1E40AF", opacity: 0.8 }}>{shown}</div>
             </div>
           </div>
           <h1 style={{ fontSize: 36, lineHeight: 1.1, letterSpacing: "-0.03em", fontWeight: 700, margin: "0 0 10px" }}>¡Bienvenida <span className="serif-it" style={{ color: "var(--brand)" }}>de vuelta</span>!</h1>
