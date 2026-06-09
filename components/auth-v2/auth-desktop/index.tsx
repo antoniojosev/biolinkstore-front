@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
 import { ApiError } from "@/lib/http/types"
+import { StoreHttpRepository } from "@/lib/stores-api/store.http-repository"
 import { BrandMark } from "@/components/landing-v2/brand-mark"
 import { PhonePreview, type PreviewMode } from "./phone-preview"
 import { CinematicScraper } from "./cinematic-scraper"
@@ -64,7 +65,12 @@ export function AuthDesktopFlow({ initialScreen = "welcome" }: { initialScreen?:
   const [magicSent, setMagicSent] = useState(false)
   const [slugTouched, setSlugTouched] = useState(false)
   const [conflictEmail, setConflictEmail] = useState("")
+  const [userWhatsapp, setUserWhatsapp] = useState("")
+  const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
   const [store, setStore] = useState<StoreState>({ name: "", slug: "", vertical: null, instagram: "", template: null, payments: ["pm", "usd"], referral: null })
+  const { http, loadSession } = useAuth()
+  const storeRepo = useMemo(() => new StoreHttpRepository(http), [http])
 
   const patch = (p: Partial<StoreState>) => setStore((s) => ({ ...s, ...p }))
 
@@ -93,9 +99,30 @@ export function AuthDesktopFlow({ initialScreen = "welcome" }: { initialScreen?:
     }
   }, [onbStep, store])
 
-  function onbNext() {
+  async function onbNext() {
     if (onbStep === 3) { setScraping(true); return }
-    if (onbStep === 7) { goScreen("celebration"); return }
+    if (onbStep === 7) {
+      setCreating(true); setCreateError(null)
+      try {
+        const created = await storeRepo.create({
+          name: store.name.trim() || "Mi tienda",
+          username: store.slug.trim() || undefined,
+          whatsappNumbers: userWhatsapp.trim() ? [userWhatsapp.trim()] : [],
+        })
+        const handle = store.instagram.replace("@", "").trim()
+        if (handle) {
+          await storeRepo.update(created.id, { instagramHandle: handle }).catch(() => {})
+        }
+        await loadSession()
+        goScreen("celebration")
+      } catch (err) {
+        const msg = err instanceof ApiError ? err.message : "No se pudo crear la tienda"
+        setCreateError(msg)
+      } finally {
+        setCreating(false)
+      }
+      return
+    }
     if (onbStep < 7) goOnb(onbStep + 1)
   }
   function onbBack() {
@@ -150,7 +177,7 @@ export function AuthDesktopFlow({ initialScreen = "welcome" }: { initialScreen?:
       {screen === "register" && (
         <RegisterScreen
           onLogin={() => goScreen("login")}
-          onRegistered={() => goOnb(0)}
+          onRegistered={(whatsapp) => { setUserWhatsapp(whatsapp); goOnb(0) }}
           onExisting={(email) => { setConflictEmail(email); goScreen("register-exists") }}
         />
       )}
@@ -171,6 +198,8 @@ export function AuthDesktopFlow({ initialScreen = "welcome" }: { initialScreen?:
           onNext={onbNext}
           onBack={onbBack}
           onSkip={() => { if (confirm("¿Saltar? Puedes completar esto luego desde el dashboard.")) goScreen("celebration") }}
+          creating={creating}
+          createError={createError}
         />
       )}
 
@@ -380,7 +409,7 @@ function ForgotScreen({ sent, onSend, onBack }: { sent: boolean; onSend: () => v
 
 interface RegisterScreenProps {
   onLogin: () => void
-  onRegistered: () => void
+  onRegistered: (whatsapp: string) => void
   onExisting: (email: string) => void
 }
 
@@ -418,16 +447,13 @@ function RegisterScreen({ onLogin, onRegistered, onExisting }: RegisterScreenPro
         return
       }
       await loadSession()
-      onRegistered()
+      onRegistered(whatsapp.trim())
     } catch {
       setError("No se pudo conectar con el servidor")
     } finally {
       setPending(false)
     }
   }
-
-  // unused linter guard — whatsapp captured for slice 2 (onboarding wire)
-  void whatsapp
 
   const features = [
     { icon: "🔗", bg: "rgba(30,58,138,0.1)", color: "var(--brand)", title: "Tu link público", desc: "bylink.app/tu-negocio listo en segundos." },
@@ -688,9 +714,11 @@ interface OnboardingShellProps {
   onNext: () => void
   onBack: () => void
   onSkip: () => void
+  creating?: boolean
+  createError?: string | null
 }
 
-function OnboardingShell({ step, valid, store, patch, slugTouched, setSlugTouched, onNext, onBack, onSkip }: OnboardingShellProps) {
+function OnboardingShell({ step, valid, store, patch, slugTouched, setSlugTouched, onNext, onBack, onSkip, creating = false, createError = null }: OnboardingShellProps) {
   const meta = ONB_TITLES[step]
   return (
     <div className="ad-shell">
@@ -713,11 +741,18 @@ function OnboardingShell({ step, valid, store, patch, slugTouched, setSlugTouche
           <p style={{ fontSize: 16, color: "var(--ink-2)", margin: "0 0 30px" }}>{meta.s}</p>
           <OnbStepBody step={step} store={store} patch={patch} slugTouched={slugTouched} setSlugTouched={setSlugTouched} onBack={onBack} />
         </div>
+        {createError && (
+          <div role="alert" style={{ display: "flex", gap: 8, padding: "10px 12px", background: "#FEF2F0", border: "1px solid #FECACA", borderRadius: 10, marginBottom: 10, fontSize: 13, color: "#991B1B" }}>
+            <span aria-hidden="true">⚠</span><span>{createError}</span>
+          </div>
+        )}
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <button type="button" onClick={onBack} className="ad-btn ad-btn-ghost" style={{ padding: "14px 18px", visibility: step === 0 ? "hidden" : "visible" }}>
+          <button type="button" onClick={onBack} disabled={creating} className="ad-btn ad-btn-ghost" style={{ padding: "14px 18px", visibility: step === 0 ? "hidden" : "visible" }}>
             <svg width="16" height="16" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg> Atrás
           </button>
-          <button type="button" onClick={onNext} disabled={!valid} className="ad-btn ad-btn-primary" style={{ flex: 1 }}>{ONB_CTA[step] || "Continuar →"}</button>
+          <button type="button" onClick={onNext} disabled={!valid || creating} className="ad-btn ad-btn-primary" style={{ flex: 1 }}>
+            {creating && step === 7 ? "Creando tu tienda…" : (ONB_CTA[step] || "Continuar →")}
+          </button>
         </div>
       </div>
       <div className="ad-right">
