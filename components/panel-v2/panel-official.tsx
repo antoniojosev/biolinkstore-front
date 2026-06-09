@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { AnalyticsBoard } from "@/components/dashboard-v2/analytics-board"
+import { DashboardOverview } from "@/components/dashboard-v2/dashboard-overview"
 
 type View = "dashboard" | "catalog" | "design" | "data"
 
@@ -23,29 +24,6 @@ const PRODUCTS: PanelProduct[] = [
   { name: "Pareo Floral", sku: "PAR-FLO-10", price: 28, stock: 14, status: "ok", cat: "Playa", badge: null, img: "linear-gradient(135deg,#FFB4A2,#E5989B)" },
   { name: "Anillo Perla", sku: "ACC-ANI-11", price: 52, stock: 8, status: "ok", cat: "Accesorios", badge: null, img: "linear-gradient(135deg,#FAF3F0,#D5C5BB)" },
   { name: "Top Crochet", sku: "TOP-CRO-12", price: 45, stock: 11, status: "ok", cat: "Tops", badge: null, img: "linear-gradient(135deg,#E29578,#FFDDD2)" },
-]
-
-const ORDERS = [
-  { initials: "MA", grad: "linear-gradient(135deg, var(--brand), var(--brand-2))", name: "María Alvarado", meta: "#1247 · hace 6 min · Vestido Camelia", amount: "$89", status: "paid", label: "pagado" },
-  { initials: "JR", grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", name: "Julián Rodríguez", meta: "#1246 · hace 18 min · Bolso de cuero", amount: "$56", status: "pending", label: "pendiente" },
-  { initials: "CG", grad: "linear-gradient(135deg,#ea580c,#fb923c)", name: "Carla Guzmán", meta: "#1245 · hace 42 min · Aretes Luna +1", amount: "$84", status: "shipped", label: "enviado" },
-  { initials: "AP", grad: "linear-gradient(135deg,#0891b2,#22d3ee)", name: "Andrea Peña", meta: "#1244 · hace 1h · Blusa Olivia", amount: "$38", status: "paid", label: "pagado" },
-  { initials: "VS", grad: "linear-gradient(135deg,#be185d,#f472b6)", name: "Valentina Sánchez", meta: "#1243 · hace 2h · Collar Sol +2", amount: "$96", status: "paid", label: "pagado" },
-]
-
-const TOP_PRODUCTS = [
-  { rank: "01", name: "Vestido Camelia", width: 100, units: "42 vend." },
-  { rank: "02", name: "Aretes Luna", width: 78, units: "33" },
-  { rank: "03", name: "Bolso de Cuero", width: 55, units: "23" },
-  { rank: "04", name: "Blusa Olivia", width: 38, units: "16" },
-  { rank: "05", name: "Collar Sol", width: 24, units: "10" },
-]
-
-const TRAFFIC = [
-  { label: "Instagram", width: 62, color: "#E1306C", pct: "62%" },
-  { label: "WhatsApp", width: 24, color: "#25D366", pct: "24%" },
-  { label: "Directo", width: 9, color: "var(--brand)", pct: "9%" },
-  { label: "TikTok", width: 5, color: "#000", pct: "5%" },
 ]
 
 const STYLES = `
@@ -322,97 +300,7 @@ export function PanelOfficial() {
         <div className="stage">
           {/* DASHBOARD */}
           <div className={`view${view === "dashboard" ? " active" : ""}`}>
-            <div className="dash-grid">
-              <div className="dash-header">
-                <div className="greet">
-                  <div className="h-eyebrow">— miércoles 5 may</div>
-                  <h1>Hola Rosa, <em>buen día</em></h1>
-                </div>
-                <div className="h-actions">
-                  <button type="button" className="h-btn ghost"><I id="share" />Compartir tienda</button>
-                  <button type="button" className="h-btn"><I id="plus" />Nuevo producto</button>
-                </div>
-              </div>
-
-              <div className="kpi-strip">
-                <div className="kpi up">
-                  <div className="kpi-label"><span>Ventas hoy</span><span className="delta">+18%</span></div>
-                  <div className="kpi-value">$342<span className="unit">USD</span></div>
-                  <svg className="kpi-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,18 L15,16 L25,12 L40,14 L55,8 L70,10 L85,5 L100,6" stroke="#10b981" strokeWidth="1.5" fill="none" /></svg>
-                </div>
-                <div className="kpi up">
-                  <div className="kpi-label"><span>Pedidos</span><span className="delta">+5</span></div>
-                  <div className="kpi-value">12<span className="unit">/ día</span></div>
-                  <svg className="kpi-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,20 L15,18 L25,15 L40,10 L55,12 L70,8 L85,6 L100,4" stroke="#10b981" strokeWidth="1.5" fill="none" /></svg>
-                </div>
-                <div className="kpi flat">
-                  <div className="kpi-label"><span>Visitas</span><span className="delta">~</span></div>
-                  <div className="kpi-value">847</div>
-                  <svg className="kpi-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,12 L15,14 L25,10 L40,12 L55,14 L70,10 L85,12 L100,11" stroke="var(--ink-3)" strokeWidth="1.5" fill="none" /></svg>
-                </div>
-                <div className="kpi down">
-                  <div className="kpi-label"><span>Carritos abandonados</span><span className="delta">+3</span></div>
-                  <div className="kpi-value">7</div>
-                  <svg className="kpi-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,8 L15,10 L25,12 L40,10 L55,14 L70,16 L85,18 L100,20" stroke="var(--accent)" strokeWidth="1.5" fill="none" /></svg>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                <div className="panel">
-                  <h3>Ventas · últimos 30 días <span className="more">Más opciones →</span></h3>
-                  <div className="chart">
-                    <svg viewBox="0 0 800 200" preserveAspectRatio="none">
-                      <defs><linearGradient id="bp-cha" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#1E3A8A" stopOpacity="0.25" /><stop offset="100%" stopColor="#1E3A8A" stopOpacity="0" /></linearGradient></defs>
-                      <path d="M0,160 L40,150 L80,140 L120,120 L160,130 L200,100 L240,110 L280,80 L320,95 L360,70 L400,85 L440,60 L480,75 L520,55 L560,68 L600,40 L640,52 L680,45 L720,30 L760,42 L800,35 L800,200 L0,200 Z" fill="url(#bp-cha)" />
-                      <path d="M0,160 L40,150 L80,140 L120,120 L160,130 L200,100 L240,110 L280,80 L320,95 L360,70 L400,85 L440,60 L480,75 L520,55 L560,68 L600,40 L640,52 L680,45 L720,30 L760,42 L800,35" stroke="#1E3A8A" strokeWidth="2" fill="none" />
-                    </svg>
-                  </div>
-                  <div className="chart-meta"><span>5 abr</span><span>19 abr</span><span>5 may</span></div>
-                </div>
-
-                <div className="panel">
-                  <h3>Pedidos recientes <span className="more">Ver todos →</span></h3>
-                  {ORDERS.map((o) => (
-                    <div className="ord" key={o.meta}>
-                      <div className="ord-avatar" style={{ background: o.grad }}>{o.initials}</div>
-                      <div><div className="ord-name">{o.name}</div><div className="ord-meta">{o.meta}</div></div>
-                      <div className="ord-amount">{o.amount}</div>
-                      <div className={`ord-status ${o.status}`}>{o.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="side-stack">
-                <div className="panel">
-                  <h3>Top productos</h3>
-                  <ul className="top-products" style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                    {TOP_PRODUCTS.map((p) => (
-                      <li key={p.rank}><span className="rank">{p.rank}</span><div><div className="name">{p.name}</div><div className="bar"><div className="bar-fill" style={{ width: `${p.width}%` }} /></div></div><div className="units">{p.units}</div></li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="panel">
-                  <h3>De dónde llegan</h3>
-                  <div className="traffic-bars">
-                    {TRAFFIC.map((t) => (
-                      <div className="tr-row" key={t.label}><span className="tr-label">{t.label}</span><div className="tr-bar"><div className="tr-bar-fill" style={{ width: `${t.width}%`, background: t.color }} /></div><span className="tr-pct">{t.pct}</span></div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="panel">
-                  <h3>Pendiente esta semana <span className="more">3 · ver todo</span></h3>
-                  <ul className="next-up" style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                    <li><div className="ck" /><span>Subir 3 fotos del nuevo lote</span><span className="badge">URGENTE</span></li>
-                    <li><div className="ck" /><span>Responder 7 mensajes en WA</span><span className="badge" style={{ background: "rgba(251,191,36,0.18)", color: "#92400e" }}>7</span></li>
-                    <li><div className="ck done" /><span style={{ textDecoration: "line-through", color: "var(--ink-3)" }}>Actualizar tasa Bs/USD</span><span /></li>
-                    <li><div className="ck" /><span>Configurar domicilio Petare</span><span /></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+            <DashboardOverview mobile={mobile} />
           </div>
 
           {/* CATÁLOGO */}
