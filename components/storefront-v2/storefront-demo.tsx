@@ -8,14 +8,21 @@ interface Product {
   name: string
   cat: string
   price: number
-  gradient: string
+  gradient?: string
+  image?: string
   sizes: string[]
   colors: Color[]
   desc: string
 }
-interface CartItem { id: string; name: string; price: number; size: string; color: string; gradient: string }
+interface CartItem { id: string; name: string; price: number; size: string; color: string; gradient?: string; image?: string }
 
-const PRODUCTS: Product[] = [
+export interface StorefrontData {
+  store: { name: string; username?: string; bio?: string; avatar?: string }
+  products: Array<{ id: string; name: string; category?: string; price: number; image?: string; description?: string }>
+  categories: Array<{ id: string; name: string }>
+}
+
+const MOCK_PRODUCTS: Product[] = [
   { id: "p1", name: "Vestido Sienna", cat: "vestidos", price: 89, gradient: "linear-gradient(135deg, #C63E2A, #7A1F10)", sizes: ["S", "M", "L", "XL"], colors: [{ name: "Coral", hex: "#C63E2A" }, { name: "Negro", hex: "#1a1a1a" }], desc: "Vestido midi en algodón orgánico, corte A. Hecho en Caracas." },
   { id: "p2", name: "Top Luna", cat: "tops", price: 42, gradient: "linear-gradient(135deg, #E8C07A, #B8860B)", sizes: ["S", "M", "L"], colors: [{ name: "Mostaza", hex: "#E8C07A" }, { name: "Crema", hex: "#F5EBE0" }], desc: "Top de lino con mangas abullonadas. Versátil y elegante." },
   { id: "p3", name: "Falda Mara", cat: "vestidos", price: 56, gradient: "linear-gradient(135deg, #8A6B4C, #5A3D1D)", sizes: ["S", "M", "L"], colors: [{ name: "Cacao", hex: "#8A6B4C" }], desc: "Falda midi en gabardina, corte recto." },
@@ -24,12 +31,38 @@ const PRODUCTS: Product[] = [
   { id: "p6", name: "Pañuelo Iris", cat: "accesorios", price: 28, gradient: "linear-gradient(135deg, #DC4A3D, #F97066)", sizes: ["Único"], colors: [{ name: "Coral", hex: "#DC4A3D" }], desc: "Pañuelo de seda con estampado floral." },
 ]
 
-const CATEGORIES = [
+const MOCK_CATEGORIES = [
   { id: "all", label: "Todo" },
   { id: "vestidos", label: "Vestidos" },
   { id: "tops", label: "Tops" },
   { id: "accesorios", label: "Accesorios" },
 ]
+
+const MOCK_STORE = { name: "Rosa Atelier", username: "@rosa.atelier · Caracas 🇻🇪", bio: "Moda femenina hecha en Caracas. Piezas únicas en algodón natural y lino.", bioAccent: "Para mujeres que viven con intención.", avatarLetter: "R", avatar: undefined as string | undefined }
+
+function adapt(data: StorefrontData) {
+  const products: Product[] = data.products.map((p) => ({
+    id: p.id,
+    name: p.name,
+    cat: p.category ?? "all",
+    price: p.price,
+    image: p.image,
+    sizes: [],
+    colors: [],
+    desc: p.description ?? "",
+  }))
+  const categories = [{ id: "all", label: "Todo" }, ...data.categories.map((c) => ({ id: c.id, label: c.name }))]
+  const initial = (data.store.name.trim()[0] || "B").toUpperCase()
+  const store = {
+    name: data.store.name,
+    username: data.store.username ?? "",
+    bio: data.store.bio ?? "",
+    bioAccent: "",
+    avatarLetter: initial,
+    avatar: data.store.avatar,
+  }
+  return { products, categories, store }
+}
 const RATE = 48.32
 
 const styles = `
@@ -55,7 +88,10 @@ const styles = `
 .sf-wa-5 { opacity: 0; animation: sfFadeIn .3s 3s forwards; }
 `
 
-export function StorefrontDemo() {
+export function StorefrontDemo({ data }: { data?: StorefrontData } = {}) {
+  const { products: PRODUCTS, categories: CATEGORIES, store: STORE } = data
+    ? adapt(data)
+    : { products: MOCK_PRODUCTS, categories: MOCK_CATEGORIES, store: MOCK_STORE }
   const [cat, setCat] = useState("all")
   const [currency, setCurrency] = useState<"USD" | "BS">("USD")
   const [cart, setCart] = useState<CartItem[]>([])
@@ -79,8 +115,10 @@ export function StorefrontDemo() {
     setAdded(false)
   }
   function addToCart() {
-    if (!product || !size || !color) return
-    setCart((c) => [...c, { id: product.id, name: product.name, price: product.price, size, color: color.name, gradient: product.gradient }])
+    if (!product) return
+    if (product.sizes.length > 0 && !size) return
+    if (product.colors.length > 0 && !color) return
+    setCart((c) => [...c, { id: product.id, name: product.name, price: product.price, size: size ?? "—", color: color?.name ?? "—", gradient: product.gradient, image: product.image }])
     setAdded(true)
     setTimeout(() => setOpenProductId(null), 600)
   }
@@ -107,10 +145,12 @@ export function StorefrontDemo() {
       <div className="sf-frame">
         <header style={{ position: "sticky", top: 0, zIndex: 30, background: "rgba(255,255,255,0.92)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--line)", padding: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 14, background: "linear-gradient(135deg, var(--brand), var(--brand-dark))", display: "grid", placeItems: "center", color: "#fff", fontWeight: 800, fontSize: 18 }}>R</div>
+            <div style={{ width: 44, height: 44, borderRadius: 14, background: STORE.avatar ? `#000 url(${STORE.avatar}) center/cover no-repeat` : "linear-gradient(135deg, var(--brand), var(--brand-dark))", display: "grid", placeItems: "center", color: "#fff", fontWeight: 800, fontSize: 18 }}>
+              {STORE.avatar ? "" : STORE.avatarLetter}
+            </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.015em" }}>Rosa Atelier</div>
-              <div style={{ fontSize: 12, color: "var(--ink-3)" }}>@rosa.atelier · Caracas 🇻🇪</div>
+              <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.015em" }}>{STORE.name}</div>
+              <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{STORE.username}</div>
             </div>
             <button type="button" onClick={() => cart.length && setCartOpen(true)} style={{ position: "relative", width: 40, height: 40, borderRadius: 10, background: "var(--bg-2)", display: "grid", placeItems: "center", border: "none", cursor: "pointer" }}>
               <span style={{ fontSize: 18 }}>🛍️</span>
@@ -137,15 +177,20 @@ export function StorefrontDemo() {
           </div>
         </header>
 
-        <section style={{ padding: "20px 16px 0" }}>
-          <p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.55, margin: 0 }}>Moda femenina hecha en Caracas. Piezas únicas en algodón natural y lino. <span className="serif-it" style={{ color: "var(--brand)" }}>Para mujeres que viven con intención.</span></p>
-        </section>
+        {(STORE.bio || STORE.bioAccent) && (
+          <section style={{ padding: "20px 16px 0" }}>
+            <p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.55, margin: 0 }}>
+              {STORE.bio}
+              {STORE.bioAccent && <> <span className="serif-it" style={{ color: "var(--brand)" }}>{STORE.bioAccent}</span></>}
+            </p>
+          </section>
+        )}
 
         <section style={{ padding: "20px 16px 100px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             {list.map((p) => (
               <article key={p.id} className="sf-card" onClick={() => openProduct(p)}>
-                <div className="sf-img" style={{ aspectRatio: "3/4", borderRadius: 14, background: p.gradient, position: "relative" }}>
+                <div className="sf-img" style={{ aspectRatio: "3/4", borderRadius: 14, background: p.image ? `#fff url(${p.image}) center/cover no-repeat` : p.gradient, position: "relative" }}>
                   <button type="button" onClick={(e) => e.stopPropagation()} style={{ position: "absolute", top: 8, right: 8, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.95)", display: "grid", placeItems: "center", fontSize: 14, border: "none", cursor: "pointer" }}>♡</button>
                 </div>
                 <div style={{ padding: "8px 4px 0" }}>
@@ -173,30 +218,34 @@ export function StorefrontDemo() {
               <button type="button" onClick={() => setOpenProductId(null)} style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--bg-2)", display: "grid", placeItems: "center", fontSize: 18, border: "none", cursor: "pointer" }}>×</button>
             </div>
             <div style={{ padding: "0 20px 24px" }}>
-              <div style={{ aspectRatio: "3/4", borderRadius: 16, background: product.gradient, maxWidth: 280, margin: "0 auto 20px" }} />
+              <div style={{ aspectRatio: "3/4", borderRadius: 16, background: product.image ? `#fff url(${product.image}) center/cover no-repeat` : product.gradient, maxWidth: 280, margin: "0 auto 20px" }} />
               <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 6px", letterSpacing: "-0.02em" }}>{product.name}</h2>
               <div style={{ fontSize: 22, fontWeight: 700, color: "var(--brand)", marginBottom: 14 }}>{fmt(product.price)}</div>
-              <p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.55, margin: "0 0 20px" }}>{product.desc}</p>
+              {product.desc && <p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.55, margin: "0 0 20px" }}>{product.desc}</p>}
 
-              <div style={{ marginBottom: 18 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-2)", marginBottom: 8 }}>TALLA</div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {product.sizes.map((s) => {
-                    const on = size === s
-                    return <button key={s} type="button" onClick={() => setSize(s)} style={{ minWidth: 44, padding: "10px 14px", border: `1.5px solid ${on ? "var(--ink)" : "var(--line-2)"}`, background: on ? "var(--ink)" : "#fff", color: on ? "#fff" : "var(--ink)", borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: "pointer" }}>{s}</button>
-                  })}
+              {product.sizes.length > 0 && (
+                <div style={{ marginBottom: 18 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-2)", marginBottom: 8 }}>TALLA</div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {product.sizes.map((s) => {
+                      const on = size === s
+                      return <button key={s} type="button" onClick={() => setSize(s)} style={{ minWidth: 44, padding: "10px 14px", border: `1.5px solid ${on ? "var(--ink)" : "var(--line-2)"}`, background: on ? "var(--ink)" : "#fff", color: on ? "#fff" : "var(--ink)", borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: "pointer" }}>{s}</button>
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-2)", marginBottom: 8 }}>COLOR · <span style={{ color: "var(--ink)", fontWeight: 500 }}>{color?.name}</span></div>
-                <div style={{ display: "flex", gap: 10 }}>
-                  {product.colors.map((c) => {
-                    const on = color?.hex === c.hex
-                    return <button key={c.hex} type="button" aria-label={c.name} onClick={() => setColor(c)} style={{ width: 36, height: 36, borderRadius: "50%", background: c.hex, border: `2px solid ${on ? "var(--ink)" : "var(--line-2)"}`, cursor: "pointer", boxShadow: on ? "0 0 0 3px #fff inset" : "none" }} />
-                  })}
+              {product.colors.length > 0 && (
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-2)", marginBottom: 8 }}>COLOR · <span style={{ color: "var(--ink)", fontWeight: 500 }}>{color?.name}</span></div>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    {product.colors.map((c) => {
+                      const on = color?.hex === c.hex
+                      return <button key={c.hex} type="button" aria-label={c.name} onClick={() => setColor(c)} style={{ width: 36, height: 36, borderRadius: "50%", background: c.hex, border: `2px solid ${on ? "var(--ink)" : "var(--line-2)"}`, cursor: "pointer", boxShadow: on ? "0 0 0 3px #fff inset" : "none" }} />
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <button type="button" onClick={addToCart} style={{ width: "100%", padding: 16, background: added ? "var(--whatsapp)" : "var(--ink)", color: "#fff", borderRadius: 14, fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, border: "none", cursor: "pointer" }}>
                 {added ? "✓ Agregado" : `Agregar al carrito · ${fmt(product.price)}`}
@@ -214,17 +263,21 @@ export function StorefrontDemo() {
             <div style={{ padding: "20px 20px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--line)" }}>
               <div>
                 <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Tu pedido</h2>
-                <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 2 }}>Rosa Atelier</div>
+                <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 2 }}>{STORE.name}</div>
               </div>
               <button type="button" onClick={() => setCartOpen(false)} style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--bg-2)", display: "grid", placeItems: "center", fontSize: 18, border: "none", cursor: "pointer" }}>×</button>
             </div>
             <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px" }}>
               {cart.map((it, i) => (
                 <div key={i} style={{ display: "flex", gap: 12, padding: "12px 0", borderBottom: "1px solid var(--line)" }}>
-                  <div style={{ width: 60, height: 80, borderRadius: 8, background: it.gradient, flexShrink: 0 }} />
+                  <div style={{ width: 60, height: 80, borderRadius: 8, background: it.image ? `#fff url(${it.image}) center/cover no-repeat` : it.gradient, flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 14, fontWeight: 700 }}>{it.name}</div>
-                    <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 2 }}>Talla {it.size} · {it.color}</div>
+                    {(it.size !== "—" || it.color !== "—") && (
+                      <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 2 }}>
+                        {[it.size !== "—" && `Talla ${it.size}`, it.color !== "—" && it.color].filter(Boolean).join(" · ")}
+                      </div>
+                    )}
                     <div style={{ fontSize: 14, fontWeight: 700, color: "var(--brand)", marginTop: 6 }}>{fmt(it.price)}</div>
                   </div>
                   <button type="button" onClick={() => setCart((c) => c.filter((_, idx) => idx !== i))} style={{ fontSize: 18, color: "var(--ink-3)", alignSelf: "flex-start", background: "none", border: "none", cursor: "pointer" }}>×</button>
@@ -251,9 +304,9 @@ export function StorefrontDemo() {
           <div style={{ position: "relative", width: "100%", height: "100%", maxWidth: 440, margin: "0 auto", overflow: "hidden" }}>
             <div className="sf-wa-1" style={{ background: "#1F2C34", padding: "50px 16px 14px", display: "flex", alignItems: "center", gap: 12 }}>
               <span style={{ color: "#fff", fontSize: 22 }}>←</span>
-              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg, var(--brand), var(--brand-dark))", display: "grid", placeItems: "center", color: "#fff", fontWeight: 800, fontSize: 14 }}>R</div>
+              <div style={{ width: 38, height: 38, borderRadius: "50%", background: STORE.avatar ? `#000 url(${STORE.avatar}) center/cover no-repeat` : "linear-gradient(135deg, var(--brand), var(--brand-dark))", display: "grid", placeItems: "center", color: "#fff", fontWeight: 800, fontSize: 14 }}>{STORE.avatar ? "" : STORE.avatarLetter}</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 15, fontWeight: 600, color: "#fff" }}>Rosa Atelier</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: "#fff" }}>{STORE.name}</div>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>en línea</div>
               </div>
               <span style={{ color: "#fff", fontSize: 18 }}>📞</span>
