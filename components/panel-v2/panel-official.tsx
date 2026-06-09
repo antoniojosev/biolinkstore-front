@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react"
 import { AnalyticsBoard } from "@/components/dashboard-v2/analytics-board"
 import { DashboardOverview } from "@/components/dashboard-v2/dashboard-overview"
 import { CatalogBoard } from "@/components/dashboard-v2/catalog-board"
+import { StoreSettingsBoard } from "@/components/dashboard-v2/store-settings-board"
+import { useAuth } from "@/contexts/auth-context"
 
-type View = "dashboard" | "catalog" | "design" | "data"
+type View = "dashboard" | "catalog" | "design" | "data" | "config"
 
 const STYLES = `
 .bpanel { background: var(--bg); overflow-x: hidden; min-height: 100vh; color: var(--ink); font-family: var(--font-sans); }
@@ -233,6 +235,8 @@ function I({ id }: { id: string }) {
 }
 
 export function PanelOfficial() {
+  const { store } = useAuth()
+  const slug = store?.slug ?? "tu-tienda"
   const [mobile, setMobile] = useState(false)
   const [view, setView] = useState<View>("dashboard")
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -266,14 +270,15 @@ export function PanelOfficial() {
           <button type="button" className={`td-tab${view === "catalog" ? " active" : ""}`} onClick={() => setView("catalog")}><I id="package" />Productos</button>
           <button type="button" className={`td-tab${view === "design" ? " active" : ""}`} onClick={() => setView("design")}><I id="layout" />Diseño</button>
           <button type="button" className={`td-tab${view === "data" ? " active" : ""}`} onClick={() => setView("data")}><I id="chart" />Datos</button>
+          <button type="button" className={`td-tab${view === "config" ? " active" : ""}`} onClick={() => setView("config")}><I id="settings" />Config</button>
           <div className="td-divider" />
-          <div className="td-pill"><span className="dot" /><span>bylink.app/rosa</span><I id="external" /></div>
+          <a href={store?.slug ? `/${store.slug}` : "#"} target="_blank" rel="noopener noreferrer" className="td-pill" style={{ cursor: store?.slug ? "pointer" : "default" }}><span className="dot" /><span>bylink.app/{slug}</span><I id="external" /></a>
         </div>
 
         {/* TOPBAR (mobile) */}
         <div className="m-topbar">
           <div className="m-logo">b</div>
-          <div className="m-store-pill"><span className="dot" /><span className="url">bylink.app/rosa</span></div>
+          <div className="m-store-pill"><span className="dot" /><span className="url">bylink.app/{slug}</span></div>
           <button type="button" className="m-icon-btn"><I id="bell" /></button>
         </div>
 
@@ -366,6 +371,11 @@ export function PanelOfficial() {
               </div>
             </div>
           </div>
+          {/* CONFIG */}
+          <div className={`view${view === "config" ? " active" : ""}`}>
+            <StoreSettingsBoard />
+          </div>
+
           {/* DATOS */}
           <div className={`view${view === "data" ? " active" : ""}`}>
             <div className="cat-wrap">
