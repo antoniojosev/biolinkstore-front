@@ -3,28 +3,9 @@
 import { useEffect, useRef, useState } from "react"
 import { AnalyticsBoard } from "@/components/dashboard-v2/analytics-board"
 import { DashboardOverview } from "@/components/dashboard-v2/dashboard-overview"
+import { CatalogBoard } from "@/components/dashboard-v2/catalog-board"
 
 type View = "dashboard" | "catalog" | "design" | "data"
-
-interface PanelProduct {
-  name: string; sku: string; price: number; stock: number
-  status: "ok" | "low" | "zero"; cat: string; badge: "low" | "draft" | null; img: string
-}
-
-const PRODUCTS: PanelProduct[] = [
-  { name: "Vestido Camelia", sku: "VES-CAM-01", price: 89, stock: 12, status: "ok", cat: "Vestidos", badge: null, img: "linear-gradient(135deg,#C63E2A,#7A1F10)" },
-  { name: "Aretes Luna", sku: "ACC-LUN-02", price: 42, stock: 23, status: "ok", cat: "Accesorios", badge: null, img: "linear-gradient(135deg,#E8C07A,#B8860B)" },
-  { name: "Bolso de Cuero", sku: "BOL-CUE-03", price: 56, stock: 4, status: "low", cat: "Bolsos", badge: "low", img: "linear-gradient(135deg,#8A6B4C,#5A3D1D)" },
-  { name: "Blusa Olivia", sku: "BLU-OLI-04", price: 38, stock: 18, status: "ok", cat: "Blusas", badge: null, img: "linear-gradient(135deg,#2A3B5C,#0A1F4D)" },
-  { name: "Collar Sol", sku: "ACC-SOL-05", price: 32, stock: 27, status: "ok", cat: "Accesorios", badge: null, img: "linear-gradient(135deg,#D4AF37,#8B7500)" },
-  { name: "Falda Plisada", sku: "FAL-PLI-06", price: 64, stock: 0, status: "zero", cat: "Faldas", badge: "draft", img: "linear-gradient(135deg,#DC4A3D,#F97066)" },
-  { name: "Sandalias Caribe", sku: "CAL-CAR-07", price: 48, stock: 9, status: "ok", cat: "Calzado", badge: null, img: "linear-gradient(135deg,#C4B5A0,#8B7355)" },
-  { name: "Pulsera Trenzada", sku: "ACC-TRE-08", price: 22, stock: 41, status: "ok", cat: "Accesorios", badge: null, img: "linear-gradient(135deg,#A8DADC,#457B9D)" },
-  { name: "Sombrero Playa", sku: "ACC-SOM-09", price: 35, stock: 6, status: "low", cat: "Accesorios", badge: "low", img: "linear-gradient(135deg,#F5E6CC,#C9A875)" },
-  { name: "Pareo Floral", sku: "PAR-FLO-10", price: 28, stock: 14, status: "ok", cat: "Playa", badge: null, img: "linear-gradient(135deg,#FFB4A2,#E5989B)" },
-  { name: "Anillo Perla", sku: "ACC-ANI-11", price: 52, stock: 8, status: "ok", cat: "Accesorios", badge: null, img: "linear-gradient(135deg,#FAF3F0,#D5C5BB)" },
-  { name: "Top Crochet", sku: "TOP-CRO-12", price: 45, stock: 11, status: "ok", cat: "Tops", badge: null, img: "linear-gradient(135deg,#E29578,#FFDDD2)" },
-]
 
 const STYLES = `
 .bpanel { background: var(--bg); overflow-x: hidden; min-height: 100vh; color: var(--ink); font-family: var(--font-sans); }
@@ -254,7 +235,6 @@ function I({ id }: { id: string }) {
 export function PanelOfficial() {
   const [mobile, setMobile] = useState(false)
   const [view, setView] = useState<View>("dashboard")
-  const [catView, setCatView] = useState<"grid" | "list">("grid")
   const [sheetOpen, setSheetOpen] = useState(false)
   const fabRef = useRef<HTMLButtonElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
@@ -305,65 +285,7 @@ export function PanelOfficial() {
 
           {/* CATÁLOGO */}
           <div className={`view${view === "catalog" ? " active" : ""}`}>
-            <div className="cat-wrap">
-              <div className="cat-header">
-                <div>
-                  <h1><em>56</em> productos</h1>
-                  <div className="meta">42 publicados · 12 borrador · 2 sin stock</div>
-                </div>
-                <div className="h-actions">
-                  <button type="button" className="h-btn ghost"><I id="upload" />Importar</button>
-                  <button type="button" className="h-btn"><I id="plus" />Nuevo producto</button>
-                </div>
-              </div>
-
-              <div className="cat-toolbar">
-                <div className="search-box"><I id="search" /><input placeholder="Buscar por nombre, SKU o categoría…" /></div>
-                <button type="button" className="filter-chip">Todas <I id="chevron-down" /></button>
-                <button type="button" className="filter-chip">Stock <I id="chevron-down" /></button>
-                <button type="button" className="filter-chip">Estado <I id="chevron-down" /></button>
-                <div className="view-toggle" style={{ marginLeft: "auto" }}>
-                  <button type="button" className={catView === "grid" ? "active" : ""} title="Galería" onClick={() => setCatView("grid")}><I id="grid" /></button>
-                  <button type="button" className={catView === "list" ? "active" : ""} title="Lista" onClick={() => setCatView("list")}><I id="list" /></button>
-                </div>
-              </div>
-
-              {catView === "grid" ? (
-                <div className="gallery-grid">
-                  {PRODUCTS.map((p) => (
-                    <div className="product-card" key={p.sku}>
-                      <div className="pc-img" style={{ background: p.img }}>
-                        {p.badge === "low" && <span className="pc-badge low">Stock bajo</span>}
-                        {p.badge === "draft" && <span className="pc-badge draft">Borrador</span>}
-                        <div className="pc-actions">
-                          <button type="button" title="Editar"><I id="edit" /></button>
-                          <button type="button" title="Duplicar"><I id="copy" /></button>
-                        </div>
-                      </div>
-                      <div className="pc-info">
-                        <div className="pc-name">{p.name}</div>
-                        <div className="pc-meta"><span className="pc-price">${p.price}</span><span className="pc-stock">{p.stock} stock</span></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="list-table">
-                  <div className="lt-head"><div /><div /><div>Producto</div><div>Precio</div><div>Stock</div><div>Categoría</div><div /></div>
-                  {PRODUCTS.map((p) => (
-                    <div className="lt-row" key={p.sku}>
-                      <div className="lt-checkbox" />
-                      <div className="lt-thumb" style={{ background: p.img }} />
-                      <div><div className="lt-name">{p.name}</div><div className="lt-sku">{p.sku}</div></div>
-                      <div className="lt-price">${p.price}</div>
-                      <div><span className={`lt-stock-pill ${p.status}`}>{p.status === "zero" ? "Sin stock" : `${p.stock} unid.`}</span></div>
-                      <div className="lt-cat">{p.cat}</div>
-                      <div className="lt-more">⋯</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <CatalogBoard />
           </div>
 
           {/* DESIGN */}
