@@ -96,6 +96,8 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
   const [stats, setStats] = useState<StoreStats | null>(null)
   const [orders, setOrders] = useState<OrderResponse[] | null>(null)
   const [loading, setLoading] = useState(false)
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
 
   const repo = useMemo(() => new OrdersHttpRepository(http), [http])
   const storeId = store?.id
@@ -113,6 +115,32 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [repo, storeId])
+
+  useEffect(() => {
+    if (!openMenuId) return
+    const onDoc = (e: MouseEvent) => {
+      const t = e.target as Element | null
+      if (t?.closest?.("[data-status-menu]")) return
+      setOpenMenuId(null)
+    }
+    document.addEventListener("click", onDoc)
+    return () => document.removeEventListener("click", onDoc)
+  }, [openMenuId])
+
+  async function changeStatus(orderId: string, newStatus: OrderStatus) {
+    if (!storeId || updatingId) return
+    setUpdatingId(orderId)
+    try {
+      await repo.updateStatus(storeId, orderId, newStatus)
+      const o = await repo.getOrders(storeId, { limit: 5, sortOrder: "desc" })
+      setOrders(o.data)
+      setOpenMenuId(null)
+    } catch {
+      // silent — status pill snaps back to server value on next fetch
+    } finally {
+      setUpdatingId(null)
+    }
+  }
 
   const { name: greetName, greet } = greeting(user?.name)
   const dateLabel = formatDate()
@@ -135,6 +163,7 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
   const useRealOrders = orders != null
   const recent = useRealOrders
     ? orders.slice(0, 5).map((o, i) => ({
+        id: o.id,
         name: o.customerName || "Cliente",
         initials: initials(o.customerName),
         grad: AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length],
@@ -143,7 +172,7 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
         amount: fmtMoney(o.total, o.currency),
         status: o.status,
       }))
-    : MOCK_ORDERS
+    : MOCK_ORDERS.map((m, i) => ({ ...m, id: `mock-${i}` }))
 
   return (
     <div className="dash-grid">
@@ -202,14 +231,40 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
           <h3>Pedidos recientes <span className="more">Ver todos →</span></h3>
           {recent.length === 0 ? (
             <div className="muted" style={{ padding: 16, textAlign: "center" }}>Aún no hay pedidos.</div>
-          ) : recent.map((o, i) => (
-            <div className="ord" key={i}>
-              <div className="ord-avatar" style={{ background: o.grad }}>{o.initials}</div>
-              <div><div className="ord-name">{o.name}</div><div className="ord-meta">{o.summary} · {o.ago}</div></div>
-              <div className="ord-amount">{o.amount}</div>
-              <div className={`ord-status ${STATUS_CLASS[o.status as OrderStatus]}`}>{STATUS_LABEL[o.status as OrderStatus] ?? o.status}</div>
-            </div>
-          ))}
+          ) : recent.map((o) => {
+            const status = o.status as OrderStatus
+            const isOpen = openMenuId === o.id
+            const isUpdating = updatingId === o.id
+            const transitions = (Object.keys(STATUS_LABEL) as OrderStatus[]).filter((s) => s !== status)
+            return (
+              <div className="ord" key={o.id}>
+                <div className="ord-avatar" style={{ background: o.grad }}>{o.initials}</div>
+                <div><div className="ord-name">{o.name}</div><div className="ord-meta">{o.summary} · {o.ago}</div></div>
+                <div className="ord-amount">{o.amount}</div>
+                <div data-status-menu style={{ position: "relative" }}>
+                  <button
+                    type="button"
+                    className={`ord-status ${STATUS_CLASS[status]}`}
+                    onClick={(e) => { e.stopPropagation(); if (useRealOrders && !isUpdating) setOpenMenuId(isOpen ? null : o.id) }}
+                    disabled={!useRealOrders || isUpdating}
+                    style={{ border: "none", cursor: useRealOrders && !isUpdating ? "pointer" : "default", fontFamily: "inherit", opacity: isUpdating ? 0.5 : 1 }}
+                    title={useRealOrders ? "Cambiar estado" : undefined}
+                  >
+                    {isUpdating ? "…" : (STATUS_LABEL[status] ?? status)}
+                  </button>
+                  {isOpen && (
+                    <div role="menu" style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "#fff", border: "1px solid var(--line)", borderRadius: 8, boxShadow: "0 8px 24px -8px rgba(15,23,42,0.18)", padding: 4, zIndex: 30, minWidth: 140 }}>
+                      {transitions.map((s) => (
+                        <button key={s} type="button" role="menuitem" onClick={() => changeStatus(o.id, s)} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "6px 10px", border: "none", background: "transparent", borderRadius: 6, fontSize: 12, fontFamily: "inherit", color: "var(--ink)", cursor: "pointer", textAlign: "left" }} onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-2)")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
+                          <span className={`ord-status ${STATUS_CLASS[s]}`} style={{ pointerEvents: "none" }}>{STATUS_LABEL[s]}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
 
