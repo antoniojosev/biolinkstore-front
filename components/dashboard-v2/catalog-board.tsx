@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { ProductHttpRepository } from "@/lib/products-api/product.http-repository"
 import { CategoryHttpRepository } from "@/lib/categories-api/category.http-repository"
-import type { ProductResponse } from "@/lib/products-api/types"
+import type { CreateProductDto, ProductResponse, UpdateProductDto } from "@/lib/products-api/types"
 import type { CategoryResponse } from "@/lib/categories-api/types"
+import { ProductFormSheet } from "./product-form-sheet"
 
 function I({ id }: { id: string }) {
   return <svg><use href={`#ic-${id}`} /></svg>
@@ -66,6 +67,9 @@ export function CatalogBoard() {
   const [error, setError] = useState<string | null>(null)
   const [view, setView] = useState<"grid" | "list">("grid")
   const [query, setQuery] = useState("")
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [editingProduct, setEditingProduct] = useState<ProductResponse | null>(null)
+  const [refreshTick, setRefreshTick] = useState(0)
 
   const productRepo = useMemo(() => new ProductHttpRepository(http), [http])
   const categoryRepo = useMemo(() => new CategoryHttpRepository(http), [http])
@@ -83,7 +87,35 @@ export function CatalogBoard() {
       .catch(() => { if (!cancelled) setError("No se pudieron cargar los productos") })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [productRepo, categoryRepo, storeId])
+  }, [productRepo, categoryRepo, storeId, refreshTick])
+
+  const openCreate = () => { setEditingProduct(null); setSheetOpen(true) }
+  const openEdit = (id: string) => {
+    const real = products?.find((p) => p.id === id) ?? null
+    setEditingProduct(real)
+    setSheetOpen(true)
+  }
+  async function handleCreate(dto: CreateProductDto) {
+    if (!storeId) throw new Error("Sin tienda activa")
+    await productRepo.create(storeId, dto)
+    setRefreshTick((n) => n + 1)
+  }
+  async function handleUpdate(id: string, dto: UpdateProductDto) {
+    if (!storeId) throw new Error("Sin tienda activa")
+    await productRepo.update(storeId, id, dto)
+    setRefreshTick((n) => n + 1)
+  }
+  async function handleDelete(id: string) {
+    if (!storeId) throw new Error("Sin tienda activa")
+    await productRepo.remove(storeId, id)
+    setRefreshTick((n) => n + 1)
+  }
+  async function handleDuplicate(id: string) {
+    if (!storeId) return
+    await productRepo.duplicate(storeId, id).catch(() => {})
+    setRefreshTick((n) => n + 1)
+  }
+  const canCrud = Boolean(storeId)
 
   const catNameById = useMemo(() => {
     const m = new Map<string, string>()
@@ -132,8 +164,8 @@ export function CatalogBoard() {
           <div className="meta">{published} publicados · {draft} borrador · {noStock} sin stock</div>
         </div>
         <div className="h-actions">
-          <button type="button" className="h-btn ghost"><I id="upload" />Importar</button>
-          <button type="button" className="h-btn"><I id="plus" />Nuevo producto</button>
+          <button type="button" className="h-btn ghost" disabled title="Próximamente"><I id="upload" />Importar</button>
+          <button type="button" className="h-btn" onClick={openCreate} disabled={!canCrud}><I id="plus" />Nuevo producto</button>
         </div>
       </div>
 
@@ -166,14 +198,16 @@ export function CatalogBoard() {
       {!loading && filtered.length > 0 && view === "grid" && (
         <div className="gallery-grid">
           {filtered.map((p) => (
-            <div className="product-card" key={p.id}>
+            <div className="product-card" key={p.id} onClick={() => canCrud && openEdit(p.id)} style={{ cursor: canCrud ? "pointer" : "default" }}>
               <div className="pc-img" style={{ background: p.isImage ? `#fff url(${p.img}) center/cover no-repeat` : p.img }}>
                 {p.badge === "low" && <span className="pc-badge low">Stock bajo</span>}
                 {p.badge === "draft" && <span className="pc-badge draft">Borrador</span>}
-                <div className="pc-actions">
-                  <button type="button" title="Editar"><I id="edit" /></button>
-                  <button type="button" title="Duplicar"><I id="copy" /></button>
-                </div>
+                {canCrud && (
+                  <div className="pc-actions" onClick={(e) => e.stopPropagation()}>
+                    <button type="button" title="Editar" onClick={() => openEdit(p.id)}><I id="edit" /></button>
+                    <button type="button" title="Duplicar" onClick={() => handleDuplicate(p.id)}><I id="copy" /></button>
+                  </div>
+                )}
               </div>
               <div className="pc-info">
                 <div className="pc-name">{p.name}</div>
@@ -188,8 +222,8 @@ export function CatalogBoard() {
         <div className="list-table">
           <div className="lt-head"><div /><div /><div>Producto</div><div>Precio</div><div>Stock</div><div>Categoría</div><div /></div>
           {filtered.map((p) => (
-            <div className="lt-row" key={p.id}>
-              <div className="lt-checkbox" />
+            <div className="lt-row" key={p.id} onClick={() => canCrud && openEdit(p.id)} style={{ cursor: canCrud ? "pointer" : "default" }}>
+              <div className="lt-checkbox" onClick={(e) => e.stopPropagation()} />
               <div className="lt-thumb" style={{ background: p.isImage ? `#fff url(${p.img}) center/cover no-repeat` : p.img }} />
               <div><div className="lt-name">{p.name}</div><div className="lt-sku">{p.sku}</div></div>
               <div className="lt-price">{p.price}</div>
@@ -200,6 +234,16 @@ export function CatalogBoard() {
           ))}
         </div>
       )}
+
+      <ProductFormSheet
+        open={sheetOpen}
+        product={editingProduct}
+        categories={categories}
+        onClose={() => setSheetOpen(false)}
+        onCreate={handleCreate}
+        onUpdate={handleUpdate}
+        onDelete={handleDelete}
+      />
     </div>
   )
 }
