@@ -35,6 +35,9 @@ export default async function StorefrontV2Page({ params }: Props) {
       username: fetched.store.username,
       bio: fetched.store.bio,
       avatar: fetched.store.avatar,
+      slug: fetched.store.slug,
+      whatsappNumber: fetched.store.whatsappNumbers?.[0],
+      currency: fetched.store.currency,
     },
     products: fetched.products.map((p) => ({
       id: p.id,

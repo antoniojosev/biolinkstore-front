@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { WhatsAppPaymentProvider } from "@/lib/payment-providers/whatsapp"
 
 interface Color { name: string; hex: string }
 interface Product {
@@ -17,7 +18,7 @@ interface Product {
 interface CartItem { id: string; name: string; price: number; size: string; color: string; gradient?: string; image?: string }
 
 export interface StorefrontData {
-  store: { name: string; username?: string; bio?: string; avatar?: string }
+  store: { name: string; username?: string; bio?: string; avatar?: string; slug?: string; whatsappNumber?: string; currency?: string }
   products: Array<{ id: string; name: string; category?: string; price: number; image?: string; description?: string }>
   categories: Array<{ id: string; name: string }>
 }
@@ -38,7 +39,7 @@ const MOCK_CATEGORIES = [
   { id: "accesorios", label: "Accesorios" },
 ]
 
-const MOCK_STORE = { name: "Rosa Atelier", username: "@rosa.atelier · Caracas 🇻🇪", bio: "Moda femenina hecha en Caracas. Piezas únicas en algodón natural y lino.", bioAccent: "Para mujeres que viven con intención.", avatarLetter: "R", avatar: undefined as string | undefined }
+const MOCK_STORE = { name: "Rosa Atelier", username: "@rosa.atelier · Caracas 🇻🇪", bio: "Moda femenina hecha en Caracas. Piezas únicas en algodón natural y lino.", bioAccent: "Para mujeres que viven con intención.", avatarLetter: "R", avatar: undefined as string | undefined, slug: undefined as string | undefined, whatsappNumber: undefined as string | undefined, currency: "USD" }
 
 function adapt(data: StorefrontData) {
   const products: Product[] = data.products.map((p) => ({
@@ -60,6 +61,9 @@ function adapt(data: StorefrontData) {
     bioAccent: "",
     avatarLetter: initial,
     avatar: data.store.avatar,
+    slug: data.store.slug,
+    whatsappNumber: data.store.whatsappNumber,
+    currency: data.store.currency ?? "USD",
   }
   return { products, categories, store }
 }
@@ -130,7 +134,35 @@ export function StorefrontDemo({ data }: { data?: StorefrontData } = {}) {
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [waOpen])
 
-  function sendToWhatsApp() {
+  const [sending, setSending] = useState(false)
+  async function sendToWhatsApp() {
+    if (sending) return
+    if (STORE.slug && STORE.whatsappNumber) {
+      setSending(true)
+      try {
+        const provider = new WhatsAppPaymentProvider(STORE.whatsappNumber, STORE.currency)
+        await provider.checkout({
+          storeSlug: STORE.slug,
+          currency: STORE.currency,
+          total,
+          items: cart.map((it) => {
+            const variant = (it.size !== "—" || it.color !== "—")
+              ? [it.size !== "—" && `T:${it.size}`, it.color !== "—" && it.color].filter(Boolean).join(" · ")
+              : undefined
+            return { productId: it.id, name: it.name, variant, quantity: 1, price: it.price, image: it.image }
+          }),
+        })
+        setCartOpen(false)
+        setCart([])
+      } catch {
+        // Fall back to simulated overlay on provider failure
+        setCartOpen(false)
+        setWaOpen(true)
+      } finally {
+        setSending(false)
+      }
+      return
+    }
     setCartOpen(false)
     setWaOpen(true)
   }
@@ -289,8 +321,8 @@ export function StorefrontDemo({ data }: { data?: StorefrontData } = {}) {
                 <span style={{ fontSize: 15, color: "var(--ink-2)" }}>Total</span>
                 <span style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.02em" }}>{fmt(total)}</span>
               </div>
-              <button type="button" onClick={sendToWhatsApp} style={{ width: "100%", padding: 16, background: "var(--whatsapp)", color: "#fff", borderRadius: 14, fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, boxShadow: "0 8px 20px -6px rgba(37,211,102,0.4)", border: "none", cursor: "pointer" }}>
-                <span style={{ fontSize: 22 }}>💬</span> Enviar pedido por WhatsApp
+              <button type="button" onClick={sendToWhatsApp} disabled={sending} style={{ width: "100%", padding: 16, background: "var(--whatsapp)", color: "#fff", borderRadius: 14, fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, boxShadow: "0 8px 20px -6px rgba(37,211,102,0.4)", border: "none", cursor: sending ? "not-allowed" : "pointer", opacity: sending ? 0.7 : 1 }}>
+                <span style={{ fontSize: 22 }}>💬</span> {sending ? "Enviando…" : "Enviar pedido por WhatsApp"}
               </button>
               <div style={{ textAlign: "center", fontSize: 11, color: "var(--ink-3)", marginTop: 10 }}>Te respondemos en menos de 5 minutos</div>
             </div>
