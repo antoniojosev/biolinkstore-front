@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { StoreHttpRepository } from "@/lib/stores-api/store.http-repository"
 import { ApiError } from "@/lib/http/types"
 import type { UpdateStoreDto } from "@/lib/stores-api/types"
+import { UploadButton } from "./upload-button"
 
 function I({ id }: { id: string }) {
   return <svg><use href={`#ic-${id}`} /></svg>
@@ -160,14 +161,16 @@ export function StoreSettingsBoard() {
             </div>
           </div>
           <div>
-            <label className="label">Logo (URL)</label>
+            <label className="label">Logo</label>
             <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
               <div style={{ width: 56, height: 56, borderRadius: 14, background: form.logo ? `#fff url(${form.logo}) center/cover no-repeat` : `linear-gradient(135deg, ${form.primaryColor}, ${form.primaryColor}AA)`, border: "1px solid var(--line)", flexShrink: 0, display: "grid", placeItems: "center", color: "#fff", fontWeight: 800, fontSize: 22 }}>
                 {form.logo ? "" : (form.name[0]?.toUpperCase() || "B")}
               </div>
-              <input className="input" value={form.logo} onChange={(e) => patch({ logo: e.target.value })} placeholder="https://…" disabled={noSession} />
+              <input className="input" value={form.logo} onChange={(e) => patch({ logo: e.target.value })} placeholder="https://… o subí un archivo →" disabled={noSession} />
             </div>
-            <p className="body-sm muted" style={{ marginTop: 6 }}>El upload de imágenes vive en `/api/stores/:id/uploads` — se conecta en otro slice.</p>
+            <div style={{ marginTop: 8 }}>
+              <UploadButton storeId={store?.id} onUploaded={(url) => patch({ logo: url })} disabled={noSession} label="Subir logo" />
+            </div>
           </div>
         </div>
       </div>

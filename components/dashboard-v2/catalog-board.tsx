@@ -237,6 +237,7 @@ export function CatalogBoard() {
 
       <ProductFormSheet
         open={sheetOpen}
+        storeId={storeId}
         product={editingProduct}
         categories={categories}
         onClose={() => setSheetOpen(false)}

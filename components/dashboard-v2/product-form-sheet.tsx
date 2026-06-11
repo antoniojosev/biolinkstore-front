@@ -4,9 +4,11 @@ import { useEffect, useState } from "react"
 import type { CreateProductDto, UpdateProductDto, ProductResponse, PriceCurrency } from "@/lib/products-api/types"
 import type { CategoryResponse } from "@/lib/categories-api/types"
 import { ApiError } from "@/lib/http/types"
+import { UploadButton } from "./upload-button"
 
 interface ProductFormSheetProps {
   open: boolean
+  storeId: string | undefined
   product: ProductResponse | null
   categories: CategoryResponse[]
   onClose(): void
@@ -59,7 +61,7 @@ const SHEET_STYLES = `
 @media (max-width: 640px) { .pfs-sheet { top: auto; left: 0; width: 100%; max-height: 92vh; border-left: none; border-top-left-radius: 18px; border-top-right-radius: 18px; animation: pfsSlideUp .28s cubic-bezier(.2,.7,.3,1); } }
 `
 
-export function ProductFormSheet({ open, product, categories, onClose, onCreate, onUpdate, onDelete }: ProductFormSheetProps) {
+export function ProductFormSheet({ open, storeId, product, categories, onClose, onCreate, onUpdate, onDelete }: ProductFormSheetProps) {
   const editing = product != null
   const [form, setForm] = useState<FormState>(EMPTY)
   const [saving, setSaving] = useState(false)
@@ -151,8 +153,11 @@ export function ProductFormSheet({ open, product, categories, onClose, onCreate,
               {form.imageUrl ? "" : initial}
             </div>
             <div style={{ flex: 1 }}>
-              <label className="label">Imagen (URL)</label>
-              <input className="input" value={form.imageUrl} onChange={(e) => patch({ imageUrl: e.target.value })} placeholder="https://…" />
+              <label className="label">Imagen</label>
+              <input className="input" value={form.imageUrl} onChange={(e) => patch({ imageUrl: e.target.value })} placeholder="https://… o subí un archivo" />
+              <div style={{ marginTop: 6 }}>
+                <UploadButton storeId={storeId} onUploaded={(url) => patch({ imageUrl: url })} label="Subir imagen" />
+              </div>
             </div>
           </div>
 
