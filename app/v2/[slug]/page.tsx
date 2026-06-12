@@ -8,6 +8,20 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+
+interface RawAttribute {
+  id: string
+  name: string
+  type?: string
+  options: string[]
+  optionsMeta?: Record<string, { hex?: string }> | null
+}
+interface RawProduct {
+  id: string
+  attributes?: RawAttribute[]
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const data = await getStoreBySlug(slug)
@@ -24,9 +38,38 @@ function pickImage(p: Product): string | undefined {
   return undefined
 }
 
+function findAttr(attrs: RawAttribute[], match: RegExp, type?: string): RawAttribute | undefined {
+  return attrs.find((a) => match.test(a.name) || (type && a.type === type))
+}
+
+function extractSizes(attrs: RawAttribute[]): string[] {
+  return findAttr(attrs, /talla|size/i)?.options ?? []
+}
+
+function extractColors(attrs: RawAttribute[]): { name: string; hex: string }[] {
+  const a = findAttr(attrs, /color/i, "color")
+  if (!a) return []
+  return a.options.map((opt) => ({ name: opt, hex: a.optionsMeta?.[opt]?.hex ?? "#94A3B8" }))
+}
+
+async function fetchRawProducts(slug: string): Promise<Map<string, RawProduct>> {
+  try {
+    const res = await fetch(`${API_URL}/api/public/${slug}/products?limit=100`, { cache: "no-store" })
+    if (!res.ok) return new Map()
+    const json = await res.json()
+    const list: RawProduct[] = Array.isArray(json?.data) ? json.data : []
+    return new Map(list.map((p) => [p.id, p]))
+  } catch {
+    return new Map()
+  }
+}
+
 export default async function StorefrontV2Page({ params }: Props) {
   const { slug } = await params
-  const fetched = await getStoreBySlug(slug)
+  const [fetched, rawById] = await Promise.all([
+    getStoreBySlug(slug),
+    fetchRawProducts(slug),
+  ])
   if (!fetched) notFound()
 
   const data: StorefrontData = {
@@ -39,14 +82,20 @@ export default async function StorefrontV2Page({ params }: Props) {
       whatsappNumber: fetched.store.whatsappNumbers?.[0],
       currency: fetched.store.currency,
     },
-    products: fetched.products.map((p) => ({
-      id: p.id,
-      name: p.name,
-      category: p.category,
-      price: p.price,
-      image: pickImage(p),
-      description: p.description,
-    })),
+    products: fetched.products.map((p) => {
+      const raw = rawById.get(p.id)
+      const attrs = raw?.attributes ?? []
+      return {
+        id: p.id,
+        name: p.name,
+        category: p.category,
+        price: p.price,
+        image: pickImage(p),
+        description: p.description,
+        sizes: extractSizes(attrs),
+        colors: extractColors(attrs),
+      }
+    }),
     categories: fetched.categories.map((c) => ({ id: c.id, name: c.name })),
   }
 

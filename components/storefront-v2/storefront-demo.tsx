@@ -19,7 +19,7 @@ interface CartItem { id: string; name: string; price: number; size: string; colo
 
 export interface StorefrontData {
   store: { name: string; username?: string; bio?: string; avatar?: string; slug?: string; whatsappNumber?: string; currency?: string }
-  products: Array<{ id: string; name: string; category?: string; price: number; image?: string; description?: string }>
+  products: Array<{ id: string; name: string; category?: string; price: number; image?: string; description?: string; sizes?: string[]; colors?: Color[] }>
   categories: Array<{ id: string; name: string }>
 }
 
@@ -48,8 +48,8 @@ function adapt(data: StorefrontData) {
     cat: p.category ?? "all",
     price: p.price,
     image: p.image,
-    sizes: [],
-    colors: [],
+    sizes: p.sizes ?? [],
+    colors: p.colors ?? [],
     desc: p.description ?? "",
   }))
   const categories = [{ id: "all", label: "Todo" }, ...data.categories.map((c) => ({ id: c.id, label: c.name }))]
