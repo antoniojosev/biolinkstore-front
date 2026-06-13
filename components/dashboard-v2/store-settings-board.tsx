@@ -169,7 +169,7 @@ export function StoreSettingsBoard() {
               <input className="input" value={form.logo} onChange={(e) => patch({ logo: e.target.value })} placeholder="https://… o subí un archivo →" disabled={noSession} />
             </div>
             <div style={{ marginTop: 8 }}>
-              <UploadButton storeId={store?.id} onUploaded={(url) => patch({ logo: url })} disabled={noSession} label="Subir logo" />
+              <UploadButton storeId={store?.id} onUploaded={(urls) => patch({ logo: urls[0] })} disabled={noSession} label="Subir logo" />
             </div>
           </div>
         </div>

@@ -25,7 +25,8 @@ interface FormState {
   priceCurrency: PriceCurrency
   compareAtPrice: string
   stock: string
-  imageUrl: string
+  images: string[]
+  newImageUrl: string
   isVisible: boolean
   isFeatured: boolean
   categoryIds: string[]
@@ -33,7 +34,7 @@ interface FormState {
 
 const EMPTY: FormState = {
   name: "", sku: "", description: "", basePrice: "", priceCurrency: "VES",
-  compareAtPrice: "", stock: "", imageUrl: "", isVisible: true, isFeatured: false, categoryIds: [],
+  compareAtPrice: "", stock: "", images: [], newImageUrl: "", isVisible: true, isFeatured: false, categoryIds: [],
 }
 
 function fromProduct(p: ProductResponse): FormState {
@@ -45,7 +46,8 @@ function fromProduct(p: ProductResponse): FormState {
     priceCurrency: (p.priceCurrency ?? "VES") as PriceCurrency,
     compareAtPrice: p.compareAtPrice != null ? String(p.compareAtPrice) : "",
     stock: p.stock != null ? String(p.stock) : "",
-    imageUrl: p.images[0] ?? "",
+    images: [...(p.images ?? [])],
+    newImageUrl: "",
     isVisible: p.isVisible,
     isFeatured: p.isFeatured,
     categoryIds: [...(p.categoryIds ?? [])],
@@ -84,6 +86,26 @@ export function ProductFormSheet({ open, storeId, product, categories, onClose, 
   function toggleCat(id: string) {
     setForm((f) => ({ ...f, categoryIds: f.categoryIds.includes(id) ? f.categoryIds.filter((x) => x !== id) : [...f.categoryIds, id] }))
   }
+  function addImageUrl() {
+    const url = form.newImageUrl.trim()
+    if (!url) return
+    setForm((f) => ({ ...f, images: [...f.images, url], newImageUrl: "" }))
+    setError(null)
+  }
+  function removeImage(idx: number) {
+    setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== idx) }))
+    setError(null)
+  }
+  function moveImage(idx: number, dir: -1 | 1) {
+    setForm((f) => {
+      const arr = [...f.images]
+      const j = idx + dir
+      if (j < 0 || j >= arr.length) return f
+      ;[arr[idx], arr[j]] = [arr[j], arr[idx]]
+      return { ...f, images: arr }
+    })
+    setError(null)
+  }
 
   async function save() {
     if (!form.name.trim() || !form.basePrice) { setError("Nombre y precio base son obligatorios"); return }
@@ -102,7 +124,7 @@ export function ProductFormSheet({ open, storeId, product, categories, onClose, 
       sku: form.sku.trim() || undefined,
       isVisible: form.isVisible,
       isFeatured: form.isFeatured,
-      images: form.imageUrl.trim() ? [form.imageUrl.trim()] : undefined,
+      images: form.images.length > 0 ? form.images : undefined,
       categoryIds: form.categoryIds.length > 0 ? form.categoryIds : undefined,
     }
     try {
@@ -148,16 +170,35 @@ export function ProductFormSheet({ open, storeId, product, categories, onClose, 
         <div style={{ flex: 1, overflowY: "auto", padding: "18px 24px" }}>
           {error && <div role="alert" style={{ padding: "10px 12px", background: "#FEF2F0", border: "1px solid #FECACA", borderRadius: 10, color: "#991B1B", fontSize: 13, marginBottom: 14 }}>{error}</div>}
 
-          <div style={{ display: "flex", gap: 14, marginBottom: 16, alignItems: "center" }}>
-            <div style={{ width: 64, height: 64, borderRadius: 14, background: form.imageUrl ? `#fff url(${form.imageUrl}) center/cover no-repeat` : "linear-gradient(135deg, var(--brand), var(--brand-2))", border: "1px solid var(--line)", display: "grid", placeItems: "center", color: "#fff", fontWeight: 800, fontSize: 22, flexShrink: 0 }}>
-              {form.imageUrl ? "" : initial}
-            </div>
-            <div style={{ flex: 1 }}>
-              <label className="label">Imagen</label>
-              <input className="input" value={form.imageUrl} onChange={(e) => patch({ imageUrl: e.target.value })} placeholder="https://… o subí un archivo" />
-              <div style={{ marginTop: 6 }}>
-                <UploadButton storeId={storeId} onUploaded={(url) => patch({ imageUrl: url })} label="Subir imagen" />
+          <div style={{ marginBottom: 16 }}>
+            <label className="label" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+              <span>Imágenes {form.images.length > 0 && <span className="mono" style={{ color: "var(--ink-3)", fontWeight: 500 }}>· {form.images.length}</span>}</span>
+              <span className="body-sm muted" style={{ fontWeight: 500 }}>1ª es la portada</span>
+            </label>
+            {form.images.length === 0 ? (
+              <div style={{ aspectRatio: "3/1", borderRadius: 12, background: "var(--bg-2)", border: "1.5px dashed var(--line-2)", display: "grid", placeItems: "center", color: "var(--ink-3)", fontSize: 13 }}>
+                Sin imágenes — agregá la primera abajo · primera letra: <strong style={{ marginLeft: 4, color: "var(--ink-2)" }}>{initial}</strong>
               </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))", gap: 8 }}>
+                {form.images.map((url, i) => (
+                  <div key={`${url}-${i}`} style={{ position: "relative", aspectRatio: "1", borderRadius: 10, background: `#fff url(${url}) center/cover no-repeat`, border: i === 0 ? "2px solid var(--brand)" : "1px solid var(--line)", overflow: "hidden" }}>
+                    {i === 0 && <span className="mono" style={{ position: "absolute", left: 4, top: 4, background: "var(--brand)", color: "#fff", fontSize: 9, padding: "1px 5px", borderRadius: 4, fontWeight: 700 }}>PORTADA</span>}
+                    <button type="button" onClick={() => removeImage(i)} aria-label="Quitar" style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", cursor: "pointer", fontSize: 14, lineHeight: 1, display: "grid", placeItems: "center" }}>×</button>
+                    <div style={{ position: "absolute", bottom: 4, left: 4, right: 4, display: "flex", justifyContent: "space-between" }}>
+                      <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0} aria-label="Mover izquierda" style={{ width: 22, height: 22, borderRadius: 6, background: "rgba(255,255,255,0.95)", color: "var(--ink)", border: "none", cursor: i === 0 ? "not-allowed" : "pointer", fontSize: 12, lineHeight: 1, opacity: i === 0 ? 0.3 : 1 }}>‹</button>
+                      <button type="button" onClick={() => moveImage(i, 1)} disabled={i === form.images.length - 1} aria-label="Mover derecha" style={{ width: 22, height: 22, borderRadius: 6, background: "rgba(255,255,255,0.95)", color: "var(--ink)", border: "none", cursor: i === form.images.length - 1 ? "not-allowed" : "pointer", fontSize: 12, lineHeight: 1, opacity: i === form.images.length - 1 ? 0.3 : 1 }}>›</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <input className="input" value={form.newImageUrl} onChange={(e) => patch({ newImageUrl: e.target.value })} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImageUrl() } }} placeholder="Pegá una URL y Enter…" />
+              <button type="button" className="btn btn-secondary btn-sm" onClick={addImageUrl} disabled={!form.newImageUrl.trim()}>+ URL</button>
+            </div>
+            <div style={{ marginTop: 8 }}>
+              <UploadButton storeId={storeId} onUploaded={(urls) => setForm((f) => ({ ...f, images: [...f.images, ...urls] }))} multiple label="Subir imágenes" />
             </div>
           </div>
 
