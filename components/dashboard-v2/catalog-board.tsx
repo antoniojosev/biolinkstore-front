@@ -7,6 +7,7 @@ import { CategoryHttpRepository } from "@/lib/categories-api/category.http-repos
 import type { CreateProductDto, ProductResponse, UpdateProductDto } from "@/lib/products-api/types"
 import type { CategoryResponse } from "@/lib/categories-api/types"
 import { ProductFormSheet } from "./product-form-sheet"
+import { CategoryManagerSheet } from "./category-manager-sheet"
 
 function I({ id }: { id: string }) {
   return <svg><use href={`#ic-${id}`} /></svg>
@@ -70,6 +71,7 @@ export function CatalogBoard() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<ProductResponse | null>(null)
   const [refreshTick, setRefreshTick] = useState(0)
+  const [catManagerOpen, setCatManagerOpen] = useState(false)
 
   const productRepo = useMemo(() => new ProductHttpRepository(http), [http])
   const categoryRepo = useMemo(() => new CategoryHttpRepository(http), [http])
@@ -164,7 +166,7 @@ export function CatalogBoard() {
           <div className="meta">{published} publicados · {draft} borrador · {noStock} sin stock</div>
         </div>
         <div className="h-actions">
-          <button type="button" className="h-btn ghost" disabled title="Próximamente"><I id="upload" />Importar</button>
+          <button type="button" className="h-btn ghost" onClick={() => setCatManagerOpen(true)} disabled={!canCrud}><I id="tag" />Categorías</button>
           <button type="button" className="h-btn" onClick={openCreate} disabled={!canCrud}><I id="plus" />Nuevo producto</button>
         </div>
       </div>
@@ -244,6 +246,12 @@ export function CatalogBoard() {
         onCreate={handleCreate}
         onUpdate={handleUpdate}
         onDelete={handleDelete}
+      />
+
+      <CategoryManagerSheet
+        open={catManagerOpen}
+        onClose={() => setCatManagerOpen(false)}
+        onChanged={() => setRefreshTick((n) => n + 1)}
       />
     </div>
   )
