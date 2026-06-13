@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { WhatsAppPaymentProvider } from "@/lib/payment-providers/whatsapp"
 
 interface Color { name: string; hex: string }
+interface Variant { id: string; combination: Record<string, string>; isAvailable: boolean }
 interface Product {
   id: string
   name: string
@@ -14,12 +15,21 @@ interface Product {
   sizes: string[]
   colors: Color[]
   desc: string
+  sizeAttrName?: string
+  colorAttrName?: string
+  variants?: Variant[]
 }
-interface CartItem { id: string; name: string; price: number; size: string; color: string; gradient?: string; image?: string }
+interface CartItem { id: string; name: string; price: number; size: string; color: string; gradient?: string; image?: string; variantId?: string }
 
 export interface StorefrontData {
   store: { name: string; username?: string; bio?: string; avatar?: string; slug?: string; whatsappNumber?: string; currency?: string }
-  products: Array<{ id: string; name: string; category?: string; price: number; image?: string; description?: string; sizes?: string[]; colors?: Color[] }>
+  products: Array<{
+    id: string; name: string; category?: string; price: number; image?: string; description?: string
+    sizes?: string[]; colors?: Color[]
+    sizeAttrName?: string
+    colorAttrName?: string
+    variants?: Variant[]
+  }>
   categories: Array<{ id: string; name: string }>
 }
 
@@ -51,6 +61,9 @@ function adapt(data: StorefrontData) {
     sizes: p.sizes ?? [],
     colors: p.colors ?? [],
     desc: p.description ?? "",
+    sizeAttrName: p.sizeAttrName,
+    colorAttrName: p.colorAttrName,
+    variants: p.variants,
   }))
   const categories = [{ id: "all", label: "Todo" }, ...data.categories.map((c) => ({ id: c.id, label: c.name }))]
   const initial = (data.store.name.trim()[0] || "B").toUpperCase()
@@ -122,7 +135,18 @@ export function StorefrontDemo({ data }: { data?: StorefrontData } = {}) {
     if (!product) return
     if (product.sizes.length > 0 && !size) return
     if (product.colors.length > 0 && !color) return
-    setCart((c) => [...c, { id: product.id, name: product.name, price: product.price, size: size ?? "—", color: color?.name ?? "—", gradient: product.gradient, image: product.image }])
+    // Resolve variantId by matching the selected combination against product.variants
+    let variantId: string | undefined
+    if (product.variants && product.variants.length > 0) {
+      const combination: Record<string, string> = {}
+      if (product.sizeAttrName && size) combination[product.sizeAttrName] = size
+      if (product.colorAttrName && color) combination[product.colorAttrName] = color.name
+      const match = product.variants.find((v) =>
+        Object.entries(combination).every(([k, val]) => v.combination[k] === val),
+      )
+      if (match) variantId = match.id
+    }
+    setCart((c) => [...c, { id: product.id, name: product.name, price: product.price, size: size ?? "—", color: color?.name ?? "—", gradient: product.gradient, image: product.image, variantId }])
     setAdded(true)
     setTimeout(() => setOpenProductId(null), 600)
   }
@@ -149,7 +173,7 @@ export function StorefrontDemo({ data }: { data?: StorefrontData } = {}) {
             const variant = (it.size !== "—" || it.color !== "—")
               ? [it.size !== "—" && `T:${it.size}`, it.color !== "—" && it.color].filter(Boolean).join(" · ")
               : undefined
-            return { productId: it.id, name: it.name, variant, quantity: 1, price: it.price, image: it.image }
+            return { productId: it.id, variantId: it.variantId, name: it.name, variant, quantity: 1, price: it.price, image: it.image }
           }),
         })
         setCartOpen(false)

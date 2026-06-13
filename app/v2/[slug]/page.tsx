@@ -17,9 +17,15 @@ interface RawAttribute {
   options: string[]
   optionsMeta?: Record<string, { hex?: string }> | null
 }
+interface RawVariant {
+  id: string
+  combination: Record<string, string>
+  isAvailable?: boolean
+}
 interface RawProduct {
   id: string
   attributes?: RawAttribute[]
+  variants?: RawVariant[]
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -42,12 +48,17 @@ function findAttr(attrs: RawAttribute[], match: RegExp, type?: string): RawAttri
   return attrs.find((a) => match.test(a.name) || (type && a.type === type))
 }
 
-function extractSizes(attrs: RawAttribute[]): string[] {
-  return findAttr(attrs, /talla|size/i)?.options ?? []
+function sizeAttr(attrs: RawAttribute[]): RawAttribute | undefined {
+  return findAttr(attrs, /talla|size/i)
 }
-
+function colorAttr(attrs: RawAttribute[]): RawAttribute | undefined {
+  return findAttr(attrs, /color/i, "color")
+}
+function extractSizes(attrs: RawAttribute[]): string[] {
+  return sizeAttr(attrs)?.options ?? []
+}
 function extractColors(attrs: RawAttribute[]): { name: string; hex: string }[] {
-  const a = findAttr(attrs, /color/i, "color")
+  const a = colorAttr(attrs)
   if (!a) return []
   return a.options.map((opt) => ({ name: opt, hex: a.optionsMeta?.[opt]?.hex ?? "#94A3B8" }))
 }
@@ -85,6 +96,13 @@ export default async function StorefrontV2Page({ params }: Props) {
     products: fetched.products.map((p) => {
       const raw = rawById.get(p.id)
       const attrs = raw?.attributes ?? []
+      const sAttr = sizeAttr(attrs)
+      const cAttr = colorAttr(attrs)
+      const variants = (raw?.variants ?? []).map((v) => ({
+        id: v.id,
+        combination: v.combination,
+        isAvailable: v.isAvailable ?? true,
+      }))
       return {
         id: p.id,
         name: p.name,
@@ -92,8 +110,11 @@ export default async function StorefrontV2Page({ params }: Props) {
         price: p.price,
         image: pickImage(p),
         description: p.description,
-        sizes: extractSizes(attrs),
+        sizes: sAttr?.options ?? [],
         colors: extractColors(attrs),
+        sizeAttrName: sAttr?.name,
+        colorAttrName: cAttr?.name,
+        variants: variants.length > 0 ? variants : undefined,
       }
     }),
     categories: fetched.categories.map((c) => ({ id: c.id, name: c.name })),
