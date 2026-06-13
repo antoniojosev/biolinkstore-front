@@ -6,6 +6,17 @@ export const metadata: Metadata = {
   description: "Entra o crea tu tienda en bylink.",
 }
 
-export default function AccesoPage() {
-  return <AuthDesktopFlow />
+type Screen =
+  | "welcome" | "login" | "login-error" | "forgot" | "register" | "register-exists"
+  | "onb" | "celebration" | "ready" | "ai-catalog" | "scraper-failed"
+const VALID: Screen[] = ["welcome", "login", "login-error", "forgot", "register", "register-exists", "onb", "celebration", "ready", "ai-catalog", "scraper-failed"]
+
+interface Props {
+  searchParams: Promise<{ screen?: string }>
+}
+
+export default async function AccesoPage({ searchParams }: Props) {
+  const { screen } = await searchParams
+  const initial: Screen = screen && VALID.includes(screen as Screen) ? (screen as Screen) : "welcome"
+  return <AuthDesktopFlow initialScreen={initial} />
 }
