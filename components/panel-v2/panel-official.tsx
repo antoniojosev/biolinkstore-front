@@ -234,11 +234,11 @@ function I({ id }: { id: string }) {
   return <svg><use href={`#ic-${id}`} /></svg>
 }
 
-export function PanelOfficial() {
+export function PanelOfficial({ initialView = "dashboard" }: { initialView?: View } = {}) {
   const { store } = useAuth()
   const slug = store?.slug ?? "tu-tienda"
   const [mobile, setMobile] = useState(false)
-  const [view, setView] = useState<View>("dashboard")
+  const [view, setView] = useState<View>(initialView)
   const [sheetOpen, setSheetOpen] = useState(false)
   const fabRef = useRef<HTMLButtonElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
