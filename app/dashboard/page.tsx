@@ -1,7 +1,7 @@
 import { PanelOfficial } from "@/components/panel-v2/panel-official"
 
-type View = "dashboard" | "catalog" | "design" | "data" | "config"
-const VALID: View[] = ["dashboard", "catalog", "design", "data", "config"]
+type View = "dashboard" | "catalog" | "orders" | "design" | "data" | "config"
+const VALID: View[] = ["dashboard", "catalog", "orders", "design", "data", "config"]
 
 interface Props {
   searchParams: Promise<{ view?: string }>

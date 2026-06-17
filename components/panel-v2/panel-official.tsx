@@ -5,9 +5,10 @@ import { AnalyticsBoard } from "@/components/dashboard-v2/analytics-board"
 import { DashboardOverview } from "@/components/dashboard-v2/dashboard-overview"
 import { CatalogBoard } from "@/components/dashboard-v2/catalog-board"
 import { StoreSettingsBoard } from "@/components/dashboard-v2/store-settings-board"
+import { OrdersBoard } from "@/components/dashboard-v2/orders-board"
 import { useAuth } from "@/contexts/auth-context"
 
-type View = "dashboard" | "catalog" | "design" | "data" | "config"
+type View = "dashboard" | "catalog" | "orders" | "design" | "data" | "config"
 
 const STYLES = `
 .bpanel { background: var(--bg); overflow-x: hidden; min-height: 100vh; color: var(--ink); font-family: var(--font-sans); }
@@ -268,6 +269,7 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
           <div className="td-logo">b</div>
           <button type="button" className={`td-tab${view === "dashboard" ? " active" : ""}`} onClick={() => setView("dashboard")}><I id="home" />Inicio</button>
           <button type="button" className={`td-tab${view === "catalog" ? " active" : ""}`} onClick={() => setView("catalog")}><I id="package" />Productos</button>
+          <button type="button" className={`td-tab${view === "orders" ? " active" : ""}`} onClick={() => setView("orders")}><I id="msg" />Pedidos</button>
           <button type="button" className={`td-tab${view === "design" ? " active" : ""}`} onClick={() => setView("design")}><I id="layout" />Diseño</button>
           <button type="button" className={`td-tab${view === "data" ? " active" : ""}`} onClick={() => setView("data")}><I id="chart" />Datos</button>
           <button type="button" className={`td-tab${view === "config" ? " active" : ""}`} onClick={() => setView("config")}><I id="settings" />Config</button>
@@ -291,6 +293,11 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
           {/* CATÁLOGO */}
           <div className={`view${view === "catalog" ? " active" : ""}`}>
             <CatalogBoard />
+          </div>
+
+          {/* PEDIDOS */}
+          <div className={`view${view === "orders" ? " active" : ""}`}>
+            <OrdersBoard />
           </div>
 
           {/* DESIGN */}
