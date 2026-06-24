@@ -6,6 +6,7 @@ import { DashboardOverview } from "@/components/dashboard-v2/dashboard-overview"
 import { CatalogBoard } from "@/components/dashboard-v2/catalog-board"
 import { StoreSettingsBoard } from "@/components/dashboard-v2/store-settings-board"
 import { OrdersBoard } from "@/components/dashboard-v2/orders-board"
+import { DesignBoard } from "@/components/dashboard-v2/design-board"
 import { useAuth } from "@/contexts/auth-context"
 
 type View = "dashboard" | "catalog" | "orders" | "design" | "data" | "config"
@@ -302,81 +303,7 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
 
           {/* DESIGN */}
           <div className={`view${view === "design" ? " active" : ""}`}>
-            <div className="design-hub">
-              <div className="dh-head">
-                <div>
-                  <h1>Diseño de tu <em>tienda</em></h1>
-                  <p>Editor visual, biblioteca de temas e identidad de marca.</p>
-                </div>
-                <div className="dh-meta">rosa-atelier · publicado hace 2 días</div>
-              </div>
-
-              <div className="dh-top">
-                <a className="dh-card" href="#editor">
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-                    <div className="dh-icon"><I id="layout" /></div>
-                    <div style={{ flex: 1 }}>
-                      <h3>Editor de <em>páginas</em></h3>
-                      <p style={{ marginTop: 4 }}>Arrastrá bloques apilados y zonas libres. Mobile-first, con preview en vivo.</p>
-                    </div>
-                  </div>
-                  <div className="dh-thumb">
-                    <div className="dh-thumb-builder">
-                      <div className="col">
-                        <div className="ln brand" /><div className="ln" /><div className="ln" style={{ width: "70%" }} /><div className="ln" style={{ width: "60%" }} /><div className="ln" style={{ width: "80%" }} />
-                      </div>
-                      <div className="preview">
-                        <div className="row" style={{ width: "50%", margin: "0 auto" }} />
-                        <div className="row" style={{ width: "70%", margin: "0 auto", height: 5 }} />
-                        <div className="grid"><div /><div /><div /><div /></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="dh-meta-row">
-                    <span><strong>7 secciones</strong> · 1 página</span>
-                    <span className="dh-go">Abrir editor →</span>
-                  </div>
-                </a>
-
-                <a className="dh-card alt" href="#temas">
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-                    <div className="dh-icon"><I id="sparkles" /></div>
-                    <div style={{ flex: 1 }}>
-                      <h3>Tienda de <em>temas</em></h3>
-                      <p style={{ marginTop: 4 }}>147 temas gratis, pro y del marketplace. Cambia el look completo en un clic.</p>
-                    </div>
-                  </div>
-                  <div className="dh-thumb">
-                    <div className="dh-thumb-themes"><div className="tt a" /><div className="tt b" /><div className="tt c" /></div>
-                  </div>
-                  <div className="dh-meta-row">
-                    <span>Activo: <strong>Atelier</strong> (Pro)</span>
-                    <span className="dh-go">Explorar temas →</span>
-                  </div>
-                </a>
-
-                <a className="dh-card dh-card-premium" href="#concierge">
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-                    <div className="dh-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3l2 5 5 1-3.5 3.5L17 18l-5-3-5 3 1.5-5.5L5 9l5-1z" /></svg></div>
-                    <div style={{ flex: 1 }}>
-                      <h3>Te lo hacemos <em>a medida</em></h3>
-                      <p style={{ marginTop: 4 }}>Un diseñador del equipo bylink trabaja con tu marca. Entrega en 7 días.</p>
-                    </div>
-                  </div>
-                  <div className="dh-thumb dh-thumb-premium">
-                    <div className="pm-glow" />
-                    <div className="pm-content">
-                      <div className="pm-tag">bylink studio</div>
-                      <div className="pm-stars">★ ★ ★ ★ ★</div>
-                    </div>
-                  </div>
-                  <div className="dh-meta-row">
-                    <span>Desde <strong style={{ color: "#E8C07A" }}>$199</strong> · pago único</span>
-                    <span className="dh-go" style={{ color: "#E8C07A" }}>Hablar con un diseñador →</span>
-                  </div>
-                </a>
-              </div>
-            </div>
+            <DesignBoard />
           </div>
           {/* CONFIG */}
           <div className={`view${view === "config" ? " active" : ""}`}>
