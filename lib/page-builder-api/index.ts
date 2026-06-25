@@ -1,4 +1,5 @@
 export { PageBuilderHttpRepository } from './page-builder.http-repository'
+export { fetchPublicTheme, type PublicStoreTheme } from './public-theme'
 export type { IPageBuilderRepository, ListTemplatesParams } from './page-builder.repository'
 export {
   FONT_WHITELIST,

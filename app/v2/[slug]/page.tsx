@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { StorefrontDemo, type StorefrontData } from "@/components/storefront-v2/storefront-demo"
+import { TemplateRenderer } from "@/components/storefront-v2/template/template-renderer"
+import { fetchPublicTheme } from "@/lib/page-builder-api"
 import { getStoreBySlug } from "@/lib/api"
 import type { Product } from "@/lib/types"
 
@@ -77,9 +79,10 @@ async function fetchRawProducts(slug: string): Promise<Map<string, RawProduct>> 
 
 export default async function StorefrontV2Page({ params }: Props) {
   const { slug } = await params
-  const [fetched, rawById] = await Promise.all([
+  const [fetched, rawById, theme] = await Promise.all([
     getStoreBySlug(slug),
     fetchRawProducts(slug),
+    fetchPublicTheme(slug),
   ])
   if (!fetched) notFound()
 
@@ -118,6 +121,35 @@ export default async function StorefrontV2Page({ params }: Props) {
       }
     }),
     categories: fetched.categories.map((c) => ({ id: c.id, name: c.name })),
+  }
+
+  // BE-120: when the store has a published theme, render through the
+  // templated renderer (palette + typography + section tree). Otherwise
+  // fall back to the legacy mobile WhatsApp WOW storefront.
+  if (theme?.published?.tree?.sections?.length) {
+    return (
+      <TemplateRenderer
+        store={{
+          name: fetched.store.name,
+          username: fetched.store.username,
+          bio: fetched.store.bio,
+          avatar: fetched.store.avatar,
+          slug: fetched.store.slug,
+          whatsappNumber: fetched.store.whatsappNumbers?.[0],
+          currency: fetched.store.currency,
+        }}
+        products={fetched.products.map((p) => ({
+          id: p.id,
+          name: p.name,
+          category: p.category,
+          price: p.price,
+          image: pickImage(p),
+          description: p.description,
+        }))}
+        categories={fetched.categories.map((c) => ({ id: c.id, name: c.name }))}
+        theme={theme}
+      />
+    )
   }
 
   return <StorefrontDemo data={data} />
