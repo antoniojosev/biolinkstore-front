@@ -8,6 +8,7 @@ import type { UpdateStoreDto } from "@/lib/stores-api/types"
 import { UploadButton } from "./upload-button"
 import { CustomDomainCard } from "./custom-domain-card"
 import { TeamMembersCard } from "./team-members-card"
+import { WhatsappTemplateCard } from "./whatsapp-template-card"
 
 function I({ id }: { id: string }) {
   return <svg><use href={`#ic-${id}`} /></svg>
@@ -178,6 +179,8 @@ export function StoreSettingsBoard() {
       </div>
 
       <CustomDomainCard />
+
+      <WhatsappTemplateCard />
 
       <TeamMembersCard />
 
