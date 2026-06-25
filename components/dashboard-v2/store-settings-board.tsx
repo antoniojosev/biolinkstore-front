@@ -6,6 +6,7 @@ import { StoreHttpRepository } from "@/lib/stores-api/store.http-repository"
 import { ApiError } from "@/lib/http/types"
 import type { UpdateStoreDto } from "@/lib/stores-api/types"
 import { UploadButton } from "./upload-button"
+import { CustomDomainCard } from "./custom-domain-card"
 
 function I({ id }: { id: string }) {
   return <svg><use href={`#ic-${id}`} /></svg>
@@ -174,6 +175,8 @@ export function StoreSettingsBoard() {
           </div>
         </div>
       </div>
+
+      <CustomDomainCard />
 
       <div className="panel" style={{ padding: 22, background: "var(--bg-2)", border: "1px dashed var(--line-2)" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
