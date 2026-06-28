@@ -21,9 +21,7 @@ type State =
 
 export default function InviteAcceptPage({ params }: PageProps) {
   const { token } = use(params)
-  const { http, user, isLoadingSession } = useAuth() as ReturnType<typeof useAuth> & {
-    isLoadingSession?: boolean
-  }
+  const { http, user, isLoading: isLoadingSession } = useAuth()
   const router = useRouter()
   const [state, setState] = useState<State>({ kind: "loading" })
   const [busy, setBusy] = useState<"accept" | "decline" | null>(null)
