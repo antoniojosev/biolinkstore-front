@@ -8,6 +8,7 @@ import type { CreateProductDto, ProductResponse, UpdateProductDto } from "@/lib/
 import type { CategoryResponse } from "@/lib/categories-api/types"
 import { ProductFormSheet } from "./product-form-sheet"
 import { CategoryManagerSheet } from "./category-manager-sheet"
+import { InstagramImportCard } from "./instagram-import-card"
 
 function I({ id }: { id: string }) {
   return <svg><use href={`#ic-${id}`} /></svg>
@@ -72,6 +73,7 @@ export function CatalogBoard() {
   const [editingProduct, setEditingProduct] = useState<ProductResponse | null>(null)
   const [refreshTick, setRefreshTick] = useState(0)
   const [catManagerOpen, setCatManagerOpen] = useState(false)
+  const [igImportOpen, setIgImportOpen] = useState(false)
 
   const productRepo = useMemo(() => new ProductHttpRepository(http), [http])
   const categoryRepo = useMemo(() => new CategoryHttpRepository(http), [http])
@@ -166,10 +168,17 @@ export function CatalogBoard() {
           <div className="meta">{published} publicados · {draft} borrador · {noStock} sin stock</div>
         </div>
         <div className="h-actions">
+          <button type="button" className="h-btn ghost" onClick={() => setIgImportOpen((v) => !v)} disabled={!canCrud}><I id="image" />Importar de Instagram</button>
           <button type="button" className="h-btn ghost" onClick={() => setCatManagerOpen(true)} disabled={!canCrud}><I id="tag" />Categorías</button>
           <button type="button" className="h-btn" onClick={openCreate} disabled={!canCrud}><I id="plus" />Nuevo producto</button>
         </div>
       </div>
+
+      {igImportOpen && (
+        <div style={{ marginBottom: 16 }}>
+          <InstagramImportCard />
+        </div>
+      )}
 
       <div className="cat-toolbar">
         <div className="search-box">
