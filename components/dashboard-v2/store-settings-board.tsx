@@ -9,6 +9,7 @@ import { UploadButton } from "./upload-button"
 import { CustomDomainCard } from "./custom-domain-card"
 import { TeamMembersCard } from "./team-members-card"
 import { WhatsappTemplateCard } from "./whatsapp-template-card"
+import { CustomRatesCard } from "./custom-rates-card"
 
 function I({ id }: { id: string }) {
   return <svg><use href={`#ic-${id}`} /></svg>
@@ -182,17 +183,9 @@ export function StoreSettingsBoard() {
 
       <WhatsappTemplateCard />
 
-      <TeamMembersCard />
+      <CustomRatesCard />
 
-      <div className="panel" style={{ padding: 22, background: "var(--bg-2)", border: "1px dashed var(--line-2)" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-          <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--brand-soft)", color: "var(--brand)", display: "grid", placeItems: "center", flexShrink: 0 }}><I id="credit" /></div>
-          <div style={{ flex: 1 }}>
-            <h3 style={{ margin: 0 }}>Tasas BCV + custom <span className="badge badge-warning" style={{ marginLeft: 6 }}>próximamente</span></h3>
-            <p className="body-sm muted" style={{ margin: "4px 0 0" }}>Disponible cuando se mergeen BE-129 (rates oficiales) y BE-130 (custom rates) en el backend. El componente UI funcional ya existe en <code>components/dashboard/rates-config-card.tsx</code>.</p>
-          </div>
-        </div>
-      </div>
+      <TeamMembersCard />
 
       <div className="panel" style={{ padding: 22, background: "var(--bg-2)", border: "1px dashed var(--line-2)" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
