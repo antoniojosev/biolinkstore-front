@@ -38,7 +38,9 @@ export interface TemplateRendererProps {
 
 export function TemplateRenderer({ store, products, categories, theme }: TemplateRendererProps) {
   const resolved = resolveTokens(theme.tokens)
-  const sections = theme.published?.tree.sections ?? []
+  const sections = (theme.tree?.sections ?? []).filter(
+    (s) => (s as { visible?: boolean }).visible !== false,
+  )
 
   const rootStyle = {
     ...resolved.cssVars,

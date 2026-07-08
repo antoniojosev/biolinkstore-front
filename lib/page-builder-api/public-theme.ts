@@ -4,15 +4,28 @@
 // fetches the theme directly from the backend (no BFF / cookie). The
 // other repositories in this folder go through the authenticated BFF
 // proxy and are not usable here.
-import type { PublishedTheme, ThemeTokens } from "./types"
+//
+// Response shape returned by GET /api/public/:slug/theme:
+//   {
+//     template: string,
+//     templateVersion: number,
+//     publishedAt: string,
+//     version: number,
+//     tokens: ThemeTokens,
+//     tree: { sections: SectionNode[] }
+//   }
+// Only present when the store has published a theme; the endpoint
+// returns 404 otherwise and this helper returns null so callers can
+// fall back to the legacy storefront.
+import type { SectionTree, ThemeTokens } from "./types"
 
 export interface PublicStoreTheme {
-  activeTemplate: string
-  publishedTemplate: string | null
-  publishedAt: string | null
-  published: PublishedTheme | null
+  template: string
   templateVersion: number
+  publishedAt: string
+  version: number
   tokens: ThemeTokens
+  tree: SectionTree
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"

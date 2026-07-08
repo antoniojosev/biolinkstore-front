@@ -126,7 +126,7 @@ export default async function StorefrontV2Page({ params }: Props) {
   // BE-120: when the store has a published theme, render through the
   // templated renderer (palette + typography + section tree). Otherwise
   // fall back to the legacy mobile WhatsApp WOW storefront.
-  if (theme?.published?.tree?.sections?.length) {
+  if (theme?.tree?.sections?.length) {
     return (
       <TemplateRenderer
         store={{
