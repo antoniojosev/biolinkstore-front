@@ -120,3 +120,33 @@ Fuente: `docs/plan-fase2-front-prod.md`. Rama `fase2/front-prod` desde `staging/
 **Diferido explícitamente:** el paso de importación de Instagram queda mock/"próximamente" a propósito (BE-128 se hace en sesión aparte de scraping). Selección de estilo/template → vive en el DesignBoard real. Métodos de pago con datos de cuenta reales → tarjeta de pagos del dashboard (B5). Las pantallas `ai-catalog`/`scraper-failed` (ya no alcanzables desde el flujo real, solo quedan referenciadas por el jumper de `/acceso` si se navega directo) no se borraron — quedan para el barrido de código muerto de B8.
 
 **Verificación:** `npx tsc --noEmit` limpio · `pnpm build` limpio (39 rutas).
+
+---
+
+## B5 — Panel: cablear features + plan-gating + fix tienda activa (2026-07-09)
+
+**Buena sorpresa antes de tocar nada:** las 4 tarjetas de features (`custom-domain-card`, `whatsapp-template-card`, `custom-rates-card`, `team-members-card`) **ya estaban montadas** en `StoreSettingsBoard` (la vista Config del panel real) y **ya tenían plan-gating real** (`storePlan === "FREE"` con badges de bloqueo y mensajes de upsell). No hubo que cablear ni gatear estas 4 desde cero — el trabajo real estaba en otro lado:
+
+**Fix de fondo — tienda activa real (`contexts/auth-context.tsx`):**
+- **Bug confirmado**: `loadUserAndStore()`/`refreshStore()` llamaban `storeRepo.findAll()` (`GET /api/stores`, solo tiendas donde el user es OWNER) y siempre tomaban `stores[0]` — ignorando por completo el concepto de "tienda activa" que ya existe en el backend (`GET /api/users/me/stores` devuelve `activeStoreId`). Cambiar de tienda con el switcher guardaba el cambio en el backend pero el front seguía mostrando la misma de siempre.
+- Nueva función `loadActiveStore()`: llama a `MultiStoreHttpRepository.listMine()` para obtener `activeStoreId`, y luego `storeRepo.findById(activeStoreId)` para el objeto `DashboardStore` completo (el endpoint de multi-tienda solo devuelve un resumen liviano). `loadUserAndStore` y `refreshStore` ahora usan esto.
+- **Segundo bug (también del plan)**: el catch silencioso de la carga de tienda no distinguía "confirmado sin tiendas" de "el fetch falló" — un error transitorio podía rebotar a un usuario CON tienda hacia `/onboarding/create-store`. Se agregó `storeLoadError` al contexto; `dashboard-shell.tsx` ahora solo redirige si `!store && !storeLoadError`.
+- Nota de alcance (seguridad, no tocada aquí): `storeRepo.findById()` usa `StoreOwnerGuard` en el backend, que solo compara `ownerId` — un miembro de equipo (no-owner) con esa tienda como activa podría fallar al cargarla. Es el mismo split-brain de roles ya inventariado para la sesión de seguridad; no se tocó.
+
+**Multi-tienda (D3·1) — de "próximamente" falso a real:**
+- El bloque "Multi-tienda · próximamente" en `StoreSettingsBoard` decía literalmente "disponible cuando BE-127 esté en main" — **BE-127 ya está mergeado en `staging/bylink`** desde antes de esta sesión (confirmado en el git log); el texto estaba obsoleto, no la feature. Nuevo componente `components/dashboard-v2/multi-store-card.tsx` (listar/cambiar/crear tiendas, gateado por plan igual que las otras 4 tarjetas) reemplaza el bloque falso.
+- El switcher oscuro `components/dashboard/store-switcher.tsx` (vive en el sidebar legacy, tapado por el overlay en `/dashboard` pero visible en `/dashboard/plan` etc.) queda intacto — no necesitó cambios porque el bug estaba en `refreshStore()`, ya arreglado arriba. Ahora hay dos UIs del switcher (legacy oscura + v2 clara) coexistiendo a propósito, mismo patrón que el resto de esta migración: la legacy se retira cuando B6/B7/B8 apaguen esas rutas.
+
+**Bug de límite de equipo (D3·4, también encontrado en el backend, no solo el front):**
+- Confirmado en `InviteMemberUseCase`: el límite de plan (`validateTeamLimit`) solo contaba miembros **aceptados** (`memberRepo.countByStoreId`), nunca las invitaciones pendientes. En un plan FREE (límite 1), se podían mandar N invitaciones sin límite mientras ninguna se aceptara. Mismo bug en el frontend (`team-members-card.tsx`, `atLimit = members.length >= limit`).
+- Backend: nuevo `findPendingByStoreId` en el repositorio de invitaciones + `ListPendingInvitationsUseCase` + endpoint `GET /stores/:storeId/members/invitations` (`MinRole('OWNER')`). `InviteMemberUseCase` ahora valida `acceptedCount + pendingInvitations.length` contra el límite.
+- Frontend: `team-members-card.tsx` carga y muestra las invitaciones pendientes (antes invisibles del todo — se mandaba la invitación y no quedaba ningún rastro visible en la UI más que un toast que desaparece), y `atLimit` cuenta ambas listas.
+
+**QR real (D3·4) y botones muertos (diferidos de B1):**
+- Nuevo `components/dashboard-v2/share-store-modal.tsx` (librería `qrcode`, agregada como dependencia): QR real del link público + copiar + descargar PNG. Reemplaza el ítem inerte "Compartir tienda (link + QR)" del quick-actions-sheet (`panel-official.tsx`, eran `<div>` sin `onClick`) y el botón "Compartir tienda" del header de `dashboard-overview.tsx` (dead desde B1).
+- "Nuevo producto" (header de `dashboard-overview.tsx`) y "Añadir producto"/"Importar de Instagram" (quick-actions-sheet) ahora navegan a la vista de catálogo real. Se quitó "Crear cupón / descuento" del quick-actions-sheet — no existe ningún sistema de cupones en el backend, ni siquiera como feature "próximamente"; mantenerlo habría sido el mismo patrón de botón-que-no-hace-nada que se está limpiando en toda la sesión.
+- `catalog-board.tsx`: los 3 filtros ("Todas"/"Stock"/"Estado") eran `<button>` sin `onClick` — ahora son `<select>` reales que filtran la lista (categoría, nivel de stock, publicado/borrador).
+
+**Diferido (no es bug, es alcance de otro bloque):** revocar una invitación pendiente no tiene endpoint en el backend (`delete()` existe en el repositorio pero ningún controller lo expone) — se dejó fuera porque no es parte del bug de conteo, es una feature nueva; documentado por si se quiere agregar después.
+
+**Verificación:** backend `pnpm build` limpio (nuevo endpoint + fix de límite compilan) · frontend `npx tsc --noEmit` y `pnpm build` limpios.

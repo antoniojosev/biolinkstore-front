@@ -10,10 +10,7 @@ import { CustomDomainCard } from "./custom-domain-card"
 import { TeamMembersCard } from "./team-members-card"
 import { WhatsappTemplateCard } from "./whatsapp-template-card"
 import { CustomRatesCard } from "./custom-rates-card"
-
-function I({ id }: { id: string }) {
-  return <svg><use href={`#ic-${id}`} /></svg>
-}
+import { MultiStoreCard } from "./multi-store-card"
 
 interface FormState {
   name: string
@@ -179,6 +176,8 @@ export function StoreSettingsBoard() {
         </div>
       </div>
 
+      <MultiStoreCard />
+
       <CustomDomainCard />
 
       <WhatsappTemplateCard />
@@ -186,16 +185,6 @@ export function StoreSettingsBoard() {
       <CustomRatesCard />
 
       <TeamMembersCard />
-
-      <div className="panel" style={{ padding: 22, background: "var(--bg-2)", border: "1px dashed var(--line-2)" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-          <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--brand-soft)", color: "var(--brand)", display: "grid", placeItems: "center", flexShrink: 0 }}><I id="store" /></div>
-          <div style={{ flex: 1 }}>
-            <h3 style={{ margin: 0 }}>Multi-tienda <span className="badge badge-warning" style={{ marginLeft: 6 }}>próximamente</span></h3>
-            <p className="body-sm muted" style={{ margin: "4px 0 0" }}>Cambiá entre tus tiendas o creá una nueva. Disponible cuando BE-127 esté en main. UI funcional ya en <code>components/dashboard/store-switcher.tsx</code>.</p>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

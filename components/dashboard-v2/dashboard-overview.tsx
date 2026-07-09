@@ -7,6 +7,8 @@ import { OrdersHttpRepository, type StoreStats, type OrderResponse, type OrderSt
 interface DashboardOverviewProps {
   /** Reserved for future mobile-specific tweaks; el layout ya se adapta solo vía @media en panel-official. */
   mobile?: boolean
+  onShare?: () => void
+  onNewProduct?: () => void
 }
 
 const MONTHS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -83,7 +85,7 @@ function fmtChartDate(s?: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
+export function DashboardOverview({ mobile: _mobile, onShare, onNewProduct }: DashboardOverviewProps) {
   const { http, store, user } = useAuth()
   const [stats, setStats] = useState<StoreStats | null>(null)
   const [orders, setOrders] = useState<OrderResponse[]>([])
@@ -174,8 +176,8 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
           <h1>{greetName ? `Hola ${greetName}, ` : "¡Hola, "}<em>{greet}</em>{greetName ? "" : "!"}</h1>
         </div>
         <div className="h-actions">
-          <button type="button" className="h-btn ghost"><svg><use href="#ic-share" /></svg>Compartir tienda</button>
-          <button type="button" className="h-btn"><svg><use href="#ic-plus" /></svg>Nuevo producto</button>
+          <button type="button" className="h-btn ghost" onClick={onShare}><svg><use href="#ic-share" /></svg>Compartir tienda</button>
+          <button type="button" className="h-btn" onClick={onNewProduct}><svg><use href="#ic-plus" /></svg>Nuevo producto</button>
         </div>
       </div>
 

@@ -65,6 +65,9 @@ export function CatalogBoard() {
   const [refreshTick, setRefreshTick] = useState(0)
   const [catManagerOpen, setCatManagerOpen] = useState(false)
   const [igImportOpen, setIgImportOpen] = useState(false)
+  const [catFilter, setCatFilter] = useState("")
+  const [stockFilter, setStockFilter] = useState<"" | "ok" | "low" | "zero">("")
+  const [statusFilter, setStatusFilter] = useState<"" | "published" | "draft">("")
 
   const productRepo = useMemo(() => new ProductHttpRepository(http), [http])
   const categoryRepo = useMemo(() => new CategoryHttpRepository(http), [http])
@@ -141,9 +144,15 @@ export function CatalogBoard() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return display
-    return display.filter((p) => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q))
-  }, [display, query])
+    return display.filter((p) => {
+      if (q && !(p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q))) return false
+      if (catFilter && p.cat !== catFilter) return false
+      if (stockFilter && p.status !== stockFilter) return false
+      if (statusFilter === "draft" && p.badge !== "draft") return false
+      if (statusFilter === "published" && p.badge === "draft") return false
+      return true
+    })
+  }, [display, query, catFilter, stockFilter, statusFilter])
 
   const total = display.length
   const published = products.filter((p) => p.isVisible).length
@@ -175,9 +184,23 @@ export function CatalogBoard() {
           <I id="search" />
           <input placeholder="Buscar por nombre, SKU o categoría…" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
-        <button type="button" className="filter-chip">Todas <I id="chevron-down" /></button>
-        <button type="button" className="filter-chip">Stock <I id="chevron-down" /></button>
-        <button type="button" className="filter-chip">Estado <I id="chevron-down" /></button>
+        <select className="filter-chip" value={catFilter} onChange={(e) => setCatFilter(e.target.value)} aria-label="Filtrar por categoría">
+          <option value="">Todas las categorías</option>
+          {Array.from(new Set(display.map((p) => p.cat))).sort().map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+        <select className="filter-chip" value={stockFilter} onChange={(e) => setStockFilter(e.target.value as typeof stockFilter)} aria-label="Filtrar por stock">
+          <option value="">Todo el stock</option>
+          <option value="ok">Con stock</option>
+          <option value="low">Stock bajo</option>
+          <option value="zero">Sin stock</option>
+        </select>
+        <select className="filter-chip" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)} aria-label="Filtrar por estado">
+          <option value="">Todos los estados</option>
+          <option value="published">Publicado</option>
+          <option value="draft">Borrador</option>
+        </select>
         <div className="view-toggle" style={{ marginLeft: "auto" }}>
           <button type="button" className={view === "grid" ? "active" : ""} title="Galería" onClick={() => setView("grid")}><I id="grid" /></button>
           <button type="button" className={view === "list" ? "active" : ""} title="Lista" onClick={() => setView("list")}><I id="list" /></button>

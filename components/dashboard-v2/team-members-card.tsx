@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { ApiError } from "@/lib/http/types"
 import {
   TeamHttpRepository,
+  type StoreInvitation,
   type StoreMember,
   type StoreMemberRole,
 } from "@/lib/team-api"
@@ -38,6 +39,7 @@ export function TeamMembersCard() {
 
   const repo = useMemo(() => new TeamHttpRepository(http), [http])
   const [members, setMembers] = useState<StoreMember[]>([])
+  const [pending, setPending] = useState<StoreInvitation[]>([])
   const [loading, setLoading] = useState(true)
   const [showInvite, setShowInvite] = useState(false)
   const [inviteEmail, setInviteEmail] = useState("")
@@ -49,8 +51,12 @@ export function TeamMembersCard() {
     if (!storeId) return
     setLoading(true)
     try {
-      const data = await repo.listMembers(storeId)
-      setMembers(data)
+      const [membersData, pendingData] = await Promise.all([
+        repo.listMembers(storeId),
+        repo.listPendingInvitations(storeId).catch(() => []), // solo OWNER puede verlas
+      ])
+      setMembers(membersData)
+      setPending(pendingData)
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "No se pudieron cargar los miembros")
     } finally {
@@ -64,14 +70,17 @@ export function TeamMembersCard() {
 
   const currentMember = members.find((m) => m.userId === currentUserId)
   const isOwner = currentMember?.role === "OWNER"
-  const atLimit = members.length >= limit
+  // El limite del plan cuenta miembros aceptados + invitaciones pendientes (igual que el backend) —
+  // si no, se podria mandar invitaciones sin limite mientras ninguna se acepte todavia.
+  const atLimit = members.length + pending.length >= limit
 
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault()
     if (!storeId || !inviteEmail.trim()) return
     setInviting(true)
     try {
-      await repo.invite(storeId, inviteEmail.trim().toLowerCase(), inviteRole)
+      const invitation = await repo.invite(storeId, inviteEmail.trim().toLowerCase(), inviteRole)
+      setPending((ps) => [invitation, ...ps])
       setInviteEmail("")
       setShowInvite(false)
       toast.success(`Invitación enviada a ${inviteEmail.trim().toLowerCase()}`)
@@ -212,6 +221,21 @@ export function TeamMembersCard() {
               </li>
             )
           })}
+        </ul>
+      )}
+
+      {isOwner && pending.length > 0 && (
+        <ul style={S.list}>
+          {pending.map((inv) => (
+            <li key={inv.id} style={{ ...S.row, opacity: 0.7 }}>
+              <div style={{ ...S.avatar, background: "var(--bg-2)", color: "var(--ink-3)" }}>✉</div>
+              <div style={S.identity}>
+                <div style={S.name}>{inv.email}</div>
+                <div style={S.email}>Invitación enviada · expira {new Date(inv.expiresAt).toLocaleDateString("es-VE")}</div>
+              </div>
+              <span style={S.rolePill}>Pendiente</span>
+            </li>
+          ))}
         </ul>
       )}
     </div>

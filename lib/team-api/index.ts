@@ -55,6 +55,10 @@ export class TeamHttpRepository {
     return this.http.post<StoreInvitation>(`/api/stores/${storeId}/members/invite`, { email, role })
   }
 
+  listPendingInvitations(storeId: string): Promise<StoreInvitation[]> {
+    return this.http.get<StoreInvitation[]>(`/api/stores/${storeId}/members/invitations`)
+  }
+
   updateRole(storeId: string, memberId: string, role: StoreMemberRole): Promise<StoreMember> {
     return this.http.patch<StoreMember>(`/api/stores/${storeId}/members/${memberId}/role`, { role })
   }

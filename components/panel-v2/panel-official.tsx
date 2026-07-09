@@ -7,6 +7,7 @@ import { CatalogBoard } from "@/components/dashboard-v2/catalog-board"
 import { StoreSettingsBoard } from "@/components/dashboard-v2/store-settings-board"
 import { OrdersBoard } from "@/components/dashboard-v2/orders-board"
 import { DesignBoard } from "@/components/dashboard-v2/design-board"
+import { ShareStoreModal } from "@/components/dashboard-v2/share-store-modal"
 import { useAuth } from "@/contexts/auth-context"
 
 type View = "dashboard" | "catalog" | "orders" | "design" | "data" | "config"
@@ -197,7 +198,7 @@ const STYLES = `
 .bpanel .m-bottom-nav button.active { color: var(--brand); }
 .bpanel .m-fab svg { width: 22px; height: 22px; }
 @keyframes bpSheetIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.bpanel .qa-item { display: flex; align-items: center; gap: 10px; padding: 12px 12px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; }
+.bpanel .qa-item { display: flex; align-items: center; gap: 10px; padding: 12px 12px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%; text-align: left; border: none; background: none; color: var(--ink); font-family: inherit; }
 .bpanel .qa-item:active { background: var(--bg-2); }
 .bpanel .qa-item svg { width: 18px; height: 18px; color: var(--brand); }
 
@@ -238,6 +239,7 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
   const [mobile, setMobile] = useState(false)
   const [view, setView] = useState<View>(initialView)
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
   const fabRef = useRef<HTMLButtonElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
 
@@ -287,7 +289,7 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
         <div className="stage">
           {/* DASHBOARD */}
           <div className={`view${view === "dashboard" ? " active" : ""}`}>
-            <DashboardOverview mobile={mobile} />
+            <DashboardOverview mobile={mobile} onShare={() => setShareOpen(true)} onNewProduct={() => setView("catalog")} />
           </div>
 
           {/* CATÁLOGO */}
@@ -335,12 +337,13 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
         <button type="button" ref={fabRef} className="m-fab" onClick={() => setSheetOpen((o) => !o)}><I id="plus" /></button>
 
         <div ref={sheetRef} className={`quick-actions-sheet${sheetOpen ? " open" : ""}`}>
-          <div className="qa-item"><I id="package" />Añadir producto</div>
-          <div className="qa-item"><I id="instagram" />Importar de Instagram</div>
-          <div className="qa-item"><I id="tag" />Crear cupón / descuento</div>
-          <div className="qa-item"><I id="share" />Compartir tienda (link + QR)</div>
+          <button type="button" className="qa-item" onClick={() => { setView("catalog"); setSheetOpen(false) }}><I id="package" />Añadir producto</button>
+          <button type="button" className="qa-item" onClick={() => { setView("catalog"); setSheetOpen(false) }}><I id="instagram" />Importar de Instagram</button>
+          <button type="button" className="qa-item" onClick={() => { setShareOpen(true); setSheetOpen(false) }}><I id="share" />Compartir tienda (link + QR)</button>
         </div>
       </div>
+
+      <ShareStoreModal open={shareOpen} onClose={() => setShareOpen(false)} />
     </div>
   )
 }

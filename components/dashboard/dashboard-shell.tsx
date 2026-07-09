@@ -47,7 +47,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { user, store, isLoading, logout, http } = useAuth()
+  const { user, store, isLoading, storeLoadError, logout, http } = useAuth()
   const [newQuotesCount, setNewQuotesCount] = useState(0)
 
   const ordersRepo = useMemo(() => new OrdersHttpRepository(http), [http])
@@ -66,12 +66,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval)
   }, [fetchBadge])
 
-  // Cuenta huérfana: usuario existe pero no tiene tienda → recuperar
+  // Cuenta huérfana: usuario existe pero no tiene tienda → recuperar.
+  // storeLoadError distingue "confirmado sin tiendas" de "el fetch falló" — un error
+  // transitorio no debe rebotar a onboarding a un usuario que sí tiene tienda.
   useEffect(() => {
-    if (!isLoading && !store) {
+    if (!isLoading && !store && !storeLoadError) {
       router.replace('/onboarding/create-store')
     }
-  }, [isLoading, store, router])
+  }, [isLoading, store, storeLoadError, router])
 
   const initials = user?.name
     ? user.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
