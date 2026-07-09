@@ -300,7 +300,7 @@ export default function TerminosPage() {
 
         {/* Contacto */}
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-white mb-6">4. Contacto</h2>
+          <h2 id="contacto" className="text-2xl font-semibold text-white mb-6 scroll-mt-8">4. Contacto</h2>
           <div className="space-y-4 text-white/80 leading-relaxed">
             <p>
               Si tiene preguntas sobre estos Terminos y Condiciones, Politica de Privacidad o Politica de

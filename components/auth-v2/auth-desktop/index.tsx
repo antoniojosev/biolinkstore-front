@@ -24,6 +24,11 @@ type Screen =
   | "welcome" | "login" | "login-error" | "forgot" | "register" | "register-exists"
   | "onb" | "celebration" | "ready" | "ai-catalog" | "scraper-failed"
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"
+function startGoogleOAuth() {
+  window.location.href = `${API_URL}/api/auth/google`
+}
+
 function GoogleIcon({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
@@ -62,7 +67,6 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
   const [onbStep, setOnbStep] = useState(0)
   const [navOpen, setNavOpen] = useState(false)
   const [scraping, setScraping] = useState(false)
-  const [magicSent, setMagicSent] = useState(false)
   const [slugTouched, setSlugTouched] = useState(false)
   const [conflictEmail, setConflictEmail] = useState("")
   const [userWhatsapp, setUserWhatsapp] = useState("")
@@ -82,7 +86,6 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
   function goScreen(s: Screen) {
     setScreen(s)
     setNavOpen(false)
-    if (s !== "forgot") setMagicSent(false)
   }
 
   const onbValid = useMemo(() => {
@@ -175,7 +178,7 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
       {screen === "welcome" && <WelcomeScreen onRegister={() => goScreen("register")} onLogin={() => goScreen("login")} />}
       {screen === "login" && <LoginScreen onRegister={() => goScreen("register")} onForgot={() => goScreen("forgot")} />}
       {screen === "login-error" && <LoginErrorScreen email={conflictEmail} onRegister={() => goScreen("register")} onBack={() => goScreen("login")} onForgot={() => goScreen("forgot")} />}
-      {screen === "forgot" && <ForgotScreen sent={magicSent} onSend={() => setMagicSent(true)} onBack={() => goScreen("login")} />}
+      {screen === "forgot" && <ForgotScreen onBack={() => goScreen("login")} />}
       {screen === "register" && (
         <RegisterScreen
           onLogin={() => goScreen("login")}
@@ -238,7 +241,7 @@ function WelcomeScreen({ onRegister, onLogin }: { onRegister: () => void; onLogi
           </div>
           <div className="mono" style={{ marginTop: 24, fontSize: 11, color: "var(--ink-3)" }}>gratis · sin tarjeta · cancela cuando quieras</div>
         </div>
-        <div style={{ fontSize: 12, color: "var(--ink-3)" }}>¿Necesitas ayuda? <a href="#" style={{ color: "var(--brand)", fontWeight: 600 }}>Habla con nosotros →</a></div>
+        <div style={{ fontSize: 12, color: "var(--ink-3)" }}>¿Necesitas ayuda? <a href="mailto:soporte@bylink.app" style={{ color: "var(--brand)", fontWeight: 600 }}>Habla con nosotros →</a></div>
       </div>
       <ShellRight>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28 }}>
@@ -293,7 +296,7 @@ function LoginScreen({ onRegister, onForgot }: { onRegister: () => void; onForgo
           <div className="mono" style={{ fontSize: 11, color: "var(--brand)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>— iniciar sesión</div>
           <h1 style={{ fontSize: 44, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 700, margin: "0 0 10px" }}>¡Qué bueno <span className="serif-it" style={{ color: "var(--brand)" }}>verte!</span></h1>
           <p style={{ fontSize: 16, color: "var(--ink-2)", margin: "0 0 28px" }}>Entra a tu tienda en bylink.</p>
-          <button type="button" className="ad-btn ad-btn-ghost" style={{ width: "100%", marginBottom: 18 }}><GoogleIcon /> <span>Continuar con Google</span></button>
+          <button type="button" onClick={startGoogleOAuth} className="ad-btn ad-btn-ghost" style={{ width: "100%", marginBottom: 18 }}><GoogleIcon /> <span>Continuar con Google</span></button>
           <Divider />
           {error && (
             <div role="alert" style={{ display: "flex", gap: 8, padding: "10px 12px", background: "#FEF2F0", border: "1px solid #FECACA", borderRadius: 10, marginBottom: 14, fontSize: 13, color: "#991B1B" }}>
@@ -317,15 +320,8 @@ function LoginScreen({ onRegister, onForgot }: { onRegister: () => void; onForgo
       </div>
       <ShellRight>
         <div style={{ maxWidth: 380, textAlign: "center" }}>
-          <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 18 }}>— TESTIMONIO</div>
-          <p style={{ fontSize: 24, lineHeight: 1.35, fontWeight: 500, letterSpacing: "-0.02em", color: "var(--ink)", margin: "0 0 28px" }}>&quot;Pasé de mandar fotos por DM <span className="serif-it" style={{ color: "var(--brand)" }}>a tener un link real</span>. Mis clientes ahora me piden por bylink en vez de preguntar precios.&quot;</p>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
-            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, #C63E2A, #7A1F10)" }} />
-            <div style={{ textAlign: "left" }}>
-              <div style={{ fontWeight: 700, fontSize: 14 }}>Rosa Martínez</div>
-              <div style={{ fontSize: 12, color: "var(--ink-3)" }}>Rosa Atelier · Caracas</div>
-            </div>
-          </div>
+          <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 18 }}>— por qué bylink</div>
+          <p style={{ fontSize: 24, lineHeight: 1.35, fontWeight: 500, letterSpacing: "-0.02em", color: "var(--ink)", margin: 0 }}>Pasa de mandar fotos por DM <span className="serif-it" style={{ color: "var(--brand)" }}>a tener un link real</span>. Tus clientes piden por tu catálogo en vez de preguntar precios.</p>
         </div>
       </ShellRight>
     </div>
@@ -374,35 +370,69 @@ function LoginErrorScreen({ email, onRegister, onBack, onForgot }: { email?: str
   )
 }
 
-function ForgotScreen({ sent, onSend, onBack }: { sent: boolean; onSend: () => void; onBack: () => void }) {
+function ForgotScreen({ onBack }: { onBack: () => void }) {
+  const [email, setEmail] = useState("")
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [sent, setSent] = useState(false)
+
+  async function handleSend(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email.trim()) return
+    setError(null); setPending(true)
+    try {
+      const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        const msg = Array.isArray(data.message) ? data.message[0] : (data.message ?? "Error al enviar el email")
+        setError(typeof msg === "string" ? msg : "Error al enviar el email")
+        return
+      }
+      setSent(true)
+    } catch {
+      setError("No se pudo conectar con el servidor")
+    } finally {
+      setPending(false)
+    }
+  }
+
   return (
     <div className="ad-shell">
       <div className="ad-left">
         <Logo />
-        <div className="ad-center-card">
+        <form className="ad-center-card" onSubmit={handleSend}>
           <button type="button" onClick={onBack} style={{ background: "none", border: "none", color: "var(--ink-3)", fontSize: 13, cursor: "pointer", marginBottom: 18, padding: 0 }}>← Volver</button>
           <div className="mono" style={{ fontSize: 11, color: "var(--brand)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>— recuperar acceso</div>
           <h1 style={{ fontSize: 40, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 700, margin: "0 0 10px" }}>Pasa, <span className="serif-it" style={{ color: "var(--brand)" }}>no te preocupes</span>.</h1>
-          <p style={{ fontSize: 15, color: "var(--ink-2)", margin: "0 0 26px" }}>Te enviamos un link mágico al email para entrar sin contraseña.</p>
+          <p style={{ fontSize: 15, color: "var(--ink-2)", margin: "0 0 26px" }}>Te enviamos instrucciones al email para recuperar tu acceso.</p>
+          {error && (
+            <div role="alert" style={{ display: "flex", gap: 8, padding: "10px 12px", background: "#FEF2F0", border: "1px solid #FECACA", borderRadius: 10, marginBottom: 14, fontSize: 13, color: "#991B1B" }}>
+              <span aria-hidden="true">⚠</span><span>{error}</span>
+            </div>
+          )}
           <label className="ad-label">Tu email</label>
-          <input className="ad-input" type="email" placeholder="hola@tunegocio.com" />
-          {!sent && <button type="button" onClick={onSend} className="ad-btn ad-btn-primary" style={{ width: "100%", marginTop: 16 }}>Enviarme el link mágico ✨</button>}
+          <input className="ad-input" type="email" placeholder="hola@tunegocio.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" disabled={sent} />
+          {!sent && <button type="submit" disabled={pending || !email.trim()} className="ad-btn ad-btn-primary" style={{ width: "100%", marginTop: 16 }}>{pending ? "Enviando…" : "Enviarme instrucciones ✨"}</button>}
           {sent && (
             <div style={{ marginTop: 16, padding: 18, background: "#ECFDF5", border: "1.5px solid #A7F3D0", borderRadius: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                 <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#10B981", display: "grid", placeItems: "center", color: "#fff", fontWeight: 800 }}>✓</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#065F46" }}>Link enviado</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#065F46" }}>Revisa tu email</div>
               </div>
-              <p style={{ fontSize: 13, color: "#047857", margin: 0, paddingLeft: 38 }}>Revisa tu inbox. El link expira en 15 minutos.</p>
+              <p style={{ fontSize: 13, color: "#047857", margin: 0, paddingLeft: 38 }}>Te enviamos instrucciones a {email}.</p>
             </div>
           )}
-        </div>
+        </form>
         <div />
       </div>
       <ShellRight>
         <div style={{ maxWidth: 380, textAlign: "center" }}>
           <div style={{ width: 96, height: 96, borderRadius: "50%", background: "var(--bg-2)", border: "2px solid var(--line)", display: "grid", placeItems: "center", margin: "0 auto 24px", fontSize: 40 }}>📬</div>
-          <p style={{ fontSize: 20, lineHeight: 1.4, fontWeight: 500, color: "var(--ink)", margin: 0 }}>Sin contraseñas. Sin estrés. <span className="serif-it" style={{ color: "var(--brand)" }}>Solo entras</span>.</p>
+          <p style={{ fontSize: 20, lineHeight: 1.4, fontWeight: 500, color: "var(--ink)", margin: 0 }}>Sin estrés, en un minuto <span className="serif-it" style={{ color: "var(--brand)" }}>vuelves a entrar</span>.</p>
         </div>
       </ShellRight>
     </div>
@@ -471,7 +501,7 @@ function RegisterScreen({ onLogin, onRegistered, onExisting }: RegisterScreenPro
           <div className="mono" style={{ fontSize: 11, color: "var(--brand)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>— crear cuenta</div>
           <h1 style={{ fontSize: 40, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 700, margin: "0 0 8px" }}>Tu tienda en <span className="serif-it" style={{ color: "var(--brand)" }}>3 minutos</span>.</h1>
           <p style={{ fontSize: 15, color: "var(--ink-2)", margin: "0 0 22px" }}>Empieza gratis, sin tarjeta de crédito.</p>
-          <button type="button" className="ad-btn ad-btn-ghost" style={{ width: "100%", marginBottom: 14 }}><GoogleIcon /> <span>Continuar con Google</span></button>
+          <button type="button" onClick={startGoogleOAuth} className="ad-btn ad-btn-ghost" style={{ width: "100%", marginBottom: 14 }}><GoogleIcon /> <span>Continuar con Google</span></button>
           <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "14px 0" }}>
             <div style={{ flex: 1, height: 1, background: "var(--line)" }} />
             <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>o con email</span>
@@ -505,7 +535,7 @@ function RegisterScreen({ onLogin, onRegistered, onExisting }: RegisterScreenPro
           )}
           <label style={{ display: "flex", alignItems: "flex-start", gap: 10, marginTop: 18, fontSize: 13, color: "var(--ink-2)", cursor: "pointer", lineHeight: 1.5 }}>
             <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} style={{ width: 18, height: 18, accentColor: "var(--brand)", marginTop: 2 }} />
-            <span>Acepto los <a href="#" style={{ color: "var(--brand)", fontWeight: 600 }}>términos</a> y la <a href="#" style={{ color: "var(--brand)", fontWeight: 600 }}>política de privacidad</a>.</span>
+            <span>Acepto los <a href="/home/terminos" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>términos</a> y la <a href="/home/terminos#privacidad" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>política de privacidad</a>.</span>
           </label>
           <button type="submit" disabled={pending || !canSubmit} className="ad-btn ad-btn-primary" style={{ width: "100%", marginTop: 20 }}>{pending ? "Creando cuenta…" : "Crear mi cuenta →"}</button>
           <p style={{ textAlign: "center", fontSize: 14, color: "var(--ink-2)", margin: "18px 0 0" }}>¿Ya tienes cuenta? <button type="button" onClick={onLogin} style={{ color: "var(--brand)", fontWeight: 700, cursor: "pointer", background: "none", border: "none" }}>Inicia sesión</button></p>

@@ -471,7 +471,7 @@ export function LandingPage() {
             <span style={{ color: "var(--ink-3)", fontSize: 13, marginLeft: 12 }}>© 2026 · Hecho en Venezuela 🇻🇪</span>
           </div>
           <div style={{ display: "flex", gap: 22, fontSize: 13, color: "var(--ink-2)", fontWeight: 500 }}>
-            <a href="#">Términos</a><a href="#">Privacidad</a><a href="#">Contacto</a><a href="mailto:hola@bylink.app">hola@bylink.app</a>
+            <a href="/home/terminos">Términos</a><a href="/home/terminos#privacidad">Privacidad</a><a href="/home/terminos#contacto">Contacto</a><a href="mailto:hola@bylink.app">hola@bylink.app</a>
           </div>
         </div>
       </footer>

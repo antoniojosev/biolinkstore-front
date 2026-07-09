@@ -68,6 +68,10 @@ export class TeamHttpRepository {
     return this.http.get<StoreInvitation[]>(`/api/invitations/me`)
   }
 
+  getByToken(token: string): Promise<StoreInvitation> {
+    return this.http.get<StoreInvitation>(`/api/invitations/${encodeURIComponent(token)}`)
+  }
+
   accept(token: string): Promise<StoreInvitation> {
     return this.http.post<StoreInvitation>(`/api/invitations/${encodeURIComponent(token)}/accept`)
   }

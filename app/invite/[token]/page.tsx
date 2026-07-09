@@ -34,18 +34,16 @@ export default function InviteAcceptPage({ params }: PageProps) {
     }
     const repo = new TeamHttpRepository(http)
     repo
-      .myInvitations()
-      .then((all) => {
-        const match = all.find((inv) => inv.acceptedAt === null && inv.declinedAt === null)
-        if (match) {
-          setState({ kind: "ready", invitation: match })
-        } else {
+      .getByToken(token)
+      .then((invitation) => {
+        if (invitation.acceptedAt !== null || invitation.declinedAt !== null) {
           setState({
             kind: "error",
-            message:
-              "No encontramos esta invitación pendiente para tu cuenta. Es posible que ya la hayas aceptado o que sea para otra cuenta.",
+            message: "Esta invitación ya fue respondida.",
           })
+          return
         }
+        setState({ kind: "ready", invitation })
       })
       .catch((err) => {
         setState({
@@ -53,7 +51,7 @@ export default function InviteAcceptPage({ params }: PageProps) {
           message: err instanceof ApiError ? err.message : "No se pudo cargar la invitación",
         })
       })
-  }, [http, isLoadingSession, user])
+  }, [http, isLoadingSession, user, token])
 
   async function handleAccept() {
     if (state.kind !== "ready") return
@@ -92,8 +90,8 @@ export default function InviteAcceptPage({ params }: PageProps) {
 
         {state.kind === "needs-login" && (
           <>
-            <h1 style={S.title}>Iniciá sesión</h1>
-            <p style={S.body}>Iniciá sesión para revisar esta invitación.</p>
+            <h1 style={S.title}>Inicia sesión</h1>
+            <p style={S.body}>Inicia sesión para revisar esta invitación.</p>
             <div style={S.actions}>
               <button
                 type="button"
@@ -123,7 +121,7 @@ export default function InviteAcceptPage({ params }: PageProps) {
               Te invitaron a <em style={S.em}>{state.invitation.store?.name ?? "una tienda"}</em>
             </h1>
             <p style={S.body}>
-              Vas a unirte como <strong>{state.invitation.role.toLowerCase()}</strong>. Podés cambiar
+              Vas a unirte como <strong>{state.invitation.role.toLowerCase()}</strong>. Puedes cambiar
               el rol o salir del equipo más adelante desde la sección Config de la tienda.
             </p>
             <div style={S.actions}>
@@ -149,7 +147,7 @@ export default function InviteAcceptPage({ params }: PageProps) {
         {state.kind === "declined" && (
           <>
             <h1 style={S.title}>Invitación rechazada</h1>
-            <p style={S.body}>Listo. Si fue por error, pedile al admin que te invite de nuevo.</p>
+            <p style={S.body}>Listo. Si fue por error, pídele al admin que te invite de nuevo.</p>
             <div style={S.actions}>
               <button type="button" onClick={() => router.push("/dashboard")} style={S.btnGhost}>
                 Ir al panel
