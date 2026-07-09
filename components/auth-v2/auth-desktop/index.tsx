@@ -1,23 +1,17 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
 import { ApiError } from "@/lib/http/types"
 import { StoreHttpRepository } from "@/lib/stores-api/store.http-repository"
 import { BrandMark } from "@/components/landing-v2/brand-mark"
 import { PhonePreview, type PreviewMode } from "./phone-preview"
-import { CinematicScraper } from "./cinematic-scraper"
 import { AiCatalog } from "./ai-catalog"
 import {
   AUTH_STYLES,
-  PAYMENT_METHODS,
-  REFERRAL_SOURCES,
-  SCRAPED,
   slugify,
   type StoreState,
-  TEMPLATES,
-  VERTICALS,
 } from "./data"
 
 type Screen =
@@ -49,31 +43,26 @@ function Logo() {
   )
 }
 
+const ONB_STEPS = 3
 const ONB_TITLES = [
   { t: <>¿Cómo se llama tu <span className="serif-it" style={{ color: "var(--brand)" }}>negocio</span>?</>, s: "Este será el nombre que verán tus clientes en tu tienda." },
   { t: <>¿Cuál será tu <span className="serif-it" style={{ color: "var(--brand)" }}>link</span>?</>, s: "Aquí te encontrarán tus clientes. Cortito y fácil de recordar." },
-  { t: <>¿Qué <span className="serif-it" style={{ color: "var(--brand)" }}>vendes</span>?</>, s: "Esto nos ayuda a sugerir templates y configurar tu tienda." },
-  { t: <>¿Tu <span className="serif-it" style={{ color: "var(--brand)" }}>Instagram</span>?</>, s: "Lo escaneamos para autocompletar todo. Te ahorra horas de trabajo." },
-  { t: <>¿Eres <span className="serif-it" style={{ color: "var(--brand)" }}>tú</span>?</>, s: "Encontramos esta cuenta. Confirma para importar tu información." },
-  { t: <>Elige un <span className="serif-it" style={{ color: "var(--brand)" }}>estilo</span></>, s: "Después puedes personalizar colores, fuentes y todo." },
-  { t: <>¿Cómo te <span className="serif-it" style={{ color: "var(--brand)" }}>pagan</span>?</>, s: "Selecciona los métodos que aceptas. Puedes agregar más después." },
-  { t: <>¿Cómo nos <span className="serif-it" style={{ color: "var(--brand)" }}>conociste</span>?</>, s: "Última pregunta, ¡prometido! Nos ayuda mucho a saber." },
+  { t: <>¿Tu <span className="serif-it" style={{ color: "var(--brand)" }}>Instagram</span>?</>, s: "Guárdalo para cuando activemos la importación automática de productos." },
 ]
-const ONB_PREVIEW: PreviewMode[] = ["identity", "identity", "identity", "instagram", "instagram-found", "template", "template", "template"]
-const ONB_CTA: (string | null)[] = [null, null, null, "Buscar mi perfil →", "Sí, soy yo · Importar →", null, null, "¡Crear mi tienda! 🎉"]
+const ONB_PREVIEW: PreviewMode[] = ["identity", "identity", "instagram"]
+const ONB_CTA: (string | null)[] = [null, null, "¡Crear mi tienda! 🎉"]
 
 export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = false }: { initialScreen?: Screen; showScreenJumper?: boolean }) {
   const [screen, setScreen] = useState<Screen>(initialScreen)
   const [onbStep, setOnbStep] = useState(0)
   const [navOpen, setNavOpen] = useState(false)
-  const [scraping, setScraping] = useState(false)
   const [slugTouched, setSlugTouched] = useState(false)
   const [conflictEmail, setConflictEmail] = useState("")
   const [userWhatsapp, setUserWhatsapp] = useState("")
   const [creating, setCreating] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
   const [store, setStore] = useState<StoreState>({ name: "", slug: "", vertical: null, instagram: "", template: null, payments: ["pm", "usd"], referral: null })
-  const { http, loadSession } = useAuth()
+  const { http, user, loadSession } = useAuth()
   const storeRepo = useMemo(() => new StoreHttpRepository(http), [http])
 
   const patch = (p: Partial<StoreState>) => setStore((s) => ({ ...s, ...p }))
@@ -92,41 +81,36 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
     switch (onbStep) {
       case 0: return store.name.trim().length > 0
       case 1: return store.slug.length >= 3
-      case 2: return !!store.vertical
-      case 3: return store.instagram.replace("@", "").trim().length >= 2
-      case 4: return true
-      case 5: return !!store.template
-      case 6: return store.payments.length > 0
-      case 7: return !!store.referral
+      case 2: return true
       default: return false
     }
   }, [onbStep, store])
 
-  async function onbNext() {
-    if (onbStep === 3) { setScraping(true); return }
-    if (onbStep === 7) {
-      setCreating(true); setCreateError(null)
-      try {
-        const created = await storeRepo.create({
-          name: store.name.trim() || "Mi tienda",
-          username: store.slug.trim() || undefined,
-          whatsappNumbers: userWhatsapp.trim() ? [userWhatsapp.trim()] : [],
-        })
-        const handle = store.instagram.replace("@", "").trim()
-        if (handle) {
-          await storeRepo.update(created.id, { instagramHandle: handle }).catch(() => {})
-        }
-        await loadSession()
-        goScreen("celebration")
-      } catch (err) {
-        const msg = err instanceof ApiError ? err.message : "No se pudo crear la tienda"
-        setCreateError(msg)
-      } finally {
-        setCreating(false)
+  async function createStore() {
+    setCreating(true); setCreateError(null)
+    try {
+      const created = await storeRepo.create({
+        name: store.name.trim() || "Mi tienda",
+        username: store.slug.trim() || undefined,
+        whatsappNumbers: userWhatsapp.trim() ? [userWhatsapp.trim()] : [],
+      })
+      const handle = store.instagram.replace("@", "").trim()
+      if (handle) {
+        await storeRepo.update(created.id, { instagramHandle: handle }).catch(() => {})
       }
-      return
+      await loadSession()
+      goScreen("celebration")
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "No se pudo crear la tienda"
+      setCreateError(msg)
+    } finally {
+      setCreating(false)
     }
-    if (onbStep < 7) goOnb(onbStep + 1)
+  }
+
+  async function onbNext() {
+    if (onbStep === ONB_STEPS - 1) { await createStore(); return }
+    goOnb(onbStep + 1)
   }
   function onbBack() {
     if (onbStep > 0) goOnb(onbStep - 1)
@@ -141,16 +125,10 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
     { num: "02", label: "Registro", onClick: () => goScreen("register") },
     { num: "02a", label: "Registro · ya existe", onClick: () => goScreen("register-exists") },
     { num: "03", label: "Onboarding · Nombre", onClick: () => goOnb(0) },
-    { num: "04", label: "Vertical", onClick: () => goOnb(2) },
-    { num: "05", label: "Instagram", onClick: () => goOnb(3) },
-    { num: "05a", label: "🎬 Scraper cinema", onClick: () => { goOnb(3); setScraping(true) } },
-    { num: "05b", label: "Scraper falló", onClick: () => goScreen("scraper-failed") },
-    { num: "06", label: "¿Eres tú? (scraper)", onClick: () => goOnb(4) },
-    { num: "06a", label: "✨ Catálogo IA", onClick: () => goScreen("ai-catalog") },
-    { num: "07", label: "Template", onClick: () => goOnb(5) },
-    { num: "08", label: "¿Cómo nos conociste?", onClick: () => goOnb(7) },
-    { num: "09", label: "🎉 Celebración", onClick: () => goScreen("celebration") },
-    { num: "10", label: "Tienda lista", onClick: () => goScreen("ready") },
+    { num: "04", label: "Onboarding · Link", onClick: () => goOnb(1) },
+    { num: "05", label: "Onboarding · Instagram", onClick: () => goOnb(2) },
+    { num: "06", label: "🎉 Celebración", onClick: () => goScreen("celebration") },
+    { num: "07", label: "Tienda lista", onClick: () => goScreen("ready") },
   ]
 
   return (
@@ -188,7 +166,7 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
       )}
       {screen === "register-exists" && <RegisterExistsScreen email={conflictEmail} onLogin={() => goScreen("login")} onForgot={() => goScreen("forgot")} onRegister={() => goScreen("register")} />}
       {screen === "scraper-failed" && <ScraperFailedScreen onScratch={() => goOnb(5)} />}
-      {screen === "celebration" && <CelebrationScreen onReady={() => goScreen("ready")} />}
+      {screen === "celebration" && <CelebrationScreen name={user?.name ?? null} onReady={() => goScreen("ready")} />}
       {screen === "ready" && <ReadyScreen store={store} />}
       {screen === "ai-catalog" && <AiCatalog onBack={() => goOnb(4)} onContinue={() => goOnb(5)} />}
 
@@ -202,15 +180,12 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
           setSlugTouched={setSlugTouched}
           onNext={onbNext}
           onBack={onbBack}
-          onSkip={() => { if (confirm("¿Saltar? Puedes completar esto luego desde el dashboard.")) goScreen("celebration") }}
+          onSkip={() => { if (confirm("¿Crear la tienda ya con lo que tienes? Puedes completar el resto luego desde el dashboard.")) createStore() }}
           creating={creating}
           createError={createError}
         />
       )}
 
-      {scraping && (
-        <CinematicScraper handle={store.instagram || "@rosa.atelier"} onDone={() => { setScraping(false); goScreen("ai-catalog") }} />
-      )}
     </div>
   )
 }
@@ -650,7 +625,8 @@ function ScraperFailedScreen({ onScratch }: { onScratch: () => void }) {
   )
 }
 
-function CelebrationScreen({ onReady }: { onReady: () => void }) {
+function CelebrationScreen({ name, onReady }: { name: string | null; onReady: () => void }) {
+  const firstName = name?.trim().split(" ")[0] || null
   const pieces = useMemo(() => {
     const colors = ["#FFFFFF", "#F97066", "#DC4A3D", "#FCD34D", "#10B981", "#FBBF24", "#3B82F6"]
     return Array.from({ length: 100 }, (_, i) => {
@@ -671,7 +647,7 @@ function CelebrationScreen({ onReady }: { onReady: () => void }) {
           <svg width="84" height="84" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </div>
         <h1 style={{ fontSize: 80, lineHeight: 1, letterSpacing: "-0.04em", fontWeight: 700, margin: "0 0 18px" }}>¡Tu tienda está <span className="serif-it" style={{ color: "var(--accent-2)" }}>viva!</span></h1>
-        <p style={{ fontSize: 20, color: "rgba(255,255,255,0.85)", margin: "0 0 36px" }}>Bienvenida, María 💕 Ya puedes empezar a vender por bylink.</p>
+        <p style={{ fontSize: 20, color: "rgba(255,255,255,0.85)", margin: "0 0 36px" }}>{firstName ? `Qué bueno tenerte aquí, ${firstName}. ` : "Qué bueno tenerte aquí. "}Ya puedes empezar a vender por bylink.</p>
         <button type="button" onClick={onReady} style={{ padding: "18px 32px", background: "#fff", color: "var(--brand)", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 16, cursor: "pointer", boxShadow: "0 16px 40px -10px rgba(0,0,0,0.4)" }}>Ver mi tienda →</button>
       </div>
     </div>
@@ -680,11 +656,11 @@ function CelebrationScreen({ onReady }: { onReady: () => void }) {
 
 function ReadyScreen({ store }: { store: StoreState }) {
   const [copied, setCopied] = useState(false)
-  const slug = store.slug || "rosa-atelier"
+  const slug = store.slug || "tu-tienda"
   const nextSteps = [
-    { icon: "👀", bg: "rgba(30,58,138,0.1)", color: "var(--brand)", title: "Ver mi tienda en vivo", desc: "Como la verán tus clientes", href: "/tienda-demo" },
-    { icon: "📦", bg: "rgba(220,74,61,0.1)", color: "var(--accent)", title: "Revisar mis productos", desc: "Importamos 12 desde tu Instagram", href: "/panel-demo" },
-    { icon: "📊", bg: "rgba(16,185,129,0.1)", color: "var(--success)", title: "Ir al dashboard", desc: "Estadísticas, pedidos y configuración", href: "/panel-demo" },
+    { icon: "👀", bg: "rgba(30,58,138,0.1)", color: "var(--brand)", title: "Ver mi tienda en vivo", desc: "Como la verán tus clientes", href: `/${slug}` },
+    { icon: "📦", bg: "rgba(220,74,61,0.1)", color: "var(--accent)", title: "Agregar mis productos", desc: "Sube fotos, precios y stock", href: "/dashboard?view=catalog" },
+    { icon: "📊", bg: "rgba(16,185,129,0.1)", color: "var(--success)", title: "Ir al dashboard", desc: "Estadísticas, pedidos y configuración", href: "/dashboard" },
   ]
   return (
     <div className="ad-shell">
@@ -758,12 +734,12 @@ function OnboardingShell({ step, valid, store, patch, slugTouched, setSlugTouche
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 8 }}>
           <Logo />
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-            <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>paso {step + 1} de 8</span>
+            <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>paso {step + 1} de {ONB_STEPS}</span>
             <button type="button" onClick={onSkip} className="mono" style={{ fontSize: 11, color: "var(--ink-3)", padding: "6px 12px", borderRadius: 8, background: "var(--bg-2)", border: "none", cursor: "pointer" }}>SALTAR</button>
           </div>
         </div>
         <div style={{ display: "flex", gap: 4, marginTop: 14 }}>
-          {Array.from({ length: 8 }, (_, i) => (
+          {Array.from({ length: ONB_STEPS }, (_, i) => (
             <div key={i} style={{ flex: 1, height: 4, borderRadius: 999, background: i <= step ? "var(--brand)" : "var(--line)", transition: "background .35s" }} />
           ))}
         </div>
@@ -783,7 +759,7 @@ function OnboardingShell({ step, valid, store, patch, slugTouched, setSlugTouche
             <svg width="16" height="16" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg> Atrás
           </button>
           <button type="button" onClick={onNext} disabled={!valid || creating} className="ad-btn ad-btn-primary" style={{ flex: 1 }}>
-            {creating && step === 7 ? "Creando tu tienda…" : (ONB_CTA[step] || "Continuar →")}
+            {creating && step === ONB_STEPS - 1 ? "Creando tu tienda…" : (ONB_CTA[step] || "Continuar →")}
           </button>
         </div>
       </div>
@@ -831,146 +807,63 @@ function OnbStepBody({ step, store, patch, slugTouched, setSlugTouched, onBack }
     )
   }
   if (step === 1) {
-    const ok = store.slug.length >= 3
-    return (
-      <>
-        <div style={{ display: "flex", alignItems: "center", padding: "0 18px", border: `1.5px solid ${ok ? "var(--success)" : "var(--line)"}`, borderRadius: 14, background: "#fff" }}>
-          <span className="mono" style={{ fontSize: 16, color: "var(--ink-3)", flexShrink: 0 }}>bylink.app/</span>
-          <input autoFocus value={store.slug} onChange={(e) => { setSlugTouched(true); patch({ slug: slugify(e.target.value) }) }} style={{ flex: 1, padding: "22px 6px", fontSize: 19, background: "none", border: "none", fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--brand)", minWidth: 0, outline: "none" }} placeholder="rosa-atelier" />
-        </div>
-        <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: ok ? "var(--success)" : "var(--ink-3)", fontWeight: 600 }}>
-          <span>{ok ? "✓" : "·"}</span><span>{ok ? "¡Está disponible!" : "Mínimo 3 caracteres"}</span>
-        </div>
-      </>
-    )
+    return <SlugStep store={store} patch={patch} setSlugTouched={setSlugTouched} />
   }
-  if (step === 2) {
-    return (
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        {VERTICALS.map((v) => (
-          <button key={v.id} type="button" className={`ad-opt ${store.vertical === v.id ? "active" : ""}`} onClick={() => patch({ vertical: v.id })}>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: "var(--bg-2)", display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>{v.emoji}</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 700, fontSize: 14 }}>{v.label}</div>
-              <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{v.desc}</div>
-            </div>
-          </button>
-        ))}
-      </div>
-    )
-  }
-  if (step === 3) {
-    return (
-      <>
-        <div style={{ display: "flex", alignItems: "center", padding: "0 18px", border: "1.5px solid var(--line)", borderRadius: 14, background: "#fff" }}>
-          <span className="mono" style={{ fontSize: 16, color: "var(--ink-3)" }}>@</span>
-          <input autoFocus value={store.instagram.replace("@", "")} onChange={(e) => patch({ instagram: "@" + e.target.value.trim() })} style={{ flex: 1, padding: "22px 8px", fontSize: 19, background: "none", border: "none", fontWeight: 600, outline: "none" }} placeholder="rosa.atelier" />
-        </div>
-        <div style={{ marginTop: 16, padding: "14px 16px", background: "rgba(30,58,138,0.06)", borderRadius: 12, display: "flex", gap: 12 }}>
-          <span style={{ fontSize: 18 }}>🔒</span>
-          <div style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5 }}><strong>Tu cuenta sigue siendo tuya.</strong> Solo leemos lo que ya es público.</div>
-        </div>
-        <button type="button" className="mono" style={{ marginTop: 14, fontSize: 12, color: "var(--ink-3)", padding: 4, background: "none", border: "none", cursor: "pointer" }}>— No tengo Instagram, llenar a mano</button>
-      </>
-    )
-  }
-  if (step === 4) {
-    return (
-      <>
-        <div style={{ border: "1.5px solid var(--brand)", borderRadius: 18, overflow: "hidden", background: "#fff", boxShadow: "0 16px 40px -12px rgba(30,58,138,0.18)" }}>
-          <div style={{ padding: 22, display: "flex", alignItems: "center", gap: 16, borderBottom: "1px solid var(--line)" }}>
-            <div style={{ width: 72, height: 72, borderRadius: "50%", background: SCRAPED.avatar, flexShrink: 0 }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 17, fontWeight: 700 }}>{SCRAPED.name}</div>
-              <div style={{ fontSize: 13, color: "var(--ink-3)" }}>{SCRAPED.handle}</div>
-              <div style={{ display: "flex", gap: 14, marginTop: 6, fontSize: 12, color: "var(--ink-2)" }}>
-                <span><strong>{SCRAPED.followers}</strong> seguidores</span>
-                <span><strong>{SCRAPED.posts}</strong> posts</span>
-              </div>
-            </div>
-          </div>
-          <div style={{ padding: "14px 22px", background: "var(--bg-2)", fontSize: 13, color: "var(--ink-2)", whiteSpace: "pre-line", lineHeight: 1.5 }}>{SCRAPED.bio}</div>
-          <div style={{ padding: "18px 22px" }}>
-            <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.1em", marginBottom: 10 }}>VAMOS A IMPORTAR</div>
-            <div style={{ display: "grid", gap: 8, marginBottom: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13 }}><span style={{ color: "var(--success)" }}>✓</span> Foto de perfil como logo</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13 }}><span style={{ color: "var(--success)" }}>✓</span> Bio y nombre del negocio</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13 }}><span style={{ color: "var(--success)" }}>✓</span> 12 posts como productos iniciales</div>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 4 }}>
-              {SCRAPED.photos.map((g, i) => (<div key={i} style={{ aspectRatio: "1", background: g, borderRadius: 6 }} />))}
-            </div>
-          </div>
-        </div>
-        <button type="button" onClick={onBack} style={{ marginTop: 14, fontSize: 13, color: "var(--ink-3)", padding: 8, background: "none", border: "none", cursor: "pointer" }}>No soy yo, buscar otra cuenta</button>
-      </>
-    )
-  }
-  if (step === 5) {
-    return (
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
-        {TEMPLATES.map((t) => (
-          <button key={t.id} type="button" onClick={() => patch({ template: t.id })} style={{ border: `2px solid ${store.template === t.id ? "var(--brand)" : "var(--line)"}`, borderRadius: 14, padding: 0, overflow: "hidden", background: "#fff", cursor: "pointer", textAlign: "left", transition: "all .15s ease" }}>
-            <div style={{ aspectRatio: "9/14", background: t.bg, padding: 10, display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 18, height: 18, borderRadius: 6, background: t.accent }} />
-                <div style={{ height: 5, flex: 1, background: t.accent, opacity: 0.4, borderRadius: 2 }} />
-              </div>
-              <div style={{ height: 4, background: t.accent, opacity: 0.3, borderRadius: 1, width: "60%" }} />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, flex: 1, marginTop: 4 }}>
-                <div style={{ background: t.accent, opacity: 0.7, borderRadius: 4 }} />
-                <div style={{ background: t.accent, opacity: 0.5, borderRadius: 4 }} />
-                <div style={{ background: t.accent, opacity: 0.4, borderRadius: 4 }} />
-                <div style={{ background: t.accent, opacity: 0.6, borderRadius: 4 }} />
-              </div>
-            </div>
-            <div style={{ padding: "10px 12px", background: "#fff" }}>
-              <div style={{ fontWeight: 700, fontSize: 13 }}>{t.label}</div>
-              <div style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 1 }}>{t.desc}</div>
-            </div>
-          </button>
-        ))}
-      </div>
-    )
-  }
-  if (step === 6) {
-    const toggle = (id: string) => patch({ payments: store.payments.includes(id) ? store.payments.filter((x) => x !== id) : [...store.payments, id] })
-    return (
-      <>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          {PAYMENT_METHODS.map((m) => {
-            const on = store.payments.includes(m.id)
-            return (
-              <button key={m.id} type="button" className={`ad-opt ${on ? "active" : ""}`} onClick={() => toggle(m.id)}>
-                <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${on ? "var(--brand)" : "var(--line-2)"}`, background: on ? "var(--brand)" : "#fff", display: "grid", placeItems: "center", flexShrink: 0 }}>
-                  {on && <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-                </div>
-                <div style={{ fontSize: 22 }}>{m.emoji}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>{m.label}</div>
-                  <div style={{ fontSize: 11, color: "var(--ink-3)" }}>{m.desc}</div>
-                </div>
-              </button>
-            )
-          })}
-        </div>
-        <div style={{ marginTop: 14, padding: "12px 14px", background: "rgba(30,58,138,0.06)", borderRadius: 12, display: "flex", gap: 10 }}>
-          <span style={{ fontSize: 16 }}>💡</span>
-          <div style={{ fontSize: 12, color: "var(--ink-2)", lineHeight: 1.5 }}><strong>Tasa BCV automática.</strong> Tus precios se muestran en USD y Bs.</div>
-        </div>
-      </>
-    )
-  }
-  // step 7 referral
+  // step 2: Instagram (opcional, importación automática próximamente)
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-      {REFERRAL_SOURCES.map((s) => (
-        <button key={s.id} type="button" className={`ad-opt ${store.referral === s.id ? "active" : ""}`} onClick={() => patch({ referral: s.id })}>
-          <div style={{ fontSize: 22 }}>{s.emoji}</div>
-          <div style={{ flex: 1, fontWeight: 600, fontSize: 14 }}>{s.label}</div>
-          <div className="ad-opt-radio" />
-        </button>
-      ))}
-    </div>
+    <>
+      <div style={{ display: "flex", alignItems: "center", padding: "0 18px", border: "1.5px solid var(--line)", borderRadius: 14, background: "#fff" }}>
+        <span className="mono" style={{ fontSize: 16, color: "var(--ink-3)" }}>@</span>
+        <input autoFocus value={store.instagram.replace("@", "")} onChange={(e) => patch({ instagram: e.target.value.trim() ? "@" + e.target.value.trim() : "" })} style={{ flex: 1, padding: "22px 8px", fontSize: 19, background: "none", border: "none", fontWeight: 600, outline: "none" }} placeholder="rosa.atelier (opcional)" />
+      </div>
+      <div style={{ marginTop: 16, padding: "14px 16px", background: "rgba(30,58,138,0.06)", borderRadius: 12, display: "flex", gap: 12 }}>
+        <span style={{ fontSize: 18 }}>🚧</span>
+        <div style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5 }}><strong>La importación automática está próxima.</strong> Por ahora guardamos tu @ y agregas tus productos a mano desde el dashboard.</div>
+      </div>
+    </>
+  )
+}
+
+function SlugStep({ store, patch, setSlugTouched }: { store: StoreState; patch: (p: Partial<StoreState>) => void; setSlugTouched: (v: boolean) => void }) {
+  const { http } = useAuth()
+  const storeRepo = useMemo(() => new StoreHttpRepository(http), [http])
+  const [checking, setChecking] = useState(false)
+  const [available, setAvailable] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    if (store.slug.length < 3) { setAvailable(null); return }
+    let cancelled = false
+    setChecking(true)
+    const t = setTimeout(() => {
+      storeRepo
+        .checkUsername(store.slug)
+        .then((r) => { if (!cancelled) setAvailable(r.available) })
+        .catch(() => { if (!cancelled) setAvailable(null) })
+        .finally(() => { if (!cancelled) setChecking(false) })
+    }, 400)
+    return () => { cancelled = true; clearTimeout(t) }
+  }, [store.slug, storeRepo])
+
+  const longEnough = store.slug.length >= 3
+  const statusLabel = !longEnough
+    ? "Mínimo 3 caracteres"
+    : checking
+      ? "Verificando…"
+      : available === false
+        ? "Ya está en uso, prueba otro"
+        : "¡Está disponible!"
+  const statusColor = !longEnough || checking ? "var(--ink-3)" : available === false ? "var(--accent)" : "var(--success)"
+  const borderColor = !longEnough ? "var(--line)" : available === false ? "var(--accent)" : available === true ? "var(--success)" : "var(--line)"
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", padding: "0 18px", border: `1.5px solid ${borderColor}`, borderRadius: 14, background: "#fff" }}>
+        <span className="mono" style={{ fontSize: 16, color: "var(--ink-3)", flexShrink: 0 }}>bylink.app/</span>
+        <input autoFocus value={store.slug} onChange={(e) => { setSlugTouched(true); patch({ slug: slugify(e.target.value) }) }} style={{ flex: 1, padding: "22px 6px", fontSize: 19, background: "none", border: "none", fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--brand)", minWidth: 0, outline: "none" }} placeholder="rosa-atelier" />
+      </div>
+      <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: statusColor, fontWeight: 600 }}>
+        <span>{!longEnough ? "·" : checking ? "…" : available === false ? "✗" : "✓"}</span><span>{statusLabel}</span>
+      </div>
+    </>
   )
 }

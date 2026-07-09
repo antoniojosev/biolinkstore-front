@@ -18,6 +18,12 @@ export class StoreHttpRepository implements IStoreRepository {
     return this.http.post<DashboardStore>('/api/stores', dto)
   }
 
+  checkUsername(username: string): Promise<{ available: boolean }> {
+    return this.http.get<{ available: boolean }>(
+      `/api/stores/check-username?username=${encodeURIComponent(username)}`,
+    )
+  }
+
   update(id: string, dto: UpdateStoreDto): Promise<DashboardStore> {
     return this.http.patch<DashboardStore>(`/api/stores/${id}`, dto)
   }
