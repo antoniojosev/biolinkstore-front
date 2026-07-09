@@ -375,7 +375,7 @@ export function LandingPage() {
               <p style={{ fontSize: 14, color: "var(--ink-2)", margin: 0, lineHeight: 1.55 }}>Nombre, logo, colores. En 2 minutos. Sin tarjeta, sin trámites.</p>
             </div>
             <div style={{ position: "relative", zIndex: 1, padding: 28, background: "var(--brand)", color: "#fff", borderRadius: 18, boxShadow: "0 20px 40px -15px rgba(25,71,229,0.4)" }}>
-              <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "2px solid rgba(255,255,255,0.3)", display: "grid", placeItems: "center", marginBottom: 18, fontWeight: 800, fontSize: 20, color: "var(--accent)" }}>02</div>
+              <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "2px solid rgba(255,255,255,0.3)", display: "grid", placeItems: "center", marginBottom: 18, fontWeight: 800, fontSize: 20, color: "#fff" }}>02</div>
               <h3 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 10px", letterSpacing: "-0.015em" }}>Sube tus productos</h3>
               <p style={{ fontSize: 14, opacity: 0.85, margin: 0, lineHeight: 1.55 }}>Fotos, precios, variantes. Arrastra y suelta. Si sabes Instagram, sabes bylink.</p>
             </div>
@@ -425,7 +425,7 @@ export function LandingPage() {
               <div style={{ height: 1, background: "rgba(255,255,255,0.2)", marginBottom: 24 }} />
               <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: 10, fontSize: 14 }}>
                 {["Hasta 100 productos", "Categorías ilimitadas", "Dominio personalizado", 'Sin badge "Hecho con..."', "Analíticas completas", "Soporte prioritario"].map((f) => (
-                  <li key={f}><span style={{ color: "var(--accent)" }}>✓</span> {f}</li>
+                  <li key={f}><span style={{ color: "#fff" }}>✓</span> {f}</li>
                 ))}
               </ul>
               <Link href={SIGNUP} className="lp-btn" style={{ width: "100%", justifyContent: "center", padding: 14, background: "var(--ink)", color: "#fff" }}>Obtener Pro →</Link>

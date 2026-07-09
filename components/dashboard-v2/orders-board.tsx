@@ -203,15 +203,15 @@ export function OrdersBoard() {
                   <div style={{ minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                       <span style={{ fontWeight: 600, fontSize: 14 }}>{o.customerName || "Cliente"}</span>
-                      <span className="mono" style={{ fontSize: 10, color: "var(--ink-3)" }}>#{o.id.slice(-6)}</span>
+                      <span className="mono" style={{ fontSize: 10, color: "var(--ink-2)" }}>#{o.id.slice(-6)}</span>
                       {o.channel === "WHATSAPP" && <span className="badge" style={{ background: "rgba(37,211,102,0.12)", color: "#0E6940" }}>WhatsApp</span>}
                       {o.channel === "INSTAGRAM" && <span className="badge" style={{ background: "rgba(225,48,108,0.12)", color: "#9D1B4C" }}>Instagram</span>}
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 2 }}>{itemsSummary} · {timeAgo(o.createdAt)}</div>
+                    <div style={{ fontSize: 12, color: "var(--ink-2)", marginTop: 2 }}>{itemsSummary} · {timeAgo(o.createdAt)}</div>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <div className="mono" style={{ fontWeight: 700, fontSize: 13 }}>{fmtMoney(o.total, o.currency)}</div>
-                    {o.customerPhone && <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)" }}>{o.customerPhone}</div>}
+                    {o.customerPhone && <div className="mono" style={{ fontSize: 10, color: "var(--ink-2)" }}>{o.customerPhone}</div>}
                   </div>
                   <div data-status-menu style={{ position: "relative" }}>
                     <button type="button" className={`ord-status ${STATUS_CLASS[status]}`} onClick={(e) => { e.stopPropagation(); if (!isUpd) setOpenMenuId(isOpen ? null : o.id) }} disabled={isUpd} style={{ border: "none", cursor: isUpd ? "default" : "pointer", fontFamily: "inherit", opacity: isUpd ? 0.5 : 1 }}>
