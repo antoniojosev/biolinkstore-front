@@ -13,15 +13,8 @@ type View = "dashboard" | "catalog" | "orders" | "design" | "data" | "config"
 
 const STYLES = `
 .bpanel { background: var(--bg); overflow-x: hidden; min-height: 100vh; color: var(--ink); font-family: var(--font-sans); }
-.bpanel.bp-mobile { background: #0a0a0a; padding: 32px 0; }
-.bpanel .demo-toggle { position: fixed; top: 14px; right: 14px; z-index: 10000; background: var(--ink); color: #fff; border-radius: 999px; padding: 6px; display: flex; gap: 4px; box-shadow: 0 8px 22px -8px rgba(0,0,0,0.4); font-family: var(--font-mono); font-size: 11px; font-weight: 600; }
-.bpanel .demo-toggle button { background: transparent; color: rgba(255,255,255,0.5); border: none; padding: 7px 14px; border-radius: 999px; cursor: pointer; font: inherit; transition: all .15s; }
-.bpanel .demo-toggle button.active { background: var(--brand); color: #fff; }
-.bpanel.bp-mobile .device-frame { width: 390px; height: 844px; margin: 0 auto; background: #fff; border-radius: 44px; box-shadow: 0 0 0 12px #1a1a1a, 0 30px 80px -20px rgba(0,0,0,0.6); overflow: hidden; position: relative; border: 2px solid #2a2a2a; }
-.bpanel.bp-mobile .device-frame::before { content: ''; position: absolute; top: 16px; left: 50%; transform: translateX(-50%); width: 110px; height: 28px; background: #0a0a0a; border-radius: 16px; z-index: 1000; }
-.bpanel:not(.bp-mobile) .device-frame { width: 100%; min-height: 100vh; }
+.bpanel .device-frame { position: relative; width: 100%; min-height: 100vh; }
 .bpanel .top-dock { position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 100; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(0,0,0,0.06); border-radius: 999px; padding: 6px; display: flex; align-items: center; gap: 4px; box-shadow: 0 14px 40px -16px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.4) inset; }
-.bpanel.bp-mobile .top-dock { display: none; }
 .bpanel .td-logo { width: 36px; height: 36px; border-radius: 999px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 16px; font-family: var(--font-serif); font-style: italic; margin-right: 4px; }
 .bpanel .td-tab { background: transparent; border: none; padding: 8px 14px; border-radius: 999px; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all var(--dur-fast); }
 .bpanel .td-tab svg { width: 16px; height: 16px; opacity: 0.7; }
@@ -34,22 +27,18 @@ const STYLES = `
 @keyframes bpPulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(16,185,129,0.18); } 50% { box-shadow: 0 0 0 6px rgba(16,185,129,0.05); } }
 .bpanel .td-pill svg { width: 12px; height: 12px; opacity: 0.5; }
 .bpanel .stage { min-height: 100vh; padding: 96px 32px 48px; position: relative; }
-.bpanel.bp-mobile .stage { padding: 56px 0 80px; min-height: 0; height: 100%; overflow-y: auto; }
 .bpanel .view { display: none; }
 .bpanel .view.active { display: block; }
 .bpanel .dash-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
-.bpanel.bp-mobile .dash-grid { grid-template-columns: 1fr; gap: 12px; padding: 0 14px; }
 .bpanel .dash-header { grid-column: 1 / -1; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 6px; flex-wrap: wrap; }
 .bpanel .dash-header .h-eyebrow { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
 .bpanel .dash-header h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
 .bpanel .dash-header h1 em { font-family: var(--font-serif); font-style: italic; color: var(--brand); font-weight: 400; }
-.bpanel.bp-mobile .dash-header h1 { font-size: 22px; }
 .bpanel .h-actions { display: flex; gap: 8px; }
 .bpanel .h-btn { padding: 9px 14px; background: var(--ink); color: #fff; border: none; border-radius: 10px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
 .bpanel .h-btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
 .bpanel .h-btn svg { width: 14px; height: 14px; }
 .bpanel .kpi-strip { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-.bpanel.bp-mobile .kpi-strip { grid-template-columns: 1fr 1fr; }
 .bpanel .kpi { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; position: relative; overflow: hidden; }
 .bpanel .kpi::before { content:''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
 .bpanel .kpi.up::before { background: #10b981; }
@@ -80,7 +69,6 @@ const STYLES = `
 .bpanel .ord-status.pending { background: rgba(251,191,36,0.18); color: #92400e; }
 .bpanel .ord-status.shipped { background: rgba(30,58,138,0.1); color: var(--brand); }
 .bpanel .side-stack { display: flex; flex-direction: column; gap: 18px; }
-.bpanel.bp-mobile .side-stack { gap: 12px; }
 .bpanel .top-products li { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 7px 0; font-size: 12px; border-bottom: 1px dashed var(--line); }
 .bpanel .top-products li:last-child { border-bottom: none; }
 .bpanel .top-products .rank { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); font-weight: 700; }
@@ -101,11 +89,9 @@ const STYLES = `
 .bpanel .next-up .ck.done::after { content: '✓'; color: #fff; font-size: 10px; display: grid; place-items: center; font-weight: 800; }
 .bpanel .next-up .badge { font-family: var(--font-mono); font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(220,74,61,0.1); color: var(--accent); font-weight: 700; }
 .bpanel .cat-wrap { max-width: 1400px; margin: 0 auto; }
-.bpanel.bp-mobile .cat-wrap { padding: 0 14px; }
 .bpanel .cat-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 18px; flex-wrap: wrap; }
 .bpanel .cat-header h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
 .bpanel .cat-header h1 em { font-family: var(--font-serif); font-style: italic; color: var(--brand); font-weight: 400; }
-.bpanel.bp-mobile .cat-header h1 { font-size: 22px; }
 .bpanel .cat-header .meta { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); margin-top: 4px; }
 .bpanel .cat-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
 .bpanel .search-box { flex: 1; min-width: 200px; position: relative; }
@@ -120,7 +106,6 @@ const STYLES = `
 .bpanel .view-toggle button svg { width: 14px; height: 14px; }
 .bpanel .view-toggle button.active { background: var(--ink); color: #fff; }
 .bpanel .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-.bpanel.bp-mobile .gallery-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
 .bpanel .product-card { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; cursor: pointer; transition: all var(--dur-fast); position: relative; }
 .bpanel .product-card:hover { border-color: var(--brand); transform: translateY(-2px); box-shadow: 0 8px 24px -8px rgba(0,0,0,0.12); }
 .bpanel .pc-img { aspect-ratio: 4/5; position: relative; overflow: hidden; }
@@ -153,10 +138,6 @@ const STYLES = `
 .bpanel .lt-stock-pill.zero { background: rgba(0,0,0,0.06); color: var(--ink-3); }
 .bpanel .lt-cat { color: var(--ink-2); font-size: 12px; }
 .bpanel .lt-more { color: var(--ink-3); }
-.bpanel.bp-mobile .list-table .lt-head { display: none; }
-.bpanel.bp-mobile .lt-row { grid-template-columns: 50px 1fr auto; padding: 12px; }
-.bpanel.bp-mobile .lt-row .lt-checkbox, .bpanel.bp-mobile .lt-row .lt-cat, .bpanel.bp-mobile .lt-row .lt-more { display: none; }
-.bpanel.bp-mobile .lt-row .lt-stock-pill { font-size: 9px; }
 .bpanel .design-hub { max-width: 1200px; margin: 0 auto; padding: 24px; display: grid; gap: 18px; }
 .bpanel .design-hub .dh-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .bpanel .design-hub .dh-head h1 { margin: 0 0 4px; font-size: 28px; letter-spacing: -0.02em; font-weight: 700; }
@@ -203,33 +184,48 @@ const STYLES = `
 .bpanel .dh-thumb-premium .pm-content { position: relative; z-index: 1; text-align: center; }
 .bpanel .dh-thumb-premium .pm-tag { display: inline-block; padding: 5px 12px; border-radius: 999px; background: rgba(232,192,122,0.18); border: 1px solid rgba(232,192,122,0.35); color: #E8C07A; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
 .bpanel .dh-thumb-premium .pm-stars { font-family: var(--font-serif); font-size: 26px; color: #E8C07A; letter-spacing: 0.1em; text-shadow: 0 2px 12px rgba(232,192,122,0.4); }
-.bpanel.bp-mobile .design-hub { padding: 16px 14px 100px; }
-.bpanel.bp-mobile .design-hub .dh-head h1 { font-size: 22px; }
-.bpanel.bp-mobile .dh-top { display: contents; }
-.bpanel.bp-mobile .dh-card { padding: 18px; }
-.bpanel.bp-mobile .dh-card-premium { order: 10; }
-.bpanel.bp-mobile .dh-thumb { height: 90px; }
 @media (max-width: 980px) { .bpanel .dh-top { display: contents; } .bpanel .dh-card-premium { order: 10; } }
 .bpanel .m-bottom-nav, .bpanel .m-fab, .bpanel .m-topbar { display: none; }
-.bpanel.bp-mobile .m-topbar { display: flex; position: absolute; top: 50px; left: 0; right: 0; z-index: 50; padding: 10px 16px; align-items: center; gap: 10px; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
 .bpanel .m-topbar .m-logo { width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; font-family: var(--font-serif); font-style: italic; font-weight: 800; font-size: 14px; }
 .bpanel .m-topbar .m-store-pill { flex: 1; padding: 6px 10px; background: var(--bg-2); border-radius: 999px; display: flex; align-items: center; gap: 6px; font-size: 11px; font-family: var(--font-mono); color: var(--ink-2); overflow: hidden; }
 .bpanel .m-topbar .m-store-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
 .bpanel .m-topbar .m-store-pill .url { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bpanel .m-topbar .m-icon-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-2); border: none; display: grid; place-items: center; cursor: pointer; }
 .bpanel .m-topbar .m-icon-btn svg { width: 14px; height: 14px; }
-.bpanel.bp-mobile .m-bottom-nav { display: grid; grid-template-columns: repeat(4, 1fr); position: absolute; bottom: 0; left: 0; right: 0; z-index: 50; background: rgba(255,255,255,0.96); backdrop-filter: blur(20px); border-top: 1px solid var(--line); padding: 6px 4px 18px; }
 .bpanel .m-bottom-nav button { background: transparent; border: none; padding: 6px 4px; display: flex; flex-direction: column; align-items: center; gap: 3px; font: inherit; font-size: 10px; font-weight: 600; color: var(--ink-3); cursor: pointer; border-radius: 8px; }
 .bpanel .m-bottom-nav button svg { width: 18px; height: 18px; }
 .bpanel .m-bottom-nav button.active { color: var(--brand); }
-.bpanel.bp-mobile .m-fab { display: grid; place-items: center; position: absolute; bottom: 76px; right: 16px; z-index: 60; width: 52px; height: 52px; border-radius: 50%; background: var(--accent); color: #fff; border: none; box-shadow: 0 12px 28px -6px rgba(220,74,61,0.5); cursor: pointer; }
 .bpanel .m-fab svg { width: 22px; height: 22px; }
-.bpanel.bp-mobile .quick-actions-sheet { position: absolute; left: 12px; right: 12px; bottom: 80px; z-index: 70; background: #fff; border-radius: 18px; padding: 8px; box-shadow: 0 30px 60px -10px rgba(0,0,0,0.3), 0 0 0 1px var(--line); display: none; flex-direction: column; gap: 2px; }
-.bpanel.bp-mobile .quick-actions-sheet.open { display: flex; animation: bpSheetIn .25s ease; }
 @keyframes bpSheetIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .bpanel .qa-item { display: flex; align-items: center; gap: 10px; padding: 12px 12px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; }
 .bpanel .qa-item:active { background: var(--bg-2); }
 .bpanel .qa-item svg { width: 18px; height: 18px; color: var(--brand); }
+
+/* === Responsive real (viewport <= 768px) — reemplaza el toggle de demo === */
+@media (max-width: 768px) {
+  .bpanel .stage { padding: 56px 0 80px; }
+  .bpanel .dash-grid { grid-template-columns: 1fr; gap: 12px; padding: 0 14px; }
+  .bpanel .dash-header h1 { font-size: 22px; }
+  .bpanel .kpi-strip { grid-template-columns: 1fr 1fr; }
+  .bpanel .cat-wrap { padding: 0 14px; }
+  .bpanel .cat-header h1 { font-size: 22px; }
+  .bpanel .gallery-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .bpanel .pc-actions { opacity: 1; }
+  .bpanel .list-table .lt-head { display: none; }
+  .bpanel .lt-row { grid-template-columns: 50px 1fr auto; padding: 12px; }
+  .bpanel .lt-row .lt-checkbox, .bpanel .lt-row .lt-cat, .bpanel .lt-row .lt-more { display: none; }
+  .bpanel .lt-row .lt-stock-pill { font-size: 9px; }
+  .bpanel .design-hub { padding: 16px 14px 100px; }
+  .bpanel .design-hub .dh-head h1 { font-size: 22px; }
+  .bpanel .dh-card { padding: 18px; }
+  .bpanel .dh-thumb { height: 90px; }
+  .bpanel .top-dock { display: none; }
+  .bpanel .m-topbar { display: flex; position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding: 10px 16px; align-items: center; gap: 10px; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .bpanel .m-bottom-nav { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; background: rgba(255,255,255,0.96); backdrop-filter: blur(20px); border-top: 1px solid var(--line); padding: 6px 4px calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .bpanel .m-fab { display: grid; place-items: center; position: fixed; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); right: 16px; z-index: 60; width: 52px; height: 52px; border-radius: 50%; background: var(--accent); color: #fff; border: none; box-shadow: 0 12px 28px -6px rgba(220,74,61,0.5); cursor: pointer; }
+  .bpanel .quick-actions-sheet { position: fixed; left: 12px; right: 12px; bottom: calc(74px + env(safe-area-inset-bottom, 0px)); z-index: 70; background: #fff; border-radius: 18px; padding: 8px; box-shadow: 0 30px 60px -10px rgba(0,0,0,0.3), 0 0 0 1px var(--line); display: none; flex-direction: column; gap: 2px; }
+  .bpanel .quick-actions-sheet.open { display: flex; animation: bpSheetIn .25s ease; }
+}
 `
 
 function I({ id }: { id: string }) {
@@ -246,6 +242,14 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
   const sheetRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)")
+    setMobile(mq.matches)
+    const onChange = (e: MediaQueryListEvent) => setMobile(e.matches)
+    mq.addEventListener("change", onChange)
+    return () => mq.removeEventListener("change", onChange)
+  }, [])
+
+  useEffect(() => {
     function onDoc(e: MouseEvent) {
       const t = e.target as Node
       if (sheetRef.current?.contains(t) || fabRef.current?.contains(t)) return
@@ -256,13 +260,8 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
   }, [])
 
   return (
-    <div className={`bpanel${mobile ? " bp-mobile" : ""}`}>
+    <div className="bpanel">
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
-
-      <div className="demo-toggle">
-        <button type="button" className={!mobile ? "active" : ""} onClick={() => setMobile(false)}>desktop</button>
-        <button type="button" className={mobile ? "active" : ""} onClick={() => setMobile(true)}>mobile</button>
-      </div>
 
       <div className="device-frame">
         {/* TOP DOCK (desktop) */}
@@ -328,6 +327,7 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
         <nav className="m-bottom-nav">
           <button type="button" className={view === "dashboard" ? "active" : ""} onClick={() => setView("dashboard")}><I id="home" />Inicio</button>
           <button type="button" className={view === "catalog" ? "active" : ""} onClick={() => setView("catalog")}><I id="package" />Productos</button>
+          <button type="button" className={view === "orders" ? "active" : ""} onClick={() => setView("orders")}><I id="msg" />Pedidos</button>
           <button type="button" className={view === "design" ? "active" : ""} onClick={() => setView("design")}><I id="layout" />Diseño</button>
           <button type="button" className={view === "data" ? "active" : ""} onClick={() => setView("data")}><I id="chart" />Datos</button>
         </nav>

@@ -57,7 +57,7 @@ const ONB_TITLES = [
 const ONB_PREVIEW: PreviewMode[] = ["identity", "identity", "identity", "instagram", "instagram-found", "template", "template", "template"]
 const ONB_CTA: (string | null)[] = [null, null, null, "Buscar mi perfil →", "Sí, soy yo · Importar →", null, null, "¡Crear mi tienda! 🎉"]
 
-export function AuthDesktopFlow({ initialScreen = "welcome" }: { initialScreen?: Screen }) {
+export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = false }: { initialScreen?: Screen; showScreenJumper?: boolean }) {
   const [screen, setScreen] = useState<Screen>(initialScreen)
   const [onbStep, setOnbStep] = useState(0)
   const [navOpen, setNavOpen] = useState(false)
@@ -154,21 +154,23 @@ export function AuthDesktopFlow({ initialScreen = "welcome" }: { initialScreen?:
     <div className="ad-root" style={{ position: "fixed", inset: 0, zIndex: 40, overflowY: "auto", background: "#fff" }}>
       <style dangerouslySetInnerHTML={{ __html: AUTH_STYLES }} />
 
-      {/* floating switcher */}
-      <div style={{ position: "fixed", top: 20, right: 20, zIndex: 999 }}>
-        <button type="button" onClick={() => setNavOpen((o) => !o)} style={{ background: "var(--ink)", color: "#fff", padding: "10px 18px", borderRadius: 999, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 8, boxShadow: "0 12px 32px -10px rgba(0,0,0,0.3)", border: "none", cursor: "pointer" }}>
-          <span>🧭</span> Saltar a…
-        </button>
-        {navOpen && (
-          <div style={{ position: "absolute", top: 50, right: 0, background: "#fff", borderRadius: 16, padding: 8, boxShadow: "0 24px 60px -10px rgba(0,0,0,0.25)", border: "1px solid var(--line)", minWidth: 240, maxHeight: "70vh", overflowY: "auto" }}>
-            {navItems.map((it) => (
-              <button key={it.num} type="button" className="ad-navitem" onClick={it.onClick}>
-                <span className="ad-navnum">{it.num}</span> {it.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* floating switcher — solo en la ruta demo /acceso, nunca en /login ni /registro */}
+      {showScreenJumper && (
+        <div style={{ position: "fixed", top: 20, right: 20, zIndex: 999 }}>
+          <button type="button" onClick={() => setNavOpen((o) => !o)} style={{ background: "var(--ink)", color: "#fff", padding: "10px 18px", borderRadius: 999, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 8, boxShadow: "0 12px 32px -10px rgba(0,0,0,0.3)", border: "none", cursor: "pointer" }}>
+            <span>🧭</span> Saltar a…
+          </button>
+          {navOpen && (
+            <div style={{ position: "absolute", top: 50, right: 0, background: "#fff", borderRadius: 16, padding: 8, boxShadow: "0 24px 60px -10px rgba(0,0,0,0.25)", border: "1px solid var(--line)", minWidth: 240, maxHeight: "70vh", overflowY: "auto" }}>
+              {navItems.map((it) => (
+                <button key={it.num} type="button" className="ad-navitem" onClick={it.onClick}>
+                  <span className="ad-navnum">{it.num}</span> {it.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {screen === "welcome" && <WelcomeScreen onRegister={() => goScreen("register")} onLogin={() => goScreen("login")} />}
       {screen === "login" && <LoginScreen onRegister={() => goScreen("register")} onForgot={() => goScreen("forgot")} />}

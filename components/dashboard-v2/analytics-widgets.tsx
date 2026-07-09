@@ -183,24 +183,30 @@ export function SourcesWidget({ data = MOCK_SOURCES }: { data?: SourcesData | nu
     <Card>
       <CardHeader><span className="h-5">De dónde llegan</span><span className="eyebrow">tráfico</span></CardHeader>
       <CardBody>
-        <div style={{ display: "flex", height: 10, borderRadius: 999, overflow: "hidden", marginBottom: 16 }}>
-          {sources.map((s) => (
-            <div key={s.key} style={{ width: `${s.pct}%`, background: s.color }} aria-hidden="true" />
-          ))}
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {sources.map((s) => (
-            <div key={s.key} style={{ display: "grid", gridTemplateColumns: "80px 1fr 40px", gap: 8, alignItems: "center", fontSize: 12 }}>
-              <span style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color }} />{s.label}
-              </span>
-              <div style={{ height: 6, background: "var(--bg-2)", borderRadius: 999, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${s.pct}%`, background: s.color, borderRadius: 999 }} />
-              </div>
-              <span className="mono" style={{ color: "var(--ink-3)", fontSize: 10, textAlign: "right" }}>{s.pct}%</span>
+        {sources.length === 0 ? (
+          <div className="muted body-sm">Sin datos de tráfico todavía.</div>
+        ) : (
+          <>
+            <div style={{ display: "flex", height: 10, borderRadius: 999, overflow: "hidden", marginBottom: 16 }}>
+              {sources.map((s) => (
+                <div key={s.key} style={{ width: `${s.pct}%`, background: s.color }} aria-hidden="true" />
+              ))}
             </div>
-          ))}
-        </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {sources.map((s) => (
+                <div key={s.key} style={{ display: "grid", gridTemplateColumns: "80px 1fr 40px", gap: 8, alignItems: "center", fontSize: 12 }}>
+                  <span style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color }} />{s.label}
+                  </span>
+                  <div style={{ height: 6, background: "var(--bg-2)", borderRadius: 999, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${s.pct}%`, background: s.color, borderRadius: 999 }} />
+                  </div>
+                  <span className="mono" style={{ color: "var(--ink-3)", fontSize: 10, textAlign: "right" }}>{s.pct}%</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </CardBody>
     </Card>
   )

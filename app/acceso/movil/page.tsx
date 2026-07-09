@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function AccesoMovilPage() {
-  return <AuthMobileFlow />
+  return <AuthMobileFlow showScreenJumper />
 }

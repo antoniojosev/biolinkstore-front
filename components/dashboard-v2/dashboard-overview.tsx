@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { OrdersHttpRepository, type StoreStats, type OrderResponse, type OrderStatus } from "@/lib/orders-api"
 
 interface DashboardOverviewProps {
-  /** Reserved for future mobile-specific tweaks; CSS already adapts via .bpanel.bp-mobile. */
+  /** Reserved for future mobile-specific tweaks; el layout ya se adapta solo vía @media en panel-official. */
   mobile?: boolean
 }
 
@@ -15,7 +15,7 @@ const DAYS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "
 function greeting(name?: string | null) {
   const h = new Date().getHours()
   const greet = h < 12 ? "buen día" : h < 19 ? "buena tarde" : "buena noche"
-  const first = (name?.trim().split(" ")[0]) || "Hola"
+  const first = name?.trim().split(" ")[0] || ""
   return { name: first, greet }
 }
 
@@ -82,20 +82,14 @@ function fmtChartDate(s?: string) {
   return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)}`
 }
 
-const MOCK_ORDERS = [
-  { name: "María Alvarado", initials: "MA", grad: AVATAR_GRADIENTS[0], summary: "Vestido Camelia", ago: "hace 6 min", amount: "$89", status: "ACCEPTED" as OrderStatus },
-  { name: "Julián Rodríguez", initials: "JR", grad: AVATAR_GRADIENTS[1], summary: "Bolso de cuero", ago: "hace 18 min", amount: "$56", status: "PENDING" as OrderStatus },
-  { name: "Carla Guzmán", initials: "CG", grad: AVATAR_GRADIENTS[2], summary: "Aretes Luna +1", ago: "hace 42 min", amount: "$84", status: "CONTACTED" as OrderStatus },
-  { name: "Andrea Peña", initials: "AP", grad: AVATAR_GRADIENTS[3], summary: "Blusa Olivia", ago: "hace 1h", amount: "$38", status: "ACCEPTED" as OrderStatus },
-  { name: "Valentina Sánchez", initials: "VS", grad: AVATAR_GRADIENTS[4], summary: "Collar Sol +2", ago: "hace 2h", amount: "$96", status: "ACCEPTED" as OrderStatus },
-]
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
   const { http, store, user } = useAuth()
   const [stats, setStats] = useState<StoreStats | null>(null)
-  const [orders, setOrders] = useState<OrderResponse[] | null>(null)
+  const [orders, setOrders] = useState<OrderResponse[]>([])
   const [loading, setLoading] = useState(false)
+  const [statsError, setStatsError] = useState(false)
+  const [ordersError, setOrdersError] = useState(false)
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
 
@@ -106,12 +100,13 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
     if (!storeId) return
     let cancelled = false
     setLoading(true)
+    setStatsError(false)
+    setOrdersError(false)
     Promise.all([
-      repo.getStats(storeId),
-      repo.getOrders(storeId, { limit: 5, sortOrder: "desc" }).catch(() => ({ data: [] as OrderResponse[] })),
+      repo.getStats(storeId).catch(() => { if (!cancelled) setStatsError(true); return null }),
+      repo.getOrders(storeId, { limit: 5, sortOrder: "desc" }).catch(() => { if (!cancelled) setOrdersError(true); return { data: [] as OrderResponse[] } }),
     ])
       .then(([s, o]) => { if (!cancelled) { setStats(s); setOrders(o.data) } })
-      .catch(() => { if (!cancelled) { setStats(null); setOrders(null) } })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [repo, storeId])
@@ -145,10 +140,10 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
   const { name: greetName, greet } = greeting(user?.name)
   const dateLabel = formatDate()
 
-  // KPIs — adapt to what /stats actually has
-  const visitorsCount = stats?.uniqueVisitors ?? 847
-  const productViewsCount = stats?.productViews ?? 4280
-  const quotesCount = stats?.newQuotesCount ?? 12
+  // KPIs — solo datos reales; 0/vacío si no hay stats o falló el fetch (nunca inventados)
+  const visitorsCount = stats?.uniqueVisitors ?? 0
+  const productViewsCount = stats?.productViews ?? 0
+  const quotesCount = stats?.newQuotesCount ?? 0
   const conversion = visitorsCount > 0 ? (quotesCount / visitorsCount) * 100 : 0
 
   const visitsCounts = (stats?.visitsByDay ?? []).map((d) => d.count)
@@ -160,26 +155,23 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
   const topProducts = (stats?.viewsByProduct ?? []).slice(0, 5)
   const topMax = Math.max(1, ...topProducts.map((p) => p.views))
 
-  const useRealOrders = orders != null
-  const recent = useRealOrders
-    ? orders.slice(0, 5).map((o, i) => ({
-        id: o.id,
-        name: o.customerName || "Cliente",
-        initials: initials(o.customerName),
-        grad: AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length],
-        summary: o.items[0]?.productName + (o.items.length > 1 ? ` +${o.items.length - 1}` : ""),
-        ago: timeAgo(o.createdAt),
-        amount: fmtMoney(o.total, o.currency),
-        status: o.status,
-      }))
-    : MOCK_ORDERS.map((m, i) => ({ ...m, id: `mock-${i}` }))
+  const recent = orders.slice(0, 5).map((o, i) => ({
+    id: o.id,
+    name: o.customerName || "Cliente",
+    initials: initials(o.customerName),
+    grad: AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length],
+    summary: o.items[0]?.productName + (o.items.length > 1 ? ` +${o.items.length - 1}` : ""),
+    ago: timeAgo(o.createdAt),
+    amount: fmtMoney(o.total, o.currency),
+    status: o.status,
+  }))
 
   return (
     <div className="dash-grid">
       <div className="dash-header">
         <div className="greet">
           <div className="h-eyebrow">{dateLabel}</div>
-          <h1>Hola {greetName}, <em>{greet}</em></h1>
+          <h1>{greetName ? `Hola ${greetName}, ` : "¡Hola, "}<em>{greet}</em>{greetName ? "" : "!"}</h1>
         </div>
         <div className="h-actions">
           <button type="button" className="h-btn ghost"><svg><use href="#ic-share" /></svg>Compartir tienda</button>
@@ -229,8 +221,12 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
 
         <div className="panel">
           <h3>Pedidos recientes <span className="more">Ver todos →</span></h3>
-          {recent.length === 0 ? (
-            <div className="muted" style={{ padding: 16, textAlign: "center" }}>Aún no hay pedidos.</div>
+          {ordersError ? (
+            <div className="muted" style={{ padding: 16, textAlign: "center" }}>No se pudieron cargar los pedidos.</div>
+          ) : loading && recent.length === 0 ? (
+            <div className="muted" style={{ padding: 16, textAlign: "center" }}>Cargando…</div>
+          ) : recent.length === 0 ? (
+            <div className="muted" style={{ padding: 16, textAlign: "center" }}>Aún no hay pedidos. Comparte tu tienda para recibir el primero.</div>
           ) : recent.map((o) => {
             const status = o.status as OrderStatus
             const isOpen = openMenuId === o.id
@@ -245,10 +241,10 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
                   <button
                     type="button"
                     className={`ord-status ${STATUS_CLASS[status]}`}
-                    onClick={(e) => { e.stopPropagation(); if (useRealOrders && !isUpdating) setOpenMenuId(isOpen ? null : o.id) }}
-                    disabled={!useRealOrders || isUpdating}
-                    style={{ border: "none", cursor: useRealOrders && !isUpdating ? "pointer" : "default", fontFamily: "inherit", opacity: isUpdating ? 0.5 : 1 }}
-                    title={useRealOrders ? "Cambiar estado" : undefined}
+                    onClick={(e) => { e.stopPropagation(); if (!isUpdating) setOpenMenuId(isOpen ? null : o.id) }}
+                    disabled={isUpdating}
+                    style={{ border: "none", cursor: isUpdating ? "default" : "pointer", fontFamily: "inherit", opacity: isUpdating ? 0.5 : 1 }}
+                    title="Cambiar estado"
                   >
                     {isUpdating ? "…" : (STATUS_LABEL[status] ?? status)}
                   </button>
@@ -271,7 +267,9 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
       <div className="side-stack">
         <div className="panel">
           <h3>Top productos</h3>
-          {topProducts.length === 0 ? (
+          {statsError ? (
+            <div className="muted" style={{ padding: 8, fontSize: 12 }}>No se pudieron cargar las vistas.</div>
+          ) : topProducts.length === 0 ? (
             <div className="muted" style={{ padding: 8, fontSize: 12 }}>Sin vistas registradas.</div>
           ) : (
             <ul className="top-products" style={{ listStyle: "none", padding: 0, margin: 0 }}>
@@ -290,23 +288,8 @@ export function DashboardOverview({ mobile: _mobile }: DashboardOverviewProps) {
         </div>
 
         <div className="panel">
-          <h3>De dónde llegan <span className="more" title="Endpoint aún no disponible">demo</span></h3>
-          <div className="traffic-bars">
-            <div className="tr-row"><span className="tr-label">Instagram</span><div className="tr-bar"><div className="tr-bar-fill" style={{ width: "62%", background: "#E1306C" }} /></div><span className="tr-pct">62%</span></div>
-            <div className="tr-row"><span className="tr-label">WhatsApp</span><div className="tr-bar"><div className="tr-bar-fill" style={{ width: "24%", background: "#25D366" }} /></div><span className="tr-pct">24%</span></div>
-            <div className="tr-row"><span className="tr-label">Directo</span><div className="tr-bar"><div className="tr-bar-fill" style={{ width: "9%", background: "var(--brand)" }} /></div><span className="tr-pct">9%</span></div>
-            <div className="tr-row"><span className="tr-label">TikTok</span><div className="tr-bar"><div className="tr-bar-fill" style={{ width: "5%", background: "#000" }} /></div><span className="tr-pct">5%</span></div>
-          </div>
-        </div>
-
-        <div className="panel">
-          <h3>Pendiente esta semana <span className="more">3 · ver todo</span></h3>
-          <ul className="next-up" style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            <li><div className="ck" /><span>Subir 3 fotos del nuevo lote</span><span className="badge">URGENTE</span></li>
-            <li><div className="ck" /><span>Responder 7 mensajes en WA</span><span className="badge" style={{ background: "rgba(251,191,36,0.18)", color: "#92400e" }}>7</span></li>
-            <li><div className="ck done" /><span style={{ textDecoration: "line-through", color: "var(--ink-3)" }}>Actualizar tasa Bs/USD</span><span /></li>
-            <li><div className="ck" /><span>Configurar domicilio Petare</span><span /></li>
-          </ul>
+          <h3>De dónde llegan <span className="more">Próximamente</span></h3>
+          <div className="muted" style={{ padding: 8, fontSize: 12 }}>Estamos trabajando en el desglose de tráfico por canal.</div>
         </div>
       </div>
 

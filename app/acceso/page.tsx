@@ -18,5 +18,5 @@ interface Props {
 export default async function AccesoPage({ searchParams }: Props) {
   const { screen } = await searchParams
   const initial: Screen = screen && VALID.includes(screen as Screen) ? (screen as Screen) : "welcome"
-  return <AuthDesktopFlow initialScreen={initial} />
+  return <AuthDesktopFlow initialScreen={initial} showScreenJumper />
 }

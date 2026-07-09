@@ -93,7 +93,7 @@ function BackBtn({ onClick }: { onClick: () => void }) {
   )
 }
 
-export function AuthMobileFlow() {
+export function AuthMobileFlow({ showScreenJumper = false }: { showScreenJumper?: boolean } = {}) {
   const [screen, setScreen] = useState<Screen>("welcome")
   const [onbStep, setOnbStep] = useState(0)
   const [navOpen, setNavOpen] = useState(false)
@@ -160,13 +160,17 @@ export function AuthMobileFlow() {
   return (
     <div className="am-root" style={{ position: "fixed", inset: 0, zIndex: 40 }}>
       <style dangerouslySetInnerHTML={{ __html: styles }} />
-      <button type="button" className="am-navfab" onClick={() => setNavOpen((o) => !o)}><span>📱 Saltar a…</span></button>
-      {navOpen && (
-        <div className="am-navmenu">
-          {navItems.map((it) => (
-            <button key={it.num} type="button" onClick={it.onClick}><span className="am-navnum">{it.num}</span> {it.label}</button>
-          ))}
-        </div>
+      {showScreenJumper && (
+        <>
+          <button type="button" className="am-navfab" onClick={() => setNavOpen((o) => !o)}><span>📱 Saltar a…</span></button>
+          {navOpen && (
+            <div className="am-navmenu">
+              {navItems.map((it) => (
+                <button key={it.num} type="button" onClick={it.onClick}><span className="am-navnum">{it.num}</span> {it.label}</button>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       <div className="am-stage">

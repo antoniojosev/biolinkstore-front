@@ -52,18 +52,9 @@ function statusFor(stock: number | null): "ok" | "low" | "zero" {
   return "ok"
 }
 
-const MOCK: DisplayProduct[] = [
-  { id: "m1", name: "Vestido Camelia", sku: "VES-CAM-01", price: "$89", stock: 12, status: "ok", cat: "Vestidos", badge: null, img: FALLBACK_GRADS[0], isImage: false },
-  { id: "m2", name: "Aretes Luna", sku: "ACC-LUN-02", price: "$42", stock: 23, status: "ok", cat: "Accesorios", badge: null, img: FALLBACK_GRADS[1], isImage: false },
-  { id: "m3", name: "Bolso de Cuero", sku: "BOL-CUE-03", price: "$56", stock: 4, status: "low", cat: "Bolsos", badge: "low", img: FALLBACK_GRADS[2], isImage: false },
-  { id: "m4", name: "Blusa Olivia", sku: "BLU-OLI-04", price: "$38", stock: 18, status: "ok", cat: "Blusas", badge: null, img: FALLBACK_GRADS[3], isImage: false },
-  { id: "m5", name: "Collar Sol", sku: "ACC-SOL-05", price: "$32", stock: 27, status: "ok", cat: "Accesorios", badge: null, img: FALLBACK_GRADS[4], isImage: false },
-  { id: "m6", name: "Falda Plisada", sku: "FAL-PLI-06", price: "$64", stock: 0, status: "zero", cat: "Faldas", badge: "draft", img: FALLBACK_GRADS[5], isImage: false },
-]
-
 export function CatalogBoard() {
   const { http, store } = useAuth()
-  const [products, setProducts] = useState<ProductResponse[] | null>(null)
+  const [products, setProducts] = useState<ProductResponse[]>([])
   const [categories, setCategories] = useState<CategoryResponse[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -95,7 +86,7 @@ export function CatalogBoard() {
 
   const openCreate = () => { setEditingProduct(null); setSheetOpen(true) }
   const openEdit = (id: string) => {
-    const real = products?.find((p) => p.id === id) ?? null
+    const real = products.find((p) => p.id === id) ?? null
     setEditingProduct(real)
     setSheetOpen(true)
   }
@@ -128,7 +119,6 @@ export function CatalogBoard() {
   }, [categories])
 
   const display: DisplayProduct[] = useMemo(() => {
-    if (!products) return MOCK
     return products.map((p) => {
       const img = p.images[0]
       const catName = (p.categoryIds[0] && catNameById.get(p.categoryIds[0])) || "Sin categoría"
@@ -156,8 +146,8 @@ export function CatalogBoard() {
   }, [display, query])
 
   const total = display.length
-  const published = products ? products.filter((p) => p.isVisible).length : Math.floor(total * 0.7)
-  const draft = products ? products.filter((p) => !p.isVisible).length : total - published
+  const published = products.filter((p) => p.isVisible).length
+  const draft = products.filter((p) => !p.isVisible).length
   const noStock = display.filter((p) => p.status === "zero").length
 
   return (
@@ -196,7 +186,7 @@ export function CatalogBoard() {
 
       {error && <div role="alert" style={{ padding: 14, background: "#FEF2F0", border: "1px solid #FECACA", borderRadius: 10, color: "#991B1B", marginBottom: 12 }}>{error}</div>}
 
-      {loading && !products && (
+      {loading && products.length === 0 && (
         <div className="muted" style={{ padding: 24, textAlign: "center" }}>Cargando productos…</div>
       )}
 

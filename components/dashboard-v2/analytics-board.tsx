@@ -6,7 +6,7 @@ import { OrdersHttpRepository, type StoreStats } from "@/lib/orders-api"
 import { ApiError } from "@/lib/http/types"
 import {
   SummaryWidget, TopProductsWidget, FunnelWidget, SourcesWidget,
-  type SummaryData, type TopProductsData, type FunnelData,
+  type SummaryData, type TopProductsData, type FunnelData, type SourcesData,
 } from "./analytics-widgets"
 
 interface AnalyticsBoardProps {
@@ -49,6 +49,8 @@ function toFunnel(s: StoreStats): FunnelData {
   }
 }
 
+const EMPTY_SOURCES: SourcesData = { sources: [] }
+
 export function AnalyticsBoard({ layout = "auto" }: AnalyticsBoardProps) {
   const { http, store } = useAuth()
   const [stats, setStats] = useState<StoreStats | null>(null)
@@ -81,16 +83,8 @@ export function AnalyticsBoard({ layout = "auto" }: AnalyticsBoardProps) {
     alignItems: "start",
   }
 
-  // No session / no store yet → show mock data so the panel still feels alive
   if (!storeId) {
-    return (
-      <div style={gridStyle}>
-        <SummaryWidget />
-        <TopProductsWidget />
-        <FunnelWidget />
-        <SourcesWidget />
-      </div>
-    )
+    return <div className="muted" style={{ padding: 24, textAlign: "center" }}>Selecciona una tienda para ver sus datos.</div>
   }
 
   if (loading) {
@@ -118,7 +112,7 @@ export function AnalyticsBoard({ layout = "auto" }: AnalyticsBoardProps) {
       <SummaryWidget data={toSummary(stats)} />
       <TopProductsWidget data={toTopProducts(stats)} />
       <FunnelWidget data={toFunnel(stats)} />
-      <SourcesWidget />
+      <SourcesWidget data={EMPTY_SOURCES} />
     </div>
   )
 }
