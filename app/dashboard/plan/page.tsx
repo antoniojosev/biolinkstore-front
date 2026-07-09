@@ -18,9 +18,9 @@ import { useExchangeRate, formatBs } from "@/lib/hooks/use-exchange-rate"
 
 
 const plansMeta: Record<string, { icon: typeof Zap; color: string; colorBg: string }> = {
-  free: { icon: Zap, color: "#6ee490", colorBg: "rgba(110, 228, 144, 0.1)" },
-  pro: { icon: Crown, color: "#33b380", colorBg: "rgba(51, 179, 128, 0.1)" },
-  business: { icon: Building2, color: "#327be2", colorBg: "rgba(50, 123, 226, 0.1)" },
+  free: { icon: Zap, color: "var(--ink-3)", colorBg: "rgba(148, 163, 184, 0.1)" },
+  pro: { icon: Crown, color: "var(--brand)", colorBg: "rgba(30, 58, 138, 0.1)" },
+  business: { icon: Building2, color: "var(--accent)", colorBg: "rgba(220, 74, 61, 0.1)" },
 }
 
 const plans = [
@@ -42,10 +42,10 @@ const plans = [
       "Soporte por email",
     ],
     limitations: [
-      "Marca de agua Bio Link Store",
+      "Marca de agua bylink",
     ],
-    color: "#6ee490",
-    colorBg: "rgba(110, 228, 144, 0.1)",
+    color: "var(--ink-3)",
+    colorBg: "rgba(148, 163, 184, 0.1)",
     cta: "Plan actual",
     ctaUpgrade: "Plan actual",
   },
@@ -68,8 +68,8 @@ const plans = [
       "Soporte prioritario",
     ],
     limitations: [],
-    color: "#33b380",
-    colorBg: "rgba(51, 179, 128, 0.1)",
+    color: "var(--brand)",
+    colorBg: "rgba(30, 58, 138, 0.1)",
     cta: "Mejorar a Pro",
     ctaUpgrade: "Mejorar a Pro",
     popular: true,
@@ -95,8 +95,8 @@ const plans = [
       "Account manager dedicado",
     ],
     limitations: [],
-    color: "#327be2",
-    colorBg: "rgba(50, 123, 226, 0.1)",
+    color: "var(--accent)",
+    colorBg: "rgba(220, 74, 61, 0.1)",
     cta: "Mejorar a Business",
     ctaUpgrade: "Mejorar a Business",
   },
@@ -132,13 +132,13 @@ function UpgradeModal({
       <DialogContent className="max-w-sm max-h-[90vh] overflow-y-auto scrollbar-hidden">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-[#33b380]/10 border border-[#33b380]/20 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-[#33b380]" />
+            <div className="w-8 h-8 rounded-lg bg-[var(--brand)]/10 border border-[var(--brand)]/20 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-[var(--brand)]" />
             </div>
             <DialogTitle>Mejorar a {planName}</DialogTitle>
           </div>
           <DialogDescription>
-            Realizá la transferencia y subí el comprobante para activar tu plan.
+            Realiza la transferencia y sube el comprobante para activar tu plan.
           </DialogDescription>
         </DialogHeader>
         <div className="px-6 pb-6">
@@ -172,8 +172,8 @@ function DomainPaymentModal({
       <DialogContent className="max-w-sm max-h-[90vh] overflow-y-auto scrollbar-hidden">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-[#327be2]/10 border border-[#327be2]/20 flex items-center justify-center">
-              <Globe className="w-4 h-4 text-[#327be2]" />
+            <div className="w-8 h-8 rounded-lg bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center">
+              <Globe className="w-4 h-4 text-[var(--accent)]" />
             </div>
             <DialogTitle>Dominio personalizado</DialogTitle>
           </div>
@@ -190,7 +190,7 @@ function DomainPaymentModal({
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
               placeholder="mitienda.com"
-              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#327be2]/50 focus:bg-white/8 transition-all"
+              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[var(--accent)]/50 focus:bg-white/8 transition-all"
             />
           </div>
 
@@ -307,7 +307,7 @@ export default function PlanPage() {
           }`}
         >
           Anual
-          <Badge className="bg-[#33b380]/20 text-[#6ee490] border-0 text-[10px] px-1.5">
+          <Badge className="bg-[var(--brand)]/20 text-[var(--ink-3)] border-0 text-[10px] px-1.5">
             -20%
           </Badge>
         </button>
@@ -329,14 +329,14 @@ export default function PlanPage() {
               key={plan.id}
               className={`relative rounded-xl border p-6 flex flex-col transition-all ${
                 plan.popular && !isCurrent
-                  ? "border-[#33b380]/40 bg-[#33b380]/5 shadow-lg shadow-[#33b380]/10"
+                  ? "border-[var(--brand)]/40 bg-[var(--brand)]/5 shadow-lg shadow-[var(--brand)]/10"
                   : isCurrent
                   ? `border-white/20 bg-white/[0.03]`
                   : "border-white/10 bg-white/[0.02] hover:border-white/20"
               }`}
             >
               {plan.popular && !isCurrent && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-gradient-to-r from-[#33b380] to-[#2a9669] text-white text-xs font-semibold rounded-full">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-gradient-to-r from-[var(--brand)] to-[var(--brand-3)] text-white text-xs font-semibold rounded-full">
                   Recomendado
                 </div>
               )}
@@ -394,7 +394,7 @@ export default function PlanPage() {
                   isCurrent
                     ? "bg-white/5 border border-white/10 text-white/50 cursor-default hover:bg-white/5"
                     : plan.popular
-                    ? "bg-gradient-to-r from-[#33b380] to-[#2a9669] hover:from-[#2a9669] hover:to-[#228055] text-white border-0"
+                    ? "bg-gradient-to-r from-[var(--brand)] to-[var(--brand-3)] hover:from-[var(--brand-3)] hover:to-[var(--brand-3)] text-white border-0"
                     : "bg-white/10 hover:bg-white/15 text-white border-0"
                 }`}
                 disabled={isCurrent}
@@ -409,19 +409,19 @@ export default function PlanPage() {
 
       {/* Custom plan CTA */}
       <div className="relative overflow-hidden rounded-xl">
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#6ee490] via-[#33b380] to-[#327be2] p-px">
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[var(--ink-3)] via-[var(--brand)] to-[var(--accent)] p-px">
           <div className="w-full h-full rounded-xl bg-[#0d1218]" />
         </div>
-        <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-[250px] h-[80px] bg-[#33b380]/15 blur-3xl" />
+        <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-[250px] h-[80px] bg-[var(--brand)]/15 blur-3xl" />
         <div className="relative p-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
           <div className="flex items-center gap-4 flex-1">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#33b380]/20 to-[#327be2]/20 flex items-center justify-center shrink-0">
-              <Settings2 className="w-5 h-5 text-[#6ee490]" />
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--brand)]/20 to-[var(--accent)]/20 flex items-center justify-center shrink-0">
+              <Settings2 className="w-5 h-5 text-[var(--ink-3)]" />
             </div>
             <div>
               <h3 className="font-bold text-white">
                 ¿Necesitas algo{" "}
-                <span className="bg-gradient-to-r from-[#6ee490] via-[#33b380] to-[#327be2] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[var(--ink-3)] via-[var(--brand)] to-[var(--accent)] bg-clip-text text-transparent">
                   a tu medida
                 </span>
                 ?
@@ -432,7 +432,7 @@ export default function PlanPage() {
             </div>
           </div>
           <Button
-            className="gap-2 bg-gradient-to-r from-[#33b380] to-[#327be2] hover:from-[#2a9669] hover:to-[#2a6bc7] text-white border-0 shadow-lg shadow-[#33b380]/15 shrink-0"
+            className="gap-2 bg-gradient-to-r from-[var(--brand)] to-[var(--accent)] hover:from-[var(--brand-3)] hover:to-[var(--accent-2)] text-white border-0 shadow-lg shadow-[var(--brand)]/15 shrink-0"
             onClick={() => setCustomPlanModal(true)}
           >
             <MessageCircle className="h-4 w-4" />
@@ -445,24 +445,24 @@ export default function PlanPage() {
       <div className="space-y-4">
         <h3 className="font-semibold text-white text-lg">Add-ons</h3>
         <div
-          className="rounded-xl border border-[#327be2]/20 bg-[#327be2]/5 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+          className="rounded-xl border border-[var(--accent)]/20 bg-[var(--accent)]/5 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-[#327be2]/15 flex items-center justify-center">
-              <Globe className="w-6 h-6 text-[#327be2]" />
+            <div className="w-12 h-12 rounded-xl bg-[var(--accent)]/15 flex items-center justify-center">
+              <Globe className="w-6 h-6 text-[var(--accent)]" />
             </div>
             <div>
               <p className="text-base font-semibold text-white">Dominio personalizado</p>
-              <p className="text-sm text-white/50">Usa tu propio dominio en vez de biolinkstore.com/tu-tienda</p>
+              <p className="text-sm text-white/50">Usa tu propio dominio en vez de bylink.app/tu-tienda</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-lg font-bold text-[#327be2]">$2<span className="text-sm text-white/40 font-normal">/mes</span></p>
+              <p className="text-lg font-bold text-[var(--accent)]">$2<span className="text-sm text-white/40 font-normal">/mes</span></p>
               {rate && <p className="text-xs text-white/30">{formatBs(2, rate)}</p>}
             </div>
             <Button
-              className="bg-[#327be2] hover:bg-[#2a6acc] text-white border-0"
+              className="bg-[var(--accent)] hover:bg-[var(--accent-2)] text-white border-0"
               onClick={() => setDomainModal(true)}
             >
               Configurar
@@ -486,7 +486,7 @@ export default function PlanPage() {
               </div>
               <div className="text-right">
                 <p className="text-sm font-medium text-white">{item.amount}</p>
-                <Badge className="bg-[#33b380]/15 text-[#6ee490] border-0 text-[10px]">
+                <Badge className="bg-[var(--brand)]/15 text-[var(--ink-3)] border-0 text-[10px]">
                   {item.status}
                 </Badge>
               </div>
@@ -510,7 +510,7 @@ export default function PlanPage() {
             },
             {
               q: "Hay comisiones por venta?",
-              a: "No, Bio Link Store no cobra comisiones por venta. Solo pagas tu suscripcion mensual o anual.",
+              a: "No, bylink no cobra comisiones por venta. Solo pagas tu suscripcion mensual o anual.",
             },
             {
               q: "Puedo cambiar de plan en cualquier momento?",
@@ -599,8 +599,8 @@ function CustomPlanModal({
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#33b380]/15 to-[#327be2]/15 border border-[#33b380]/20 flex items-center justify-center">
-              <Settings2 className="w-4 h-4 text-[#6ee490]" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--brand)]/15 to-[var(--accent)]/15 border border-[var(--brand)]/20 flex items-center justify-center">
+              <Settings2 className="w-4 h-4 text-[var(--ink-3)]" />
             </div>
             <DialogTitle>Plan personalizado</DialogTitle>
           </div>
@@ -612,8 +612,8 @@ function CustomPlanModal({
         <div className="px-6 pb-6 space-y-5">
           {success ? (
             <div className="flex flex-col items-center gap-4 py-4 text-center">
-              <div className="w-14 h-14 rounded-full bg-[#33b380]/15 flex items-center justify-center">
-                <CheckCircle2 className="w-7 h-7 text-[#33b380]" />
+              <div className="w-14 h-14 rounded-full bg-[var(--brand)]/15 flex items-center justify-center">
+                <CheckCircle2 className="w-7 h-7 text-[var(--brand)]" />
               </div>
               <div>
                 <p className="text-base font-semibold text-white">¡Solicitud recibida!</p>
@@ -623,7 +623,7 @@ function CustomPlanModal({
               </div>
               <button
                 onClick={onClose}
-                className="mt-1 px-6 py-2.5 rounded-xl bg-[#33b380] hover:bg-[#2a9a6d] text-white text-sm font-semibold transition-all"
+                className="mt-1 px-6 py-2.5 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-3)] text-white text-sm font-semibold transition-all"
               >
                 Entendido
               </button>
@@ -649,11 +649,11 @@ function CustomPlanModal({
                   className={cn(
                     "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
                     method === 'email'
-                      ? "border-[#327be2] bg-[#327be2]/8 text-white"
+                      ? "border-[var(--accent)] bg-[var(--accent)]/8 text-white"
                       : "border-white/10 bg-white/3 text-white/50 hover:border-white/20"
                   )}
                 >
-                  <Mail className={cn("w-5 h-5", method === 'email' ? "text-[#327be2]" : "")} />
+                  <Mail className={cn("w-5 h-5", method === 'email' ? "text-[var(--accent)]" : "")} />
                   <span className="text-[11px] font-medium">Email</span>
                 </button>
               </div>
@@ -678,7 +678,7 @@ function CustomPlanModal({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="tu@email.com"
-                    className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#327be2]/50 focus:bg-white/8 transition-all"
+                    className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[var(--accent)]/50 focus:bg-white/8 transition-all"
                   />
                 </div>
               )}
@@ -693,7 +693,7 @@ function CustomPlanModal({
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Ej: Necesito integraciones con MercadoLibre, reportes personalizados..."
                   rows={3}
-                  className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#33b380]/50 focus:bg-white/8 transition-all resize-none"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[var(--brand)]/50 focus:bg-white/8 transition-all resize-none"
                 />
               </div>
 
@@ -710,7 +710,7 @@ function CustomPlanModal({
                 <button
                   onClick={handleSend}
                   disabled={submitting || (method === 'whatsapp' ? !whatsapp.trim() : !email.trim())}
-                  className="flex-[2] flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#33b380] to-[#327be2] hover:from-[#2a9669] hover:to-[#2a6bc7] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex-[2] flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[var(--brand)] to-[var(--accent)] hover:from-[var(--brand-3)] hover:to-[var(--accent-2)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                   {submitting ? 'Enviando...' : 'Enviar solicitud'}

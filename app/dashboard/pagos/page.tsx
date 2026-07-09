@@ -53,11 +53,11 @@ const FREE_MAX = 1
 type Plan = 'FREE' | 'PRO' | 'BUSINESS'
 
 const TYPE_META: Record<PaymentMethodType, { label: string; icon: typeof CreditCard; color: string }> = {
-  PAGO_MOVIL: { label: 'PagoMovil', icon: Smartphone, color: '#6ee490' },
-  ZELLE: { label: 'Zelle', icon: Mail, color: '#327be2' },
+  PAGO_MOVIL: { label: 'PagoMovil', icon: Smartphone, color: 'var(--ink-3)' },
+  ZELLE: { label: 'Zelle', icon: Mail, color: 'var(--accent)' },
   BINANCE: { label: 'Binance', icon: Bitcoin, color: '#f0b90b' },
   TRANSFER: { label: 'Transferencia', icon: Landmark, color: '#89b5f0' },
-  CASH: { label: 'Efectivo', icon: Banknote, color: '#33b380' },
+  CASH: { label: 'Efectivo', icon: Banknote, color: 'var(--brand)' },
   OTHER: { label: 'Otro', icon: MoreHorizontal, color: '#8888aa' },
 }
 
@@ -121,7 +121,7 @@ export default function PagosPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <CreditCard className="w-6 h-6 text-[#33b380]" />
+          <CreditCard className="w-6 h-6 text-[var(--brand)]" />
           Metodos de pago
         </h1>
         <p className="text-white/60 mt-1">
@@ -130,10 +130,10 @@ export default function PagosPage() {
       </div>
 
       {!isPro && (
-        <div className="p-3 rounded-lg border border-[#33b380]/20 bg-[#33b380]/5 flex items-start gap-3">
-          <Crown className="w-4 h-4 text-[#6ee490] shrink-0 mt-0.5" />
+        <div className="p-3 rounded-lg border border-[var(--brand)]/20 bg-[var(--brand)]/5 flex items-start gap-3">
+          <Crown className="w-4 h-4 text-[var(--ink-3)] shrink-0 mt-0.5" />
           <div className="flex-1 text-sm text-white/80">
-            <span className="text-[#6ee490] font-semibold">Pro:</span> metodos de
+            <span className="text-[var(--ink-3)] font-semibold">Pro:</span> metodos de
             pago ilimitados. En FREE estas limitado a {FREE_MAX} metodo.
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function PagosPage() {
             }}
             disabled={atFreeLimit}
             size="sm"
-            className="bg-[#33b380] hover:bg-[#2a9669] text-white border-0"
+            className="bg-[var(--brand)] hover:bg-[var(--brand-3)] text-white border-0"
           >
             <Plus className="w-4 h-4 mr-1.5" />
             Nuevo
@@ -428,7 +428,7 @@ function MethodDialog({
                     className={cn(
                       'flex flex-col items-center gap-1 py-2.5 rounded-lg border transition-all',
                       active
-                        ? 'border-[#33b380] bg-[#33b380]/10 text-white'
+                        ? 'border-[var(--brand)] bg-[var(--brand)]/10 text-white'
                         : 'border-white/10 text-white/50 hover:border-white/20',
                       editing && 'opacity-60 cursor-not-allowed',
                     )}
@@ -474,7 +474,7 @@ function MethodDialog({
               rows={3}
               maxLength={1000}
               placeholder="Ej. Enviar comprobante al WhatsApp. Reserva de 15 min para confirmar pago."
-              className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#33b380]/50 resize-none"
+              className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[var(--brand)]/50 resize-none"
             />
           </div>
 
@@ -496,7 +496,7 @@ function MethodDialog({
             <button
               onClick={handleSave}
               disabled={saving || !label.trim() || !detailsValid}
-              className="flex-[2] flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#33b380] hover:bg-[#2a9669] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-[2] flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold text-white bg-[var(--brand)] hover:bg-[var(--brand-3)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -610,7 +610,7 @@ function TypeFields({
                   className={cn(
                     'py-2 rounded-lg text-sm font-medium border transition-all capitalize',
                     details.accountType === t
-                      ? 'border-[#33b380] bg-[#33b380]/10 text-white'
+                      ? 'border-[var(--brand)] bg-[var(--brand)]/10 text-white'
                       : 'border-white/10 text-white/50 hover:border-white/20',
                   )}
                 >
@@ -647,7 +647,7 @@ function TypeFields({
                 className={cn(
                   'py-2 rounded-lg text-sm font-medium border transition-all',
                   details.currency === c
-                    ? 'border-[#33b380] bg-[#33b380]/10 text-white'
+                    ? 'border-[var(--brand)] bg-[var(--brand)]/10 text-white'
                     : 'border-white/10 text-white/50 hover:border-white/20',
                 )}
               >
@@ -665,7 +665,7 @@ function TypeFields({
             onChange={(e) => set('data', e.target.value)}
             rows={2}
             placeholder="Describe los datos del metodo"
-            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#33b380]/50 resize-none"
+            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[var(--brand)]/50 resize-none"
           />
         </Field>
       )
@@ -686,7 +686,7 @@ function BankSelect({ value, onChange }: { value: string; onChange: (v: string) 
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-[#33b380]/50"
+      className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-[var(--brand)]/50"
     >
       <option value="" className="bg-[#0d1218]">
         Selecciona un banco

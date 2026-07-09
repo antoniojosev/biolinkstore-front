@@ -177,7 +177,7 @@ export function ProductFormSheet({ open, storeId, product, categories, onClose, 
             </label>
             {form.images.length === 0 ? (
               <div style={{ aspectRatio: "3/1", borderRadius: 12, background: "var(--bg-2)", border: "1.5px dashed var(--line-2)", display: "grid", placeItems: "center", color: "var(--ink-3)", fontSize: 13 }}>
-                Sin imágenes — agregá la primera abajo · primera letra: <strong style={{ marginLeft: 4, color: "var(--ink-2)" }}>{initial}</strong>
+                Sin imágenes — agrega la primera abajo · primera letra: <strong style={{ marginLeft: 4, color: "var(--ink-2)" }}>{initial}</strong>
               </div>
             ) : (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))", gap: 8 }}>
@@ -194,7 +194,7 @@ export function ProductFormSheet({ open, storeId, product, categories, onClose, 
               </div>
             )}
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <input className="input" value={form.newImageUrl} onChange={(e) => patch({ newImageUrl: e.target.value })} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImageUrl() } }} placeholder="Pegá una URL y Enter…" />
+              <input className="input" value={form.newImageUrl} onChange={(e) => patch({ newImageUrl: e.target.value })} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImageUrl() } }} placeholder="Pega una URL y Enter…" />
               <button type="button" className="btn btn-secondary btn-sm" onClick={addImageUrl} disabled={!form.newImageUrl.trim()}>+ URL</button>
             </div>
             <div style={{ marginTop: 8 }}>

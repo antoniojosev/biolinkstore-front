@@ -170,7 +170,7 @@ export function StoreSettingsBoard() {
               <div style={{ width: 56, height: 56, borderRadius: 14, background: form.logo ? `#fff url(${form.logo}) center/cover no-repeat` : `linear-gradient(135deg, ${form.primaryColor}, ${form.primaryColor}AA)`, border: "1px solid var(--line)", flexShrink: 0, display: "grid", placeItems: "center", color: "#fff", fontWeight: 800, fontSize: 22 }}>
                 {form.logo ? "" : (form.name[0]?.toUpperCase() || "B")}
               </div>
-              <input className="input" value={form.logo} onChange={(e) => patch({ logo: e.target.value })} placeholder="https://… o subí un archivo →" disabled={noSession} />
+              <input className="input" value={form.logo} onChange={(e) => patch({ logo: e.target.value })} placeholder="https://… o sube un archivo →" disabled={noSession} />
             </div>
             <div style={{ marginTop: 8 }}>
               <UploadButton storeId={store?.id} onUploaded={(urls) => patch({ logo: urls[0] })} disabled={noSession} label="Subir logo" />

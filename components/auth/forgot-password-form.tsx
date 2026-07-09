@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, AlertCircle, Check, ArrowLeft } from "lucide-react";
-import { LogoIcon } from "@/components/brand/logo";
+import { BrandMark } from "@/components/landing-v2/brand-mark";
 
 export function ForgotPasswordForm() {
   const router = useRouter();
@@ -50,11 +50,11 @@ export function ForgotPasswordForm() {
       <div className="w-full max-w-md">
         <div className="glass-panel rounded-2xl border border-white/10 p-8 shadow-2xl text-center">
           <div className="flex flex-col items-center gap-3 mb-6">
-            <LogoIcon size={72} />
+            <BrandMark size={56} />
           </div>
 
-          <div className="w-16 h-16 rounded-full bg-[#33b380]/20 flex items-center justify-center mx-auto mb-4">
-            <Check className="w-8 h-8 text-[#33b380]" />
+          <div className="w-16 h-16 rounded-full bg-[var(--brand)]/20 flex items-center justify-center mx-auto mb-4">
+            <Check className="w-8 h-8 text-[var(--brand)]" />
           </div>
 
           <h1 className="text-2xl font-bold text-white mb-2">
@@ -69,7 +69,7 @@ export function ForgotPasswordForm() {
             No recibiste el email? Revisa tu carpeta de spam o{" "}
             <button
               onClick={() => setIsSubmitted(false)}
-              className="text-[#33b380] hover:underline"
+              className="text-[var(--brand)] hover:underline"
             >
               intenta de nuevo
             </button>
@@ -94,7 +94,7 @@ export function ForgotPasswordForm() {
       <div className="glass-panel rounded-2xl border border-white/10 p-8 shadow-2xl">
         {/* Logo */}
         <div className="flex flex-col items-center gap-3 mb-8">
-          <LogoIcon size={72} />
+          <BrandMark size={56} />
           <div className="text-center">
             <h1 className="text-2xl font-bold text-white">
               Recuperar contrasena
@@ -127,14 +127,14 @@ export function ForgotPasswordForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#33b380] focus:ring-[#33b380]/20"
+              className="h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[var(--brand)] focus:ring-[var(--brand)]/20"
             />
           </div>
 
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-11 bg-[#33b380] hover:bg-[#2a9a6d] text-white font-semibold transition-all"
+            className="w-full h-11 bg-[var(--brand)] hover:bg-[var(--brand-3)] text-white font-semibold transition-all"
           >
             {isLoading ? (
               <>
@@ -152,7 +152,7 @@ export function ForgotPasswordForm() {
           Recordaste tu contrasena?{" "}
           <Link
             href="/login"
-            className="text-[#33b380] hover:text-[#6ee490] font-medium transition-colors"
+            className="text-[var(--brand)] hover:text-[var(--brand-2)] font-medium transition-colors"
           >
             Iniciar sesion
           </Link>

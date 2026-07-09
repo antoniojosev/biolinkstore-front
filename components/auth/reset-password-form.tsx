@@ -14,7 +14,7 @@ import {
   EyeOff,
   ArrowLeft,
 } from "lucide-react";
-import { LogoIcon } from "@/components/brand/logo";
+import { BrandMark } from "@/components/landing-v2/brand-mark";
 
 export function ResetPasswordForm() {
   const router = useRouter();
@@ -81,7 +81,7 @@ export function ResetPasswordForm() {
       <div className="w-full max-w-md">
         <div className="glass-panel rounded-2xl border border-white/10 p-8 shadow-2xl text-center">
           <div className="flex flex-col items-center gap-3 mb-6">
-            <LogoIcon size={72} />
+            <BrandMark size={56} />
           </div>
 
           <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
@@ -96,7 +96,7 @@ export function ResetPasswordForm() {
           </p>
 
           <Link href="/olvide-password">
-            <Button className="bg-[#33b380] hover:bg-[#2a9a6d]">
+            <Button className="bg-[var(--brand)] hover:bg-[var(--brand-3)]">
               Solicitar nuevo enlace
             </Button>
           </Link>
@@ -110,11 +110,11 @@ export function ResetPasswordForm() {
       <div className="w-full max-w-md">
         <div className="glass-panel rounded-2xl border border-white/10 p-8 shadow-2xl text-center">
           <div className="flex flex-col items-center gap-3 mb-6">
-            <LogoIcon size={72} />
+            <BrandMark size={56} />
           </div>
 
-          <div className="w-16 h-16 rounded-full bg-[#33b380]/20 flex items-center justify-center mx-auto mb-4">
-            <Check className="w-8 h-8 text-[#33b380]" />
+          <div className="w-16 h-16 rounded-full bg-[var(--brand)]/20 flex items-center justify-center mx-auto mb-4">
+            <Check className="w-8 h-8 text-[var(--brand)]" />
           </div>
 
           <h1 className="text-2xl font-bold text-white mb-2">
@@ -125,7 +125,7 @@ export function ResetPasswordForm() {
           </p>
 
           <Link href="/login">
-            <Button className="w-full bg-[#33b380] hover:bg-[#2a9a6d]">
+            <Button className="w-full bg-[var(--brand)] hover:bg-[var(--brand-3)]">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Iniciar sesion
             </Button>
@@ -140,7 +140,7 @@ export function ResetPasswordForm() {
       <div className="glass-panel rounded-2xl border border-white/10 p-8 shadow-2xl">
         {/* Logo */}
         <div className="flex flex-col items-center gap-3 mb-8">
-          <LogoIcon size={72} />
+          <BrandMark size={56} />
           <div className="text-center">
             <h1 className="text-2xl font-bold text-white">Nueva contrasena</h1>
             <p className="text-sm text-white/60 mt-1">
@@ -171,7 +171,7 @@ export function ResetPasswordForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#33b380] focus:ring-[#33b380]/20 pr-10"
+                className="h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[var(--brand)] focus:ring-[var(--brand)]/20 pr-10"
               />
               <button
                 type="button"
@@ -198,14 +198,14 @@ export function ResetPasswordForm() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#33b380] focus:ring-[#33b380]/20"
+              className="h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[var(--brand)] focus:ring-[var(--brand)]/20"
             />
           </div>
 
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-11 bg-[#33b380] hover:bg-[#2a9a6d] text-white font-semibold transition-all"
+            className="w-full h-11 bg-[var(--brand)] hover:bg-[var(--brand-3)] text-white font-semibold transition-all"
           >
             {isLoading ? (
               <>
@@ -222,7 +222,7 @@ export function ResetPasswordForm() {
         <p className="text-center text-sm text-white/50 mt-6">
           <Link
             href="/login"
-            className="text-[#33b380] hover:text-[#6ee490] font-medium transition-colors"
+            className="text-[var(--brand)] hover:text-[var(--brand-2)] font-medium transition-colors"
           >
             Cancelar
           </Link>

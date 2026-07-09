@@ -3,8 +3,8 @@ import type { Metadata } from "next"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 
 export const metadata: Metadata = {
-  title: "Dashboard - Bio Link Store",
-  description: "Gestiona tu tienda, productos y cotizaciones desde Bio Link Store.",
+  title: "Dashboard — bylink",
+  description: "Gestiona tu tienda, productos y cotizaciones desde bylink.",
 }
 
 export default function DashboardLayout({

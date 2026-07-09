@@ -528,7 +528,7 @@
    Preserved utilities (existing pages — Fase 2 reintegra)
    ============================================================ */
 .gradient-background {
-  background: linear-gradient(131deg, #33b380, #327be2, #6ee490, #595f73);
+  background: linear-gradient(131deg, #1E3A8A, #3B5BDB, #DC4A3D, #0A0F1F);
   background-size: 240% 240%;
   animation: gradient-animation 40s ease infinite;
 }
@@ -548,7 +548,7 @@
 .cta-slide { animation: ctaSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .cta-grad-bar {
   height: 2px;
-  background: linear-gradient(90deg, #33b380, #327be2, #6ee490, #C9A86C, #33b380);
+  background: linear-gradient(90deg, #1E3A8A, #3B5BDB, #DC4A3D, #F97066, #1E3A8A);
   background-size: 300% 100%;
   animation: ctaGradientShift 3s linear infinite;
 }

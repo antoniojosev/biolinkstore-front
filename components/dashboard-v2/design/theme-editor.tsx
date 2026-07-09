@@ -146,7 +146,7 @@ export function ThemeEditor({ onClose }: Props) {
           <div style={S.modal} onClick={(e) => e.stopPropagation()}>
             <h3 style={S.modalTitle}>Publicar cambios</h3>
             <p style={S.modalBody}>
-              Tus visitantes verán el nuevo diseño inmediatamente. Si algo sale mal, podés <strong>Revertir</strong>{" "}
+              Tus visitantes verán el nuevo diseño inmediatamente. Si algo sale mal, puedes <strong>Revertir</strong>{" "}
               al diseño anterior desde esta misma barra.
             </p>
             <div style={S.modalActions}>

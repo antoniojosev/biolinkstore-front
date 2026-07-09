@@ -174,8 +174,8 @@ export function InstagramImportCard() {
             Importar desde <em style={S.titleEm}>Instagram</em>
           </h3>
           <p style={S.subtitle}>
-            Pegá el link de tu perfil de Instagram. Nuestro sistema descarga tus posts, propone
-            productos candidatos con título, descripción e imagen, y vos decidís cuáles importar.
+            Pega el link de tu perfil de Instagram. Nuestro sistema descarga tus posts, propone
+            productos candidatos con título, descripción e imagen, y tú decides cuáles importar.
           </p>
         </div>
         <span style={S.aiBadge}>IA</span>
@@ -242,7 +242,7 @@ export function InstagramImportCard() {
       {view === "unavailable" && (
         <div style={S.warnBox}>
           <strong>En construcción.</strong> El escaneo automático de Instagram todavía no está
-          disponible en este entorno. Mientras tanto, podés crear los productos manualmente desde
+          disponible en este entorno. Mientras tanto, puedes crear los productos manualmente desde
           la pestaña <strong>Productos</strong>.
           <div style={{ marginTop: 12 }}>
             <button type="button" onClick={reset} style={S.btnGhost}>

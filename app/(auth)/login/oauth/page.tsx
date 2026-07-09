@@ -22,7 +22,7 @@ function OAuthCallbackContent() {
 
   return (
     <div className="flex min-h-screen flex-1 flex-col justify-center items-center">
-      <Loader2 className="w-8 h-8 animate-spin text-[#33b380]" />
+      <Loader2 className="w-8 h-8 animate-spin text-[var(--brand)]" />
       <p className="mt-4 text-sm text-white/50">Autenticando...</p>
     </div>
   )
@@ -31,7 +31,7 @@ function OAuthCallbackContent() {
 function Loading() {
   return (
     <div className="flex min-h-screen flex-1 flex-col justify-center items-center">
-      <Loader2 className="w-8 h-8 animate-spin text-[#33b380]" />
+      <Loader2 className="w-8 h-8 animate-spin text-[var(--brand)]" />
       <p className="mt-4 text-sm text-white/50">Cargando...</p>
     </div>
   )

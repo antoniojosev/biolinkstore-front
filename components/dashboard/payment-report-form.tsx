@@ -30,7 +30,7 @@ function CopyField({ label, display, copyValue }: { label: string; display: stri
         className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-all"
         title="Copiar"
       >
-        {copied ? <Check className="w-3.5 h-3.5 text-[#33b380]" /> : <Copy className="w-3.5 h-3.5" />}
+        {copied ? <Check className="w-3.5 h-3.5 text-[var(--brand)]" /> : <Copy className="w-3.5 h-3.5" />}
       </button>
     </div>
   )
@@ -151,8 +151,8 @@ export function PaymentReportForm({
   if (success) {
     return (
       <div className="flex flex-col items-center gap-4 py-6 text-center">
-        <div className="w-14 h-14 rounded-full bg-[#33b380]/15 flex items-center justify-center">
-          <CheckCircle2 className="w-7 h-7 text-[#33b380]" />
+        <div className="w-14 h-14 rounded-full bg-[var(--brand)]/15 flex items-center justify-center">
+          <CheckCircle2 className="w-7 h-7 text-[var(--brand)]" />
         </div>
         <div>
           <p className="text-base font-semibold text-white">¡Reporte recibido!</p>
@@ -162,7 +162,7 @@ export function PaymentReportForm({
         </div>
         <button
           onClick={onSuccess}
-          className="mt-2 px-6 py-2.5 rounded-xl bg-[#33b380] hover:bg-[#2a9a6d] text-white text-sm font-semibold transition-all"
+          className="mt-2 px-6 py-2.5 rounded-xl bg-[var(--brand)] hover:bg-[var(--brand-3)] text-white text-sm font-semibold transition-all"
         >
           Entendido
         </button>

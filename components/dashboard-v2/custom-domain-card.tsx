@@ -60,7 +60,7 @@ export function CustomDomainCard() {
       const data = await repo.register(storeId, domainInput.trim().toLowerCase())
       setDomain(data)
       setDomainInput("")
-      toast.success("Dominio registrado. Ahora configurá el TXT record.")
+      toast.success("Dominio registrado. Ahora configura el TXT record.")
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "No se pudo registrar el dominio")
     } finally {

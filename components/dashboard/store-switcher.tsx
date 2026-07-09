@@ -115,7 +115,7 @@ export function StoreSwitcher() {
           >
             <Avatar className="w-7 h-7 shrink-0">
               {store.logo && <AvatarImage src={store.logo} alt={store.name} />}
-              <AvatarFallback className="bg-[#33b380]/20 text-[#6ee490] text-[10px] font-semibold">
+              <AvatarFallback className="bg-[var(--brand)]/20 text-[var(--ink-3)] text-[10px] font-semibold">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -147,7 +147,7 @@ export function StoreSwitcher() {
               >
                 <Avatar className="w-6 h-6 mr-2 shrink-0">
                   {s.logo && <AvatarImage src={s.logo} alt={s.name} />}
-                  <AvatarFallback className="bg-[#33b380]/20 text-[#6ee490] text-[10px] font-semibold">
+                  <AvatarFallback className="bg-[var(--brand)]/20 text-[var(--ink-3)] text-[10px] font-semibold">
                     {s.name.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -158,7 +158,7 @@ export function StoreSwitcher() {
                   </p>
                 </div>
                 {s.id === activeId && (
-                  <Check className="w-3.5 h-3.5 ml-2 text-[#6ee490] shrink-0" />
+                  <Check className="w-3.5 h-3.5 ml-2 text-[var(--ink-3)] shrink-0" />
                 )}
               </DropdownMenuItem>
             ))}
@@ -168,7 +168,7 @@ export function StoreSwitcher() {
               setCreateOpen(true)
               setOpen(false)
             }}
-            className="cursor-pointer focus:bg-white/5 focus:text-white text-[#6ee490]"
+            className="cursor-pointer focus:bg-white/5 focus:text-white text-[var(--ink-3)]"
           >
             <Plus className="w-3.5 h-3.5 mr-2" />
             Crear tienda nueva
@@ -206,7 +206,7 @@ export function StoreSwitcher() {
             <Button
               onClick={handleCreate}
               disabled={creating || !newName.trim()}
-              className="bg-[#33b380] hover:bg-[#2a9a6d] text-white"
+              className="bg-[var(--brand)] hover:bg-[var(--brand-3)] text-white"
             >
               {creating ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : null}
               Crear

@@ -22,8 +22,8 @@ function LargeRing({ percent }: { percent: number }) {
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
         <defs>
           <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#33b380" />
-            <stop offset="100%" stopColor="#327be2" />
+            <stop offset="0%" stopColor="#1E3A8A" />
+            <stop offset="100%" stopColor="#DC4A3D" />
           </linearGradient>
         </defs>
         <circle
@@ -132,7 +132,7 @@ export function ProfileCompletionModal({ store }: Props) {
                   <span
                     className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
                       step.done
-                        ? 'bg-[#33b380] text-white'
+                        ? 'bg-[#1E3A8A] text-white'
                         : 'border border-white/15 bg-white/5'
                     }`}
                   >
@@ -157,7 +157,7 @@ export function ProfileCompletionModal({ store }: Props) {
               <Link
                 href="/dashboard/configuracion"
                 onClick={dismiss}
-                className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-gradient-to-r from-[#33b380] to-[#327be2] text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+                className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-gradient-to-r from-[#1E3A8A] to-[#DC4A3D] text-white text-sm font-semibold hover:opacity-90 transition-opacity"
               >
                 Completar ahora
                 <ArrowRight className="w-4 h-4" />

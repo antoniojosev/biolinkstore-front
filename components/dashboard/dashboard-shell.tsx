@@ -24,7 +24,7 @@ import {
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
-import { LogoFull } from "@/components/brand/logo"
+import { BrandMark } from "@/components/landing-v2/brand-mark"
 import { OrdersHttpRepository } from "@/lib/orders-api"
 import { ProfileCompletionModal } from "@/components/dashboard/profile-completion-modal"
 import { DemoBanner } from "@/components/demo-banner"
@@ -98,8 +98,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       >
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-5 border-b border-white/5">
-          <Link href="/dashboard">
-            <LogoFull iconSize={36} />
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <BrandMark size={30} />
+            <span className="font-extrabold text-lg leading-none text-white">bylink<span className="text-[#DC4A3D]">.</span></span>
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -127,11 +128,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group ${
                   isActive
-                    ? "bg-[#33b380]/15 text-[#6ee490]"
+                    ? "bg-[var(--brand)]/15 text-[var(--ink-3)]"
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
-                <item.icon className={`w-[18px] h-[18px] ${isActive ? "text-[#33b380]" : ""}`} />
+                <item.icon className={`w-[18px] h-[18px] ${isActive ? "text-[var(--brand)]" : ""}`} />
                 {item.label}
                 {showBadge && (
                   <span className="ml-auto flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold bg-red-500 text-white rounded-full">
@@ -147,10 +148,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         {/* Upgrade banner */}
         <div className="px-3 py-2">
           <Link href="/dashboard/plan" className="block">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-[#33b380]/20 to-[#327be2]/20 border border-[#33b380]/20 hover:border-[#33b380]/40 transition-all group">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-[var(--brand)]/20 to-[var(--accent)]/20 border border-[var(--brand)]/20 hover:border-[var(--brand)]/40 transition-all group">
               <div className="flex items-center gap-2 mb-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#6ee490]" />
-                <span className="text-xs font-semibold text-[#6ee490]">Mejorar plan</span>
+                <Sparkles className="w-3.5 h-3.5 text-[var(--ink-3)]" />
+                <span className="text-xs font-semibold text-[var(--ink-3)]">Mejorar plan</span>
               </div>
               <p className="text-[11px] text-white/50 leading-relaxed">
                 Desbloquea productos ilimitados y mas funciones.
@@ -183,7 +184,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3 px-3 py-2">
             <Avatar className="w-8 h-8">
               {user?.avatar && <AvatarImage src={user.avatar} alt={user.name ?? ''} />}
-              <AvatarFallback className="bg-[#327be2]/20 text-[#327be2] text-xs font-semibold">
+              <AvatarFallback className="bg-[var(--accent)]/20 text-[var(--accent)] text-xs font-semibold">
                 {initials}
               </AvatarFallback>
             </Avatar>
