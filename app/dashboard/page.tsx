@@ -11,7 +11,7 @@ export default async function DashboardPage({ searchParams }: Props) {
   const { view } = await searchParams
   const initialView: View = (view && VALID.includes(view as View) ? view : "dashboard") as View
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 30, background: "var(--bg)", overflowY: "auto" }}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "var(--bg)", overflowY: "auto" }}>
       <PanelOfficial initialView={initialView} />
     </div>
   )
