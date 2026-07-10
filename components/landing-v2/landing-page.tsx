@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { BrandMark } from "./brand-mark"
+import { VenezuelaFlag } from "@/components/bylink/venezuela-flag"
 
 const SIGNUP = "/registro"
 const LOGIN = "/login"
@@ -100,7 +101,7 @@ export function LandingPage() {
         <div style={{ maxWidth: 1280, margin: "0 auto", position: "relative" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "6px 14px 6px 8px", borderRadius: 999, background: "#fff", border: "1px solid var(--line-2)", boxShadow: "0 4px 12px -4px rgba(10,31,77,0.08)", fontSize: 13 }}>
-              <span style={{ background: "var(--brand)", color: "#fff", padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700, letterSpacing: "0.02em" }}>🇻🇪 BETA</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "var(--brand)", color: "#fff", padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700, letterSpacing: "0.02em" }}><VenezuelaFlag size={13} /> BETA</span>
               <span style={{ color: "var(--ink-2)", fontWeight: 500 }}>La nueva forma de vender desde Instagram</span>
             </div>
           </div>
@@ -468,7 +469,7 @@ export function LandingPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <BrandMark size={26} withAccent={false} />
             <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: "-0.02em" }}>bylink<span style={{ color: "var(--brand)" }}>.</span></span>
-            <span style={{ color: "var(--ink-3)", fontSize: 13, marginLeft: 12 }}>© 2026 · Hecho en Venezuela 🇻🇪</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--ink-3)", fontSize: 13, marginLeft: 12 }}>© 2026 · Hecho en Venezuela <VenezuelaFlag size={14} /></span>
           </div>
           <div style={{ display: "flex", gap: 22, fontSize: 13, color: "var(--ink-2)", fontWeight: 500 }}>
             <a href="/home/terminos">Términos</a><a href="/home/terminos#privacidad">Privacidad</a><a href="/home/terminos#contacto">Contacto</a><a href="mailto:hola@bylink.app">hola@bylink.app</a>

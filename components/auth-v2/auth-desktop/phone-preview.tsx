@@ -52,30 +52,8 @@ export function PhonePreview({ mode, store, onbStep }: PhonePreviewProps) {
     )
   }
 
-  // Instagram search state
-  if (mode === "instagram") {
-    const handle = store.instagram || ""
-    return (
-      <div style={{ padding: "40px 16px 16px", height: "100%", display: "flex", flexDirection: "column", gap: 14 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 14, background: "var(--bg-2)", border: "2px dashed var(--line-2)", display: "grid", placeItems: "center", fontSize: 16, opacity: 0.5 }}>📸</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: handle ? "var(--ink)" : "var(--ink-3)" }}>{handle || "@tu-instagram"}</div>
-            <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>{handle ? "listo para escanear" : "esperando datos…"}</div>
-          </div>
-        </div>
-        <div style={{ background: "var(--bg-2)", border: "1px dashed var(--line-2)", borderRadius: 10, padding: 14, textAlign: "center" }}>
-          <div style={{ fontSize: 10, color: "var(--ink-3)", lineHeight: 1.5 }}>Cuando pongas tu @, escanearemos<br />tus posts y los volveremos productos</div>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, flex: 1 }}>
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="ad-shimmer" style={{ aspectRatio: "3/4", background: "var(--bg-2)", borderRadius: 10 }} />
-          ))}
-        </div>
-      </div>
-    )
-  }
-
+  const isInstagramStep = mode === "instagram"
+  const handle = store.instagram || ""
   const displayName = name || "Tu negocio"
   const displaySlug = slug || "tu-negocio"
   const letter = (displayName[0] || "T").toUpperCase()
@@ -93,26 +71,48 @@ export function PhonePreview({ mode, store, onbStep }: PhonePreviewProps) {
         {showPhotos && <div style={{ background: isDark ? "rgba(255,255,255,0.1)" : "var(--bg-2)", padding: "4px 8px", borderRadius: 999, fontSize: 9, fontWeight: 700, color: isDark ? "#fff" : "var(--ink)" }}>⌖ WhatsApp</div>}
       </div>
       {showPhotos && <div style={{ fontSize: 10, lineHeight: 1.4, color: bodyInk }}>{SCRAPED.bio.split("\n")[0]}</div>}
-      <div style={{ display: "flex", gap: 4 }}>
-        <div style={{ fontSize: 9, padding: "3px 8px", borderRadius: 999, background: accent, color: "#fff", fontWeight: 600 }}>Todo</div>
-        <div style={{ fontSize: 9, padding: "3px 8px", borderRadius: 999, background: isDark ? "rgba(255,255,255,0.1)" : "var(--bg-2)", color: isDark ? "#fff" : "var(--ink-2)" }}>{verticalLabel}</div>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, flex: 1 }}>
-        {products.map((p, i) =>
-          p ? (
-            <div key={i}>
-              <div style={{ aspectRatio: "3/4", background: p.photo, borderRadius: 8, position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", bottom: 4, right: 4, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)", color: "#fff", padding: "2px 6px", borderRadius: 999, fontSize: 8, fontWeight: 700 }}>{fmtPrice(p.price)}</div>
-              </div>
-              <div style={{ fontSize: 9, fontWeight: 700, marginTop: 4, lineHeight: 1.2 }}>{p.name}</div>
+      {isInstagramStep ? (
+        <>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, background: isDark ? "rgba(255,255,255,0.06)" : "var(--bg-2)", borderRadius: 10, padding: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 9, background: isDark ? "rgba(255,255,255,0.1)" : "#fff", border: `2px dashed ${isDark ? "rgba(255,255,255,0.25)" : "var(--line-2)"}`, display: "grid", placeItems: "center", fontSize: 12, flexShrink: 0 }}>📸</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: handle ? undefined : subInk }}>{handle || "@tu-instagram"}</div>
+              <div className="mono" style={{ fontSize: 8, color: subInk }}>{handle ? "listo para escanear" : "esperando datos…"}</div>
             </div>
-          ) : (
-            <div key={i}>
-              <div className="ad-shimmer" style={{ aspectRatio: "3/4", background: isDark ? "rgba(255,255,255,0.08)" : "var(--bg-2)", borderRadius: 8 }} />
-            </div>
-          )
-        )}
-      </div>
+          </div>
+          <div style={{ background: isDark ? "rgba(255,255,255,0.06)" : "var(--bg-2)", border: `1px dashed ${isDark ? "rgba(255,255,255,0.2)" : "var(--line-2)"}`, borderRadius: 10, padding: 12, textAlign: "center" }}>
+            <div style={{ fontSize: 9, color: subInk, lineHeight: 1.5 }}>Cuando pongas tu @, escanearemos<br />tus posts y los volveremos productos</div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, flex: 1 }}>
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="ad-shimmer" style={{ aspectRatio: "3/4", background: isDark ? "rgba(255,255,255,0.08)" : "var(--bg-2)", borderRadius: 8 }} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{ display: "flex", gap: 4 }}>
+            <div style={{ fontSize: 9, padding: "3px 8px", borderRadius: 999, background: accent, color: "#fff", fontWeight: 600 }}>Todo</div>
+            <div style={{ fontSize: 9, padding: "3px 8px", borderRadius: 999, background: isDark ? "rgba(255,255,255,0.1)" : "var(--bg-2)", color: isDark ? "#fff" : "var(--ink-2)" }}>{verticalLabel}</div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, flex: 1 }}>
+            {products.map((p, i) =>
+              p ? (
+                <div key={i}>
+                  <div style={{ aspectRatio: "3/4", background: p.photo, borderRadius: 8, position: "relative", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", bottom: 4, right: 4, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)", color: "#fff", padding: "2px 6px", borderRadius: 999, fontSize: 8, fontWeight: 700 }}>{fmtPrice(p.price)}</div>
+                  </div>
+                  <div style={{ fontSize: 9, fontWeight: 700, marginTop: 4, lineHeight: 1.2 }}>{p.name}</div>
+                </div>
+              ) : (
+                <div key={i}>
+                  <div className="ad-shimmer" style={{ aspectRatio: "3/4", background: isDark ? "rgba(255,255,255,0.08)" : "var(--bg-2)", borderRadius: 8 }} />
+                </div>
+              )
+            )}
+          </div>
+        </>
+      )}
       {showPhotos && (
         <div style={{ marginTop: "auto", paddingTop: 8, borderTop: `1px dashed ${isDark ? "rgba(255,255,255,0.15)" : "var(--line)"}`, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 9 }}>
           <div className="mono" style={{ color: subInk }}>precios actualizados</div>

@@ -148,13 +148,20 @@ export const AUTH_STYLES = `
 @keyframes adBurst { 0% { transform: translate(-50%, -50%) scale(0); opacity: 1; } 60% { opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 0; } }
 .ad-confetti { position: absolute; top: 50%; left: 50%; width: 12px; height: 16px; border-radius: 2px; pointer-events: none; animation: adBurst 1.6s cubic-bezier(.2,.7,.3,1) forwards; }
 .ad-shell { min-height: 100vh; display: grid; grid-template-columns: minmax(440px, 560px) 1fr; }
-.ad-left { display: flex; flex-direction: column; padding: 28px 56px; background: #fff; border-right: 1px solid var(--line); position: relative; }
+.ad-left { display: flex; flex-direction: column; padding: 24px 56px; background: #fff; border-right: 1px solid var(--line); position: relative; }
+/* Desktop: pin the shell to the viewport and let only the form column scroll
+   internally if content is taller than the screen — never the whole page
+   (the decorative right panel stays put either way). */
+@media (min-width: 901px) {
+  .ad-shell { height: 100vh; }
+  .ad-left { overflow-y: auto; }
+}
 .ad-right { background: linear-gradient(160deg, #F8FAFC, #E2E8F0 60%, #CBD5E1); display: flex; align-items: center; justify-content: center; padding: 56px; position: relative; overflow: hidden; }
 .ad-phone { width: 340px; aspect-ratio: 9/19; background: #1a1a1a; border-radius: 44px; padding: 10px; box-shadow: 0 50px 100px -25px rgba(15,23,42,0.4); position: relative; z-index: 5; }
 .ad-phone-screen { width: 100%; height: 100%; border-radius: 36px; background: #fff; overflow: hidden; position: relative; }
 .ad-phone-notch { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 96px; height: 24px; background: #000; border-radius: 12px; z-index: 10; }
 .ad-logo-text { font-weight: 800; font-size: 21px; letter-spacing: -0.025em; }
-.ad-center-card { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 420px; margin: 0 auto; width: 100%; padding: 40px 0; }
+.ad-center-card { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 420px; margin: 0 auto; width: 100%; padding: 20px 0; }
 .ad-glow { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 700px; height: 700px; background: radial-gradient(circle, rgba(30,58,138,0.08), transparent 60%); pointer-events: none; }
 .ad-navitem { display: flex; align-items: center; gap: 10px; padding: 10px 12px; width: 100%; text-align: left; border-radius: 8px; font-size: 13px; font-weight: 500; border: none; background: none; cursor: pointer; color: var(--ink); }
 .ad-navitem:hover { background: var(--bg-2); }

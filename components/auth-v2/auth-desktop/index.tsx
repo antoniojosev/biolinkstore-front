@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/auth-context"
 import { ApiError } from "@/lib/http/types"
 import { StoreHttpRepository } from "@/lib/stores-api/store.http-repository"
 import { BrandMark } from "@/components/landing-v2/brand-mark"
+import { VenezuelaFlag } from "@/components/bylink/venezuela-flag"
+import { Icon } from "@/components/bylink/icon"
 import { PhonePreview, type PreviewMode } from "./phone-preview"
 import { AiCatalog } from "./ai-catalog"
 import {
@@ -420,6 +422,32 @@ interface RegisterScreenProps {
   onExisting: (email: string) => void
 }
 
+/** Fills clockwise as the password approaches the minimum length; swaps to a check once met. */
+function ProgressRing({ progress, size = 18 }: { progress: number; size?: number }) {
+  const stroke = 2.5
+  const r = (size - stroke) / 2
+  const c = 2 * Math.PI * r
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke="var(--brand)"
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={c}
+        strokeDashoffset={c * (1 - progress)}
+        style={{ transition: "stroke-dashoffset .15s ease" }}
+      />
+    </svg>
+  )
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 function RegisterScreen({ onLogin, onRegistered, onExisting }: RegisterScreenProps) {
   const { loadSession } = useAuth()
   const [name, setName] = useState("")
@@ -430,10 +458,17 @@ function RegisterScreen({ onLogin, onRegistered, onExisting }: RegisterScreenPro
   const [accept, setAccept] = useState(true)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [touched, setTouched] = useState({ name: false, email: false, whatsapp: false })
+  const touch = (field: keyof typeof touched) => setTouched((t) => ({ ...t, [field]: true }))
 
+  const nameValid = name.trim().length >= 2
+  const emailValid = EMAIL_RE.test(email.trim())
+  const whatsappDigits = whatsapp.replace(/\D/g, "")
+  const whatsappFilled = whatsappDigits.length > 0
+  const whatsappValid = !whatsappFilled || (whatsappDigits.length === 10 && whatsappDigits.startsWith("4"))
   const passwordValid = password.length >= 8
   const passwordsMatch = password === confirm && confirm.length > 0
-  const canSubmit = name.trim().length > 0 && email.trim().length > 0 && passwordValid && passwordsMatch && accept
+  const canSubmit = nameValid && emailValid && whatsappValid && passwordValid && passwordsMatch && accept
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -473,11 +508,11 @@ function RegisterScreen({ onLogin, onRegistered, onExisting }: RegisterScreenPro
       <div className="ad-left">
         <Logo />
         <form className="ad-center-card" style={{ maxWidth: 440 }} onSubmit={handleSubmit}>
-          <div className="mono" style={{ fontSize: 11, color: "var(--brand)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>— crear cuenta</div>
-          <h1 style={{ fontSize: 40, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 700, margin: "0 0 8px" }}>Tu tienda en <span className="serif-it" style={{ color: "var(--brand)" }}>3 minutos</span>.</h1>
-          <p style={{ fontSize: 15, color: "var(--ink-2)", margin: "0 0 22px" }}>Empieza gratis, sin tarjeta de crédito.</p>
-          <button type="button" onClick={startGoogleOAuth} className="ad-btn ad-btn-ghost" style={{ width: "100%", marginBottom: 14 }}><GoogleIcon /> <span>Continuar con Google</span></button>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "14px 0" }}>
+          <div className="mono" style={{ fontSize: 11, color: "var(--brand)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>— crear cuenta</div>
+          <h1 style={{ fontSize: 32, lineHeight: 1.1, letterSpacing: "-0.03em", fontWeight: 700, margin: "0 0 6px" }}>Tu tienda en <span className="serif-it" style={{ color: "var(--brand)" }}>3 minutos</span>.</h1>
+          <p style={{ fontSize: 15, color: "var(--ink-2)", margin: "0 0 16px" }}>Empieza gratis, sin tarjeta de crédito.</p>
+          <button type="button" onClick={startGoogleOAuth} className="ad-btn ad-btn-ghost" style={{ width: "100%", marginBottom: 10 }}><GoogleIcon /> <span>Continuar con Google</span></button>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "10px 0" }}>
             <div style={{ flex: 1, height: 1, background: "var(--line)" }} />
             <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>o con email</span>
             <div style={{ flex: 1, height: 1, background: "var(--line)" }} />
@@ -488,32 +523,119 @@ function RegisterScreen({ onLogin, onRegistered, onExisting }: RegisterScreenPro
             </div>
           )}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div><label className="ad-label">Tu nombre</label><input className="ad-input" placeholder="María González" value={name} onChange={(e) => setName(e.target.value)} required autoComplete="name" /></div>
-            <div><label className="ad-label">Email</label><input className="ad-input" type="email" placeholder="maria@ejemplo.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" /></div>
-          </div>
-          <label className="ad-label" style={{ marginTop: 14 }}>WhatsApp <span style={{ color: "var(--ink-3)", fontWeight: 500 }}>(opcional)</span></label>
-          <div style={{ display: "flex", alignItems: "center", padding: "0 0 0 14px", border: "1.5px solid var(--line)", borderRadius: 12, background: "#fff" }}>
-            <span style={{ fontSize: 18 }}>🇻🇪</span>
-            <span className="mono" style={{ fontSize: 14, color: "var(--ink-3)", marginLeft: 8 }}>+58</span>
-            <input style={{ flex: 1, border: "none", padding: "14px 12px", fontSize: 15, background: "none", outline: "none" }} placeholder="412-1234567" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} autoComplete="tel" />
-          </div>
-          <p style={{ fontSize: 11, color: "var(--ink-3)", margin: "6px 0 0", paddingLeft: 4 }}>Es por aquí que tus clientes te van a contactar.</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 14 }}>
-            <div><label className="ad-label">Contraseña</label><input className="ad-input" type="password" placeholder="Mín. 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" /></div>
-            <div><label className="ad-label">Confirmar</label><input className="ad-input" type="password" placeholder="Repite la contraseña" value={confirm} onChange={(e) => setConfirm(e.target.value)} required autoComplete="new-password" /></div>
-          </div>
-          {password.length > 0 && (
-            <div style={{ display: "flex", gap: 14, marginTop: 8, fontSize: 11 }}>
-              <span style={{ color: passwordValid ? "var(--success)" : "var(--ink-3)" }}>{passwordValid ? "✓" : "·"} mínimo 8 caracteres</span>
-              {confirm.length > 0 && <span style={{ color: passwordsMatch ? "var(--success)" : "var(--accent)" }}>{passwordsMatch ? "✓ coinciden" : "✗ no coinciden"}</span>}
+            <div>
+              <label className="ad-label">Tu nombre</label>
+              <input
+                className="ad-input"
+                style={touched.name && !nameValid ? { borderColor: "var(--accent)" } : undefined}
+                placeholder="María González"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onBlur={() => touch("name")}
+                required
+                autoComplete="name"
+              />
+              {touched.name && !nameValid && (
+                <p style={{ fontSize: 11, margin: "6px 0 0", color: "var(--accent)" }}>Ingresá tu nombre</p>
+              )}
             </div>
+            <div>
+              <label className="ad-label">Email</label>
+              <div style={{ position: "relative" }}>
+                <input
+                  className="ad-input"
+                  style={touched.email && !emailValid ? { borderColor: "var(--accent)" } : undefined}
+                  type="email"
+                  placeholder="maria@ejemplo.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onBlur={() => touch("email")}
+                  required
+                  autoComplete="email"
+                />
+                {email.length > 0 && (emailValid || touched.email) && (
+                  <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", color: emailValid ? "var(--success)" : "var(--accent)", display: "flex" }}>
+                    <Icon name={emailValid ? "check" : "x"} size={16} />
+                  </span>
+                )}
+              </div>
+              {touched.email && !emailValid && (
+                <p style={{ fontSize: 11, margin: "6px 0 0", color: "var(--accent)" }}>Email inválido</p>
+              )}
+            </div>
+          </div>
+          <label className="ad-label" style={{ marginTop: 10 }}>WhatsApp <span style={{ color: "var(--ink-3)", fontWeight: 500 }}>(opcional)</span></label>
+          <div style={{ position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "stretch", border: `1.5px solid ${touched.whatsapp && !whatsappValid ? "var(--accent)" : "var(--line)"}`, borderRadius: 12, background: "#fff", overflow: "hidden" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 12px", borderRight: "1.5px solid var(--line)", background: "var(--bg-2)" }}>
+                <VenezuelaFlag size={18} />
+                <span className="mono" style={{ fontSize: 14, color: "var(--ink-2)", fontWeight: 700 }}>+58</span>
+              </div>
+              <input
+                style={{ flex: 1, minWidth: 0, border: "none", padding: "14px 12px", fontSize: 15, background: "none", outline: "none" }}
+                placeholder="412-1234567"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                onBlur={() => touch("whatsapp")}
+                autoComplete="tel"
+              />
+            </div>
+            {whatsappFilled && (whatsappValid || touched.whatsapp) && (
+              <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", color: whatsappValid ? "var(--success)" : "var(--accent)", display: "flex" }}>
+                <Icon name={whatsappValid ? "check" : "x"} size={16} />
+              </span>
+            )}
+          </div>
+          {touched.whatsapp && !whatsappValid ? (
+            <p style={{ fontSize: 11, margin: "6px 0 0", color: "var(--accent)" }}>Debe tener 10 dígitos y empezar en 4 (ej. 4121234567)</p>
+          ) : (
+            <p style={{ fontSize: 11, color: "var(--ink-3)", margin: "6px 0 0", paddingLeft: 4 }}>Es por aquí que tus clientes te van a contactar.</p>
           )}
-          <label style={{ display: "flex", alignItems: "flex-start", gap: 10, marginTop: 18, fontSize: 13, color: "var(--ink-2)", cursor: "pointer", lineHeight: 1.5 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 10 }}>
+            <div>
+              <label className="ad-label">Contraseña</label>
+              <div style={{ position: "relative" }}>
+                <input className="ad-input" type="password" placeholder="Mín. 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" />
+                {password.length > 0 && (
+                  <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", color: "var(--success)", display: "flex" }}>
+                    {passwordValid ? <Icon name="check" size={16} /> : <ProgressRing progress={Math.min(password.length / 8, 1)} />}
+                  </span>
+                )}
+              </div>
+              {password.length > 0 && !passwordValid && (
+                <p style={{ fontSize: 11, margin: "6px 0 0", color: "var(--ink-3)" }}>Faltan {8 - password.length} caracteres</p>
+              )}
+            </div>
+            <div>
+              <label className="ad-label">Confirmar</label>
+              <div style={{ position: "relative" }}>
+                <input
+                  className="ad-input"
+                  type="password"
+                  placeholder="Repite la contraseña"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  style={confirm.length > 0 && !passwordsMatch ? { borderColor: "var(--accent)" } : undefined}
+                />
+                {confirm.length > 0 && (
+                  <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", color: passwordsMatch ? "var(--success)" : "var(--accent)", display: "flex" }}>
+                    <Icon name={passwordsMatch ? "check" : "x"} size={16} />
+                  </span>
+                )}
+              </div>
+              {confirm.length > 0 && !passwordsMatch && (
+                <p style={{ fontSize: 11, margin: "6px 0 0", color: "var(--accent)" }}>No coinciden</p>
+              )}
+            </div>
+          </div>
+          <label style={{ display: "flex", alignItems: "flex-start", gap: 10, marginTop: 14, fontSize: 13, color: "var(--ink-2)", cursor: "pointer", lineHeight: 1.5 }}>
             <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} style={{ width: 18, height: 18, accentColor: "var(--brand)", marginTop: 2 }} />
             <span>Acepto los <a href="/home/terminos" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>términos</a> y la <a href="/home/terminos#privacidad" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>política de privacidad</a>.</span>
           </label>
-          <button type="submit" disabled={pending || !canSubmit} className="ad-btn ad-btn-primary" style={{ width: "100%", marginTop: 20 }}>{pending ? "Creando cuenta…" : "Crear mi cuenta →"}</button>
-          <p style={{ textAlign: "center", fontSize: 14, color: "var(--ink-2)", margin: "18px 0 0" }}>¿Ya tienes cuenta? <button type="button" onClick={onLogin} style={{ color: "var(--brand)", fontWeight: 700, cursor: "pointer", background: "none", border: "none" }}>Inicia sesión</button></p>
+          <button type="submit" disabled={pending || !canSubmit} className="ad-btn ad-btn-primary" style={{ width: "100%", marginTop: 16 }}>{pending ? "Creando cuenta…" : "Crear mi cuenta →"}</button>
+          <p style={{ textAlign: "center", fontSize: 14, color: "var(--ink-2)", margin: "14px 0 0" }}>¿Ya tienes cuenta? <button type="button" onClick={onLogin} style={{ color: "var(--brand)", fontWeight: 700, cursor: "pointer", background: "none", border: "none" }}>Inicia sesión</button></p>
         </form>
         <div />
       </div>
@@ -755,9 +877,11 @@ function OnboardingShell({ step, valid, store, patch, slugTouched, setSlugTouche
           </div>
         )}
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <button type="button" onClick={onBack} disabled={creating} className="ad-btn ad-btn-ghost" style={{ padding: "14px 18px", visibility: step === 0 ? "hidden" : "visible" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg> Atrás
-          </button>
+          {step > 0 && (
+            <button type="button" onClick={onBack} disabled={creating} className="ad-btn ad-btn-ghost" style={{ padding: "14px 18px" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg> Atrás
+            </button>
+          )}
           <button type="button" onClick={onNext} disabled={!valid || creating} className="ad-btn ad-btn-primary" style={{ flex: 1 }}>
             {creating && step === ONB_STEPS - 1 ? "Creando tu tienda…" : (ONB_CTA[step] || "Continuar →")}
           </button>
