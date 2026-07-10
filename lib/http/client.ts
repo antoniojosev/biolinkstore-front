@@ -12,7 +12,7 @@ import { ApiError } from './types'
  */
 export class HttpClient {
   constructor(
-    private readonly baseUrl: string,
+    readonly baseUrl: string,
     /** Called when the session is fully expired (refresh also failed) */
     private readonly onLogout?: () => void,
   ) {}

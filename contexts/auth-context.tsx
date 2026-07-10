@@ -10,7 +10,6 @@ import {
   useRef,
   type ReactNode,
 } from 'react'
-import { flushSync } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { HttpClient } from '@/lib/http/client'
 import { AuthHttpRepository } from '@/lib/auth/auth.http-repository'
@@ -18,7 +17,7 @@ import { StoreHttpRepository } from '@/lib/stores-api/store.http-repository'
 import { MultiStoreHttpRepository } from '@/lib/multi-store-api'
 import { ApiError } from '@/lib/http/types'
 import type { IAuthRepository } from '@/lib/auth/auth.repository'
-import type { User, LoginDto, RegisterDto } from '@/lib/auth/types'
+import type { User, LoginDto } from '@/lib/auth/types'
 import type { DashboardStore } from '@/lib/stores-api/types'
 
 interface AuthContextValue {
@@ -34,7 +33,6 @@ interface AuthContextValue {
   // Actions
   login(dto: LoginDto): Promise<void>
   loginWithTokens(accessToken: string, refreshToken: string): Promise<void>
-  register(dto: RegisterDto & { storeName: string; whatsapp: string }): Promise<void>
   logout(): void
   clearError(): void
   refreshStore(): Promise<void>
@@ -167,42 +165,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [loadUserAndStore, router, logout],
   )
 
-  // ── Register ─────────────────────────────────────────────────────────────────
-  const register = useCallback(
-    async (dto: RegisterDto & { storeName: string; whatsapp: string }) => {
-      setError(null)
-      try {
-        await authRepo.register({
-          name: dto.name,
-          email: dto.email,
-          password: dto.password,
-          username: dto.username,
-          gender: dto.gender,
-          dateOfBirth: dto.dateOfBirth,
-          fingerprint: dto.fingerprint,
-        })
-
-        const newStore = await storeRepo.create({
-          name: dto.storeName,
-          whatsappNumbers: dto.whatsapp ? [dto.whatsapp] : [],
-        })
-        const me = await authRepo.me()
-
-        flushSync(() => {
-          setUser(me)
-          setStore(newStore)
-        })
-
-        router.push('/onboarding')
-      } catch (err) {
-        const msg = err instanceof ApiError ? err.message : 'Error al crear la cuenta'
-        setError(msg)
-        throw err
-      }
-    },
-    [authRepo, storeRepo, router],
-  )
-
   const clearError = useCallback(() => setError(null), [])
 
   const loadSession = useCallback(async () => {
@@ -236,7 +198,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         storeLoadError,
         login,
         loginWithTokens,
-        register,
         logout,
         clearError,
         refreshStore,

@@ -162,7 +162,7 @@ export function ForgotPasswordForm() {
       {/* Back to home */}
       <div className="text-center mt-4">
         <Link
-          href="/home"
+          href="/"
           className="text-sm text-white/40 hover:text-white/70 transition-colors"
         >
           Volver al inicio

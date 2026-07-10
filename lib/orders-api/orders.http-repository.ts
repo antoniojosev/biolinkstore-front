@@ -28,21 +28,11 @@ export class OrdersHttpRepository implements IOrdersRepository {
     return this.http.patch<OrderResponse>(`/api/stores/${storeId}/orders/${orderId}/status`, { status })
   }
 
+  // CSV export needs the raw text response, so it bypasses the JSON-based
+  // http client — but still goes through the same /api/proxy BFF, which
+  // injects auth from the httpOnly cookie regardless of request headers.
   async exportCsv(storeId: string): Promise<string> {
-    const res = await fetch(`${this.getBaseUrl()}/api/stores/${storeId}/orders/export`, {
-      headers: this.getAuthHeaders(),
-    })
+    const res = await fetch(`${this.http.baseUrl}/api/stores/${storeId}/orders/export`)
     return res.text()
-  }
-
-  // These helpers access the underlying http client's base URL and token
-  // For CSV we need raw text response so we bypass the JSON-based http client
-  private getBaseUrl(): string {
-    return (this.http as any).baseUrl
-  }
-
-  private getAuthHeaders(): Record<string, string> {
-    const token = (this.http as any).tokenStorage?.getAccessToken?.()
-    return token ? { Authorization: `Bearer ${token}` } : {}
   }
 }
