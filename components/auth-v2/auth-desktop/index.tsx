@@ -50,7 +50,7 @@ const ONB_STEPS = 3
 const ONB_TITLES = [
   { t: <>¿Cómo se llama tu <span className="serif-it" style={{ color: "var(--brand)" }}>negocio</span>?</>, s: "Este será el nombre que verán tus clientes en tu tienda." },
   { t: <>¿Cuál será tu <span className="serif-it" style={{ color: "var(--brand)" }}>link</span>?</>, s: "Aquí te encontrarán tus clientes. Cortito y fácil de recordar." },
-  { t: <>¿Cómo cargamos tus <span className="serif-it" style={{ color: "var(--brand)" }}>productos</span>?</>, s: "Podemos traerlos automáticamente desde tu Instagram, o los agregas tú a mano." },
+  { t: <>¿Tu <span className="serif-it" style={{ color: "var(--brand)" }}>Instagram</span>?</>, s: "Compártelo si quieres — es opcional." },
 ]
 const ONB_PREVIEW: PreviewMode[] = ["identity", "identity", "instagram"]
 const ONB_CTA: (string | null)[] = [null, null, "¡Crear mi tienda! 🎉"]
@@ -85,7 +85,7 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
     switch (onbStep) {
       case 0: return store.name.trim().length > 0
       case 1: return store.slug.length >= 3
-      case 2: return store.instagramImport !== null
+      case 2: return store.instagram.trim().length === 0 || store.instagramImport !== null
       default: return false
     }
   }, [onbStep, store])
@@ -879,37 +879,47 @@ function OnbStepBody({ step, store, patch, slugTouched, setSlugTouched, onBack }
   if (step === 1) {
     return <SlugStep store={store} patch={patch} setSlugTouched={setSlugTouched} />
   }
-  // step 2: el usuario elige el flujo de carga de productos
-  return <ImportChoiceStep store={store} patch={patch} />
+  // step 2: campo de Instagram opcional; la pregunta de importar solo
+  // aparece una vez que hay un @ real que importar.
+  return <InstagramStep store={store} patch={patch} />
 }
 
-function ImportChoiceStep({ store, patch }: { store: StoreState; patch: (p: Partial<StoreState>) => void }) {
-  function choose(wantsImport: boolean) {
-    patch(wantsImport ? { instagramImport: true } : { instagramImport: false, instagram: "" })
+function InstagramStep({ store, patch }: { store: StoreState; patch: (p: Partial<StoreState>) => void }) {
+  const hasHandle = store.instagram.trim().length > 0
+
+  function handleChange(v: string) {
+    const trimmed = v.trim()
+    patch({
+      instagram: trimmed ? "@" + trimmed : "",
+      ...(trimmed ? {} : { instagramImport: null }),
+    })
   }
 
   return (
     <>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        <ImportOption
-          selected={store.instagramImport === true}
-          icon="📸"
-          title="Importar de Instagram"
-          desc="Traemos tus posts como productos"
-          onClick={() => choose(true)}
-        />
-        <ImportOption
-          selected={store.instagramImport === false}
-          icon="✍️"
-          title="Los agrego yo"
-          desc="Subo mis productos a mano"
-          onClick={() => choose(false)}
-        />
+      <div style={{ display: "flex", alignItems: "center", padding: "0 18px", border: "1.5px solid var(--line)", borderRadius: 14, background: "#fff" }}>
+        <span className="mono" style={{ fontSize: 16, color: "var(--ink-3)" }}>@</span>
+        <input autoFocus value={store.instagram.replace("@", "")} onChange={(e) => handleChange(e.target.value)} style={{ flex: 1, padding: "22px 8px", fontSize: 19, background: "none", border: "none", fontWeight: 600, outline: "none" }} placeholder="rosa.atelier (opcional)" />
       </div>
-      {store.instagramImport === true && (
-        <div style={{ display: "flex", alignItems: "center", padding: "0 18px", border: "1.5px solid var(--line)", borderRadius: 14, background: "#fff", marginTop: 14 }}>
-          <span className="mono" style={{ fontSize: 16, color: "var(--ink-3)" }}>@</span>
-          <input autoFocus value={store.instagram.replace("@", "")} onChange={(e) => patch({ instagram: e.target.value.trim() ? "@" + e.target.value.trim() : "" })} style={{ flex: 1, padding: "22px 8px", fontSize: 19, background: "none", border: "none", fontWeight: 600, outline: "none" }} placeholder="rosa.atelier" />
+      {hasHandle && (
+        <div style={{ marginTop: 18, animation: "adStepIn .25s ease" }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink-2)", marginBottom: 10 }}>¿Traemos tus productos desde Instagram?</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <ImportOption
+              selected={store.instagramImport === true}
+              icon="📸"
+              title="Sí, importar"
+              desc="Traemos tus posts como productos"
+              onClick={() => patch({ instagramImport: true })}
+            />
+            <ImportOption
+              selected={store.instagramImport === false}
+              icon="✍️"
+              title="Los agrego yo"
+              desc="Subo mis productos a mano"
+              onClick={() => patch({ instagramImport: false })}
+            />
+          </div>
         </div>
       )}
     </>
