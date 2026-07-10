@@ -20,6 +20,8 @@ export interface DashboardStore {
   banner?: string
   description?: string
   instagramHandle?: string
+  /** Seteado cuando el owner pidio importar su catalogo desde IG en el onboarding. */
+  instagramImportRequestedAt?: string | null
   facebookUrl?: string
   tiktokUrl?: string
   email?: string
@@ -50,6 +52,7 @@ export interface UpdateStoreDto {
   whatsappNumbers?: string[]
 
   instagramHandle?: string
+  requestInstagramImport?: boolean
   facebookUrl?: string
   tiktokUrl?: string
   email?: string

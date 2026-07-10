@@ -101,7 +101,10 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
       })
       const handle = store.instagram.replace("@", "").trim()
       if (handle) {
-        await storeRepo.update(created.id, { instagramHandle: handle }).catch(() => {})
+        await storeRepo.update(created.id, {
+          instagramHandle: handle,
+          ...(store.instagramImport === true ? { requestInstagramImport: true } : {}),
+        }).catch(() => {})
       }
       await loadSession()
       // TODO(no urgente): el CTA "¡Crear mi tienda!" no avisa que va a abrir la

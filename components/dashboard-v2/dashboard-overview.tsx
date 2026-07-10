@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { OrdersHttpRepository, type StoreStats, type OrderResponse, type OrderStatus } from "@/lib/orders-api"
+import { InstagramImportBanner } from "./instagram-import-banner"
 
 interface DashboardOverviewProps {
   /** Reserved for future mobile-specific tweaks; el layout ya se adapta solo vía @media en panel-official. */
@@ -180,6 +181,8 @@ export function DashboardOverview({ mobile: _mobile, onShare, onNewProduct }: Da
           <button type="button" className="h-btn" onClick={onNewProduct}><svg><use href="#ic-plus" /></svg>Nuevo producto</button>
         </div>
       </div>
+
+      <InstagramImportBanner />
 
       <div className="kpi-strip">
         <div className="kpi up">
