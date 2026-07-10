@@ -61,6 +61,14 @@ export function ThemesBoard({ onOpenEditor }: Props) {
         <p style={S.subtitle}>Elige un punto de partida — todo es editable después.</p>
       </div>
 
+      <a href="mailto:hola@bylink.app?subject=ByLink%20Studio" style={S.promoBanner} title="Un diseñador del equipo bylink diseña tu tienda completa">
+        <div style={S.promoTxt}>
+          <span style={S.promoHeadline}>¿Ninguno es tu marca?</span>
+          <p style={S.promoSub}>Un diseñador del equipo bylink te la hace a medida. Entrega en 7 días.</p>
+        </div>
+        <span style={S.promoCta}>Desde $199 →</span>
+      </a>
+
       <div style={S.filters}>
         {NICHES.map((n) => (
           <button
@@ -127,23 +135,13 @@ export function ThemesBoard({ onOpenEditor }: Props) {
             )
           })
         )}
-
-        <a
-          href="mailto:hola@bylink.app?subject=ByLink%20Studio"
-          style={S.studioCard}
-          title="Un diseñador del equipo bylink diseña tu tienda completa"
-        >
-          <div style={S.studioTag}>bylink studio</div>
-          <div style={S.studioHeadline}>¿Ninguno es tu marca?</div>
-          <div style={S.studioSub}>Un diseñador del equipo bylink trabaja tu marca de punta a punta. Entrega en 7 días.</div>
-          <div style={S.studioFoot}>
-            <span>
-              Desde <strong style={{ color: "#E8C07A" }}>$199</strong> · pago único
-            </span>
-            <span style={{ color: "#E8C07A", fontWeight: 600 }}>Hablar con un diseñador →</span>
-          </div>
-        </a>
       </div>
+
+      <a href="mailto:hola@bylink.app?subject=ByLink%20Studio" style={S.promoFab} title="Un diseñador del equipo bylink diseña tu tienda completa">
+        <span style={S.promoFabIcon}>★</span>
+        <span style={S.promoFabTxt}>¿Ninguno es tu marca?</span>
+        <span style={S.promoFabGo}>Ver más →</span>
+      </a>
 
       <ThemePreviewModal templateKey={previewKey} onClose={() => setPreviewKey(null)} />
     </div>
@@ -222,28 +220,48 @@ const S: Record<string, React.CSSProperties> = {
     borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
   },
   btnDisabled: { opacity: 0.55, cursor: "not-allowed" },
-  studioCard: {
+  // Promo "a medida" — banner en el header (siempre visible, sin depender del scroll)
+  promoBanner: {
     display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    padding: 18,
+    alignItems: "center",
+    gap: 18,
+    padding: "16px 20px",
     borderRadius: 14,
-    background: "linear-gradient(135deg, #0F1B3D, #1E3A8A)",
-    border: "1px solid rgba(232,192,122,0.45)",
+    background: "linear-gradient(120deg, #0F1B3D, #1E3A8A 85%)",
     color: "#fff",
     textDecoration: "none",
-    minHeight: 220,
-    justifyContent: "center",
   },
-  studioTag: {
-    alignSelf: "flex-start", padding: "4px 10px", borderRadius: 999, background: "rgba(232,192,122,0.16)",
-    border: "1px solid rgba(232,192,122,0.4)", color: "#E8C07A", fontFamily: "var(--font-mono)",
-    fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 600,
+  promoTxt: { flex: 1, minWidth: 0 },
+  promoHeadline: { fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 16, color: "#E8C07A" },
+  promoSub: { fontSize: 12.5, color: "rgba(255,255,255,0.75)", marginTop: 2, lineHeight: 1.4 },
+  promoCta: {
+    flexShrink: 0, background: "#E8C07A", color: "#0F1B3D", fontWeight: 700,
+    fontSize: 13, padding: "9px 16px", borderRadius: 9, whiteSpace: "nowrap",
   },
-  studioHeadline: { fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 20, color: "#E8C07A" },
-  studioSub: { fontSize: 12.5, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 },
-  studioFoot: {
-    display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 10,
-    marginTop: 4, borderTop: "1px solid rgba(232,192,122,0.2)", fontSize: 11.5, color: "rgba(255,255,255,0.7)",
+  // Promo "a medida" — pill flotante, se queda fijo mientras se scrollea el grid
+  promoFab: {
+    position: "fixed",
+    bottom: 24,
+    right: 24,
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    background: "linear-gradient(120deg, #0F1B3D, #1E3A8A)",
+    border: "1px solid rgba(232,192,122,0.5)",
+    borderRadius: 999,
+    padding: "8px 8px 8px 14px",
+    color: "#fff",
+    textDecoration: "none",
+    boxShadow: "0 14px 30px -8px rgba(15,27,61,0.5)",
+    zIndex: 50,
+  },
+  promoFabIcon: {
+    width: 26, height: 26, borderRadius: "50%", background: "rgba(232,192,122,0.18)",
+    color: "#E8C07A", display: "grid", placeItems: "center", fontSize: 12, flexShrink: 0,
+  },
+  promoFabTxt: { fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap" },
+  promoFabGo: {
+    background: "#E8C07A", color: "#0F1B3D", fontWeight: 700, fontSize: 11,
+    padding: "6px 12px", borderRadius: 999, whiteSpace: "nowrap",
   },
 }
