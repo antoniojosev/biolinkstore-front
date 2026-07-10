@@ -50,7 +50,7 @@ const ONB_STEPS = 3
 const ONB_TITLES = [
   { t: <>¿Cómo se llama tu <span className="serif-it" style={{ color: "var(--brand)" }}>negocio</span>?</>, s: "Este será el nombre que verán tus clientes en tu tienda." },
   { t: <>¿Cuál será tu <span className="serif-it" style={{ color: "var(--brand)" }}>link</span>?</>, s: "Aquí te encontrarán tus clientes. Cortito y fácil de recordar." },
-  { t: <>¿Tu <span className="serif-it" style={{ color: "var(--brand)" }}>Instagram</span>?</>, s: "Guárdalo para cuando activemos la importación automática de productos." },
+  { t: <>¿Cómo cargamos tus <span className="serif-it" style={{ color: "var(--brand)" }}>productos</span>?</>, s: "Podemos traerlos automáticamente desde tu Instagram, o los agregas tú a mano." },
 ]
 const ONB_PREVIEW: PreviewMode[] = ["identity", "identity", "instagram"]
 const ONB_CTA: (string | null)[] = [null, null, "¡Crear mi tienda! 🎉"]
@@ -65,7 +65,7 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
   const [userWhatsapp, setUserWhatsapp] = useState("")
   const [creating, setCreating] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
-  const [store, setStore] = useState<StoreState>({ name: "", slug: "", vertical: null, instagram: "", template: null, payments: ["pm", "usd"], referral: null })
+  const [store, setStore] = useState<StoreState>({ name: "", slug: "", vertical: null, instagram: "", instagramImport: null, template: null, payments: ["pm", "usd"], referral: null })
   const { http, user, loadSession } = useAuth()
   const storeRepo = useMemo(() => new StoreHttpRepository(http), [http])
 
@@ -85,7 +85,7 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
     switch (onbStep) {
       case 0: return store.name.trim().length > 0
       case 1: return store.slug.length >= 3
-      case 2: return true
+      case 2: return store.instagramImport !== null
       default: return false
     }
   }, [onbStep, store])
@@ -837,7 +837,9 @@ function OnboardingShell({ step, valid, store, patch, slugTouched, setSlugTouche
           <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.12em" }}>VISTA PREVIA EN VIVO</div>
           <div className="ad-phone">
             <div className="ad-phone-notch" />
-            <div className="ad-phone-screen"><PhonePreview mode={ONB_PREVIEW[step]} store={store} onbStep={step} /></div>
+            <div className="ad-phone-screen">
+              <PhonePreview mode={step === 2 && store.instagramImport === false ? "identity" : ONB_PREVIEW[step]} store={store} onbStep={step} />
+            </div>
           </div>
           <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--success)", boxShadow: "0 0 0 4px rgba(16,185,129,0.2)" }} />
@@ -877,18 +879,66 @@ function OnbStepBody({ step, store, patch, slugTouched, setSlugTouched, onBack }
   if (step === 1) {
     return <SlugStep store={store} patch={patch} setSlugTouched={setSlugTouched} />
   }
-  // step 2: Instagram (opcional, importación automática próximamente)
+  // step 2: el usuario elige el flujo de carga de productos
+  return <ImportChoiceStep store={store} patch={patch} />
+}
+
+function ImportChoiceStep({ store, patch }: { store: StoreState; patch: (p: Partial<StoreState>) => void }) {
+  function choose(wantsImport: boolean) {
+    patch(wantsImport ? { instagramImport: true } : { instagramImport: false, instagram: "" })
+  }
+
   return (
     <>
-      <div style={{ display: "flex", alignItems: "center", padding: "0 18px", border: "1.5px solid var(--line)", borderRadius: 14, background: "#fff" }}>
-        <span className="mono" style={{ fontSize: 16, color: "var(--ink-3)" }}>@</span>
-        <input autoFocus value={store.instagram.replace("@", "")} onChange={(e) => patch({ instagram: e.target.value.trim() ? "@" + e.target.value.trim() : "" })} style={{ flex: 1, padding: "22px 8px", fontSize: 19, background: "none", border: "none", fontWeight: 600, outline: "none" }} placeholder="rosa.atelier (opcional)" />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <ImportOption
+          selected={store.instagramImport === true}
+          icon="📸"
+          title="Importar de Instagram"
+          desc="Traemos tus posts como productos"
+          onClick={() => choose(true)}
+        />
+        <ImportOption
+          selected={store.instagramImport === false}
+          icon="✍️"
+          title="Los agrego yo"
+          desc="Subo mis productos a mano"
+          onClick={() => choose(false)}
+        />
       </div>
-      <div style={{ marginTop: 16, padding: "14px 16px", background: "rgba(30,58,138,0.06)", borderRadius: 12, display: "flex", gap: 12 }}>
-        <span style={{ fontSize: 18 }}>🚧</span>
-        <div style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5 }}><strong>La importación automática está próxima.</strong> Por ahora guardamos tu @ y agregas tus productos a mano desde el dashboard.</div>
-      </div>
+      {store.instagramImport === true && (
+        <div style={{ display: "flex", alignItems: "center", padding: "0 18px", border: "1.5px solid var(--line)", borderRadius: 14, background: "#fff", marginTop: 14 }}>
+          <span className="mono" style={{ fontSize: 16, color: "var(--ink-3)" }}>@</span>
+          <input autoFocus value={store.instagram.replace("@", "")} onChange={(e) => patch({ instagram: e.target.value.trim() ? "@" + e.target.value.trim() : "" })} style={{ flex: 1, padding: "22px 8px", fontSize: 19, background: "none", border: "none", fontWeight: 600, outline: "none" }} placeholder="rosa.atelier" />
+        </div>
+      )}
     </>
+  )
+}
+
+function ImportOption({ selected, icon, title, desc, onClick }: { selected: boolean; icon: string; title: string; desc: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        gap: 6,
+        padding: 18,
+        borderRadius: 14,
+        border: `1.5px solid ${selected ? "var(--brand)" : "var(--line)"}`,
+        background: selected ? "rgba(30,58,138,0.05)" : "#fff",
+        cursor: "pointer",
+        textAlign: "left",
+        transition: "all .15s ease",
+      }}
+    >
+      <span style={{ fontSize: 24 }}>{icon}</span>
+      <span style={{ fontWeight: 700, fontSize: 15, color: "var(--ink)" }}>{title}</span>
+      <span style={{ fontSize: 12, color: "var(--ink-3)", lineHeight: 1.4 }}>{desc}</span>
+    </button>
   )
 }
 

@@ -5,6 +5,8 @@ export interface StoreState {
   slug: string
   vertical: string | null
   instagram: string
+  /** null = todavía no elige; true = quiere importar desde IG; false = prefiere agregar productos a mano. */
+  instagramImport: boolean | null
   template: string | null
   payments: string[]
   referral: string | null
