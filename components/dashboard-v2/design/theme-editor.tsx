@@ -3,33 +3,79 @@
 import { useMemo, useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { useTheme } from "@/lib/hooks/use-theme"
-import type { Plan } from "@/lib/page-builder-api"
-import { CanvasPreview } from "./canvas-preview"
-import { TemplatesSidebar } from "./templates-sidebar"
+import type { SectionDef, SectionNode } from "@/lib/page-builder-api"
+import { EditorCanvas } from "./editor-canvas"
+import { SectionsPanel } from "./sections-panel"
+import { SectionInspector } from "./section-inspector"
 import { TokensEditor } from "./tokens-editor"
+import { sectionLabel } from "./section-labels"
 
 interface Props {
   /** Optional — when the editor is the whole Diseño view there's nothing to go back to. */
   onClose?: () => void
+  /** Navigates to the Temas gallery tab — the template switcher lives there now. */
+  onGoToThemes?: () => void
 }
 
-export function ThemeEditor({ onClose }: Props) {
+type RightTab = "design" | "section"
+
+export function ThemeEditor({ onClose, onGoToThemes }: Props) {
   const { store } = useAuth()
   const t = useTheme()
   const [confirmingPublish, setConfirmingPublish] = useState(false)
+  const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const [rightTab, setRightTab] = useState<RightTab>("design")
 
-  const storePlan: Plan = (store?.subscription?.plan ?? "FREE") as Plan
   const activeTemplate = useMemo(
     () => t.templates.find((x) => x.key === t.theme?.activeTemplate) ?? null,
     [t.templates, t.theme?.activeTemplate],
   )
 
   const draftTokens = t.theme?.draft?.tokens ?? activeTemplate?.defaultTokens ?? {}
+  const sections: SectionNode[] = t.theme?.draft?.tree?.sections ?? []
+
+  const selectedNode = sections.find((s) => s.key === selectedKey) ?? null
+  const selectedDef: SectionDef | null =
+    (selectedNode && activeTemplate?.sectionSchema?.sections.find((d) => d.type === selectedNode.type)) || null
+
   const hasUnpublishedChanges =
     t.theme?.draft && t.theme?.published
       ? JSON.stringify(t.theme.draft.tokens) !== JSON.stringify(t.theme.published.tokens) ||
         JSON.stringify(t.theme.draft.tree) !== JSON.stringify(t.theme.published.tree)
       : Boolean(t.theme?.draft)
+
+  function selectSection(key: string) {
+    setSelectedKey(key)
+    setRightTab("section")
+  }
+
+  function handleReorder(next: SectionNode[]) {
+    t.replaceSections(next)
+  }
+
+  function handleToggleVisible(key: string) {
+    t.replaceSections(sections.map((s) => (s.key === key ? { ...s, visible: s.visible === false } : s)))
+  }
+
+  function handleAddSection(def: SectionDef) {
+    const newKey = `${def.type}_${Date.now()}`
+    t.replaceSections([...sections, { type: def.type, key: newKey, props: {}, visible: true }])
+    selectSection(newKey)
+  }
+
+  function handleDeleteSection(key: string) {
+    if (!confirm("Esto elimina la sección del borrador. ¿Continuar?")) return
+    t.replaceSections(sections.filter((s) => s.key !== key))
+    if (selectedKey === key) setSelectedKey(null)
+  }
+
+  function handlePropsChange(key: string, props: Record<string, unknown>) {
+    t.replaceSections(sections.map((s) => (s.key === key ? { ...s, props } : s)))
+  }
+
+  function handleVariantChange(key: string, variant: string) {
+    t.replaceSections(sections.map((s) => (s.key === key ? { ...s, variant } : s)))
+  }
 
   async function handlePublish() {
     setConfirmingPublish(false)
@@ -123,24 +169,56 @@ export function ThemeEditor({ onClose }: Props) {
       )}
 
       <div style={S.body}>
-        <TemplatesSidebar
-          templates={t.templates}
-          activeTemplate={t.theme?.activeTemplate ?? ""}
-          storePlan={storePlan}
-          loading={t.isLoading}
-          onPick={t.switchTemplate}
+        <SectionsPanel
+          template={activeTemplate}
+          sections={sections}
+          selectedKey={selectedKey}
+          onSelectSection={selectSection}
+          onReorder={handleReorder}
+          onToggleVisible={handleToggleVisible}
+          onAddSection={handleAddSection}
+          onGoToThemes={() => onGoToThemes?.()}
         />
 
         <main style={S.canvas}>
           {t.isLoading && !t.theme ? (
             <div style={S.canvasMuted}>Cargando editor…</div>
           ) : (
-            <CanvasPreview template={activeTemplate} tokens={draftTokens} />
+            <EditorCanvas template={activeTemplate} draft={t.theme?.draft ?? null} selectedKey={selectedKey} onSelectSection={selectSection} />
           )}
         </main>
 
         <aside style={S.inspector}>
-          <TokensEditor tokens={draftTokens} palettes={t.palettes} onPatch={t.patchTokens} />
+          <div style={S.rightTabs}>
+            <button
+              type="button"
+              onClick={() => setRightTab("design")}
+              style={{ ...S.rightTab, ...(rightTab === "design" ? S.rightTabActive : null) }}
+            >
+              Diseño
+            </button>
+            <button
+              type="button"
+              onClick={() => setRightTab("section")}
+              style={{ ...S.rightTab, ...(rightTab === "section" ? S.rightTabActive : null) }}
+            >
+              {selectedNode ? sectionLabel(selectedNode.type) : "Sección"}
+            </button>
+          </div>
+          <div style={S.inspectorBody}>
+            {rightTab === "design" ? (
+              <TokensEditor tokens={draftTokens} palettes={t.palettes} onPatch={t.patchTokens} />
+            ) : (
+              <SectionInspector
+                def={selectedDef}
+                node={selectedNode}
+                onPropsChange={(props) => selectedNode && handlePropsChange(selectedNode.key, props)}
+                onVariantChange={(variant) => selectedNode && handleVariantChange(selectedNode.key, variant)}
+                onToggleVisible={() => selectedNode && handleToggleVisible(selectedNode.key)}
+                onDelete={() => selectedNode && handleDeleteSection(selectedNode.key)}
+              />
+            )}
+          </div>
         </aside>
       </div>
 
@@ -246,8 +324,7 @@ const S: Record<string, React.CSSProperties> = {
     flex: 1,
     background: "var(--bg-2)",
     padding: 20,
-    overflow: "hidden",
-    display: "flex",
+    overflowY: "auto",
   },
   canvasMuted: {
     margin: "auto",
@@ -259,9 +336,17 @@ const S: Record<string, React.CSSProperties> = {
     flexShrink: 0,
     background: "var(--bg-elev)",
     borderLeft: "1px solid var(--line)",
-    padding: 16,
-    overflowY: "auto",
+    display: "flex",
+    flexDirection: "column",
   },
+  rightTabs: { display: "flex", borderBottom: "1px solid var(--line)", flexShrink: 0 },
+  rightTab: {
+    flex: 1, padding: "10px", textAlign: "center", fontSize: 12, fontWeight: 600, color: "var(--ink-3)",
+    cursor: "pointer", borderBottom: "2px solid transparent", background: "none", border: "none", fontFamily: "inherit",
+    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+  },
+  rightTabActive: { color: "var(--brand)", borderBottomColor: "var(--brand)" },
+  inspectorBody: { flex: 1, overflowY: "auto", padding: 16 },
   modalBackdrop: {
     position: "fixed",
     inset: 0,

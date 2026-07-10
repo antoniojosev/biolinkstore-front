@@ -58,10 +58,39 @@ export interface SectionNode {
   type: string
   key: string
   props: Record<string, unknown>
+  visible?: boolean
+  variant?: string
 }
 
 export interface SectionTree {
   sections: SectionNode[]
+}
+
+// ─── Section schema (declarative per-template prop definitions) ──────────────
+
+export type SectionPropType = 'text' | 'string' | 'enum' | 'boolean' | 'number' | 'color' | 'image' | 'list'
+
+export interface SectionPropDef {
+  type: SectionPropType
+  label?: string
+  max?: number
+  min?: number
+  pattern?: string
+  options?: string[]
+  itemSchema?: Record<string, SectionPropDef>
+}
+
+export interface SectionDef {
+  type: string
+  key: string
+  removable?: boolean
+  variants?: string[]
+  props?: Record<string, SectionPropDef>
+}
+
+export interface TemplateSectionSchema {
+  defaultOrder?: string[]
+  sections: SectionDef[]
 }
 
 export interface DraftTheme {
@@ -97,7 +126,7 @@ export interface Template {
   niche: TemplateNiche
   planRequired: Plan
   previewImage: string | null
-  sectionSchema: Record<string, unknown>
+  sectionSchema: TemplateSectionSchema
   defaultTokens: ThemeTokens
   version: number
   isActive: boolean

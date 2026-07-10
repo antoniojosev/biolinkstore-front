@@ -255,7 +255,7 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
 
           {/* DESIGN */}
           <div className={`view${view === "design" ? " active" : ""}`}>
-            <DesignBoard />
+            <DesignBoard onGoToThemes={() => setView("themes")} />
           </div>
 
           {/* TEMAS */}

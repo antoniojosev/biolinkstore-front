@@ -58,9 +58,12 @@ export interface TemplateRendererProps {
   onOpenCart?: () => void
   /** Tasa pública (BCV) para el toggle de moneda del comprador. null si no está disponible. */
   rate?: PublicRate | null
+  /** Editor-only: resalta y hace clickeable cada sección para el inspector de secciones. */
+  editorSelectedKey?: string
+  onSectionClick?: (key: string) => void
 }
 
-export function TemplateRenderer({ store, products, categories, theme, onOpenProduct, cartCount = 0, onOpenCart, rate }: TemplateRendererProps) {
+export function TemplateRenderer({ store, products, categories, theme, onOpenProduct, cartCount = 0, onOpenCart, rate, editorSelectedKey, onSectionClick }: TemplateRendererProps) {
   const resolved = resolveTokens(theme.tokens)
   const sections = (theme.tree?.sections ?? []).filter(
     (s) => (s as { visible?: boolean }).visible !== false,
@@ -100,18 +103,61 @@ export function TemplateRenderer({ store, products, categories, theme, onOpenPro
       {sections.length === 0 ? (
         <EmptyTheme storeName={store.name} />
       ) : (
-        sections.map((s) => (
-          <SectionRenderer
-            key={s.key}
-            section={s}
-            store={store}
-            products={products}
-            categories={categories}
-            resolved={resolved}
-            onOpenProduct={onOpenProduct}
-            priceCtx={priceCtx}
-          />
-        ))
+        sections.map((s) => {
+          const section = (
+            <SectionRenderer
+              key={s.key}
+              section={s}
+              store={store}
+              products={products}
+              categories={categories}
+              resolved={resolved}
+              onOpenProduct={onOpenProduct}
+              priceCtx={priceCtx}
+            />
+          )
+          if (!onSectionClick) return section
+          const isSelected = editorSelectedKey === s.key
+          return (
+            <div
+              key={s.key}
+              data-section-key={s.key}
+              onClick={(e) => {
+                e.stopPropagation()
+                onSectionClick(s.key)
+              }}
+              style={{
+                position: "relative",
+                cursor: "pointer",
+                outline: isSelected ? "2px solid var(--brand, #1E3A8A)" : "2px solid transparent",
+                outlineOffset: -2,
+              }}
+            >
+              {isSelected && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: -1,
+                    left: 12,
+                    transform: "translateY(-100%)",
+                    background: "var(--brand, #1E3A8A)",
+                    color: "#fff",
+                    fontFamily: "monospace",
+                    fontSize: 9,
+                    padding: "2px 8px",
+                    borderRadius: "4px 4px 0 0",
+                    letterSpacing: "0.06em",
+                    zIndex: 5,
+                    pointerEvents: "none",
+                  }}
+                >
+                  {s.type.toUpperCase()}
+                </div>
+              )}
+              {section}
+            </div>
+          )
+        })
       )}
       <FooterBranding store={store} resolved={resolved} />
     </main>
