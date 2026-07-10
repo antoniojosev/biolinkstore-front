@@ -7,10 +7,11 @@ import { CatalogBoard } from "@/components/dashboard-v2/catalog-board"
 import { StoreSettingsBoard } from "@/components/dashboard-v2/store-settings-board"
 import { OrdersBoard } from "@/components/dashboard-v2/orders-board"
 import { DesignBoard } from "@/components/dashboard-v2/design-board"
+import { ThemesBoard } from "@/components/dashboard-v2/themes-board"
 import { ShareStoreModal } from "@/components/dashboard-v2/share-store-modal"
 import { useAuth } from "@/contexts/auth-context"
 
-type View = "dashboard" | "catalog" | "orders" | "design" | "data" | "config"
+type View = "dashboard" | "catalog" | "orders" | "design" | "themes" | "data" | "config"
 
 const STYLES = `
 .bpanel { background: var(--bg); overflow-x: hidden; min-height: 100vh; color: var(--ink); font-family: var(--font-sans); }
@@ -222,6 +223,7 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
           <button type="button" className={`td-tab${view === "catalog" ? " active" : ""}`} onClick={() => setView("catalog")}><I id="package" />Productos</button>
           <button type="button" className={`td-tab${view === "orders" ? " active" : ""}`} onClick={() => setView("orders")}><I id="msg" />Pedidos</button>
           <button type="button" className={`td-tab${view === "design" ? " active" : ""}`} onClick={() => setView("design")}><I id="layout" />Diseño</button>
+          <button type="button" className={`td-tab${view === "themes" ? " active" : ""}`} onClick={() => setView("themes")}><I id="sparkles" />Temas</button>
           <button type="button" className={`td-tab${view === "data" ? " active" : ""}`} onClick={() => setView("data")}><I id="chart" />Datos</button>
           <button type="button" className={`td-tab${view === "config" ? " active" : ""}`} onClick={() => setView("config")}><I id="settings" />Config</button>
           <div className="td-divider" />
@@ -254,6 +256,11 @@ export function PanelOfficial({ initialView = "dashboard" }: { initialView?: Vie
           {/* DESIGN */}
           <div className={`view${view === "design" ? " active" : ""}`}>
             <DesignBoard />
+          </div>
+
+          {/* TEMAS */}
+          <div className={`view${view === "themes" ? " active" : ""}`}>
+            <ThemesBoard onOpenEditor={() => setView("design")} />
           </div>
           {/* CONFIG */}
           <div className={`view${view === "config" ? " active" : ""}`}>
