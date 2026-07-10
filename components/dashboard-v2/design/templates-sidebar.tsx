@@ -110,6 +110,23 @@ export function TemplatesSidebar({ templates, activeTemplate, storePlan, loading
             )
           })
         )}
+        {!loading && filtered.length > 0 && (
+          <a
+            href="mailto:hola@bylink.app?subject=ByLink%20Studio"
+            style={S.studioTile}
+            title="Un diseñador del equipo bylink diseña tu tienda completa"
+          >
+            <div style={S.studioTag}>bylink studio</div>
+            <div style={S.studioHeadline}>¿Ninguno es tu marca?</div>
+            <div style={S.studioSub}>Un diseñador te la hace a medida. Entrega en 7 días.</div>
+            <div style={S.studioFoot}>
+              <span>
+                Desde <strong style={{ color: "#E8C07A" }}>$199</strong>
+              </span>
+              <span style={{ color: "#E8C07A", fontWeight: 600 }}>Hablar con un diseñador →</span>
+            </div>
+          </a>
+        )}
       </div>
     </aside>
   )
@@ -210,4 +227,47 @@ const S: Record<string, React.CSSProperties> = {
   meta: { padding: "8px 10px" },
   name: { fontSize: 12, fontWeight: 600, color: "var(--ink)" },
   niche: { fontSize: 10, color: "var(--ink-3)", marginTop: 2, textTransform: "capitalize" },
+  // Promo "a medida" — última tile del listado, estética bylink studio (navy + dorado)
+  studioTile: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 6,
+    padding: "16px 14px",
+    borderRadius: 10,
+    background: "linear-gradient(135deg, #0F1B3D, #1E3A8A)",
+    border: "1px solid rgba(232,192,122,0.45)",
+    color: "#fff",
+    textDecoration: "none",
+  },
+  studioTag: {
+    alignSelf: "flex-start",
+    padding: "3px 9px",
+    borderRadius: 999,
+    background: "rgba(232,192,122,0.16)",
+    border: "1px solid rgba(232,192,122,0.4)",
+    color: "#E8C07A",
+    fontFamily: "var(--font-mono)",
+    fontSize: 9,
+    letterSpacing: "0.12em",
+    textTransform: "uppercase",
+    fontWeight: 600,
+  },
+  studioHeadline: {
+    fontFamily: "var(--font-serif)",
+    fontStyle: "italic",
+    fontSize: 16,
+    color: "#E8C07A",
+    marginTop: 2,
+  },
+  studioSub: { fontSize: 11.5, color: "rgba(255,255,255,0.75)", lineHeight: 1.45 },
+  studioFoot: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: 8,
+    marginTop: 2,
+    borderTop: "1px solid rgba(232,192,122,0.2)",
+    fontSize: 11,
+    color: "rgba(255,255,255,0.7)",
+  },
 }

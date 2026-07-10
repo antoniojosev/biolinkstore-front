@@ -9,7 +9,8 @@ import { TemplatesSidebar } from "./templates-sidebar"
 import { TokensEditor } from "./tokens-editor"
 
 interface Props {
-  onClose: () => void
+  /** Optional — when the editor is the whole Diseño view there's nothing to go back to. */
+  onClose?: () => void
 }
 
 export function ThemeEditor({ onClose }: Props) {
@@ -76,9 +77,11 @@ export function ThemeEditor({ onClose }: Props) {
   return (
     <div style={S.wrap}>
       <div style={S.toolbar}>
-        <button type="button" onClick={onClose} style={S.back}>
-          ← Volver
-        </button>
+        {onClose && (
+          <button type="button" onClick={onClose} style={S.back}>
+            ← Volver
+          </button>
+        )}
         <div style={S.toolTitle}>
           Editor de <em style={S.toolTitleEm}>tu tienda</em>
         </div>
