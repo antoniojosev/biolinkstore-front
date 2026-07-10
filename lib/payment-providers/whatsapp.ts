@@ -10,7 +10,7 @@ export class WhatsAppPaymentProvider implements PaymentProvider {
 
   constructor(
     private readonly whatsappNumber: string,
-    private readonly currency: string = 'ARS',
+    private readonly currency: string = 'USD',
   ) {}
 
   async checkout(payload: CheckoutPayload): Promise<CheckoutResult> {
