@@ -75,6 +75,7 @@ function adaptStore(dto: BackendStore): StoreProfile {
     plan: (['FREE', 'PRO', 'BUSINESS'].includes(dto.plan as string)
       ? dto.plan
       : 'FREE') as 'FREE' | 'PRO' | 'BUSINESS',
+    address: typeof dto.address === 'string' ? dto.address : undefined,
   }
 }
 

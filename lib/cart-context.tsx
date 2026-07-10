@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
 import { trackEvent } from '@/lib/analytics'
+import { trackEvent as trackStoreEvent } from '@/lib/storefront-tracking'
 import type { CartItem } from './types'
 
 interface CartContextValue {
@@ -73,6 +74,7 @@ export function CartProvider({ children, storeSlug }: { children: ReactNode; sto
     })
     if (storeSlug) {
       trackEvent(storeSlug, 'ADD_TO_CART', item.productId)
+      trackStoreEvent(storeSlug, 'ADD_TO_CART', item.productId, { noDedupe: true })
     }
   }, [storeSlug])
 

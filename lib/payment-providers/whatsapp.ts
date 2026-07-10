@@ -66,7 +66,7 @@ export class WhatsAppPaymentProvider implements PaymentProvider {
   }
 
   private buildMessage(payload: CheckoutPayload): string {
-    const fmt = new Intl.NumberFormat('es-AR', {
+    const fmt = new Intl.NumberFormat('es-VE', {
       style: 'currency',
       currency: this.currency,
       minimumFractionDigits: 0,

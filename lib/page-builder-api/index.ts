@@ -1,5 +1,8 @@
 export { PageBuilderHttpRepository } from './page-builder.http-repository'
 export { fetchPublicTheme, type PublicStoreTheme } from './public-theme'
+// fetchDraftPreview is NOT re-exported here: it imports next/headers (server-only)
+// and this barrel is also imported by client components (tokens-editor, etc).
+// Import it directly from './draft-preview' where needed.
 export type { IPageBuilderRepository, ListTemplatesParams } from './page-builder.repository'
 export {
   FONT_WHITELIST,

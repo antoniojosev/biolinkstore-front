@@ -28,12 +28,14 @@ export const FONT_WHITELIST = [
 export type FontName = (typeof FONT_WHITELIST)[number]
 
 export interface PaletteTokens {
+  preset?: string
   primary?: string
+  secondary?: string
   accent?: string
-  background?: string
+  bg?: string
   surface?: string
   text?: string
-  textMuted?: string
+  muted?: string
   border?: string
   [key: string]: string | undefined
 }

@@ -59,7 +59,7 @@ export function ThemeEditor({ onClose }: Props) {
 
   function handleOpenPreview() {
     if (!store?.slug) return
-    window.open(`/v2/${store.slug}?preview=true`, "_blank", "noopener")
+    window.open(`/${store.slug}?preview=true`, "_blank", "noopener")
   }
 
   const statusLabel = {

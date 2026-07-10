@@ -117,4 +117,5 @@ export interface StoreProfile {
   currency: string
   template: TemplateId
   plan: 'FREE' | 'PRO' | 'BUSINESS'
+  address?: string
 }

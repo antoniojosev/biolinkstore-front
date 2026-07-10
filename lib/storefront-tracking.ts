@@ -46,7 +46,7 @@ export function trackEvent(
   if (!options.noDedupe && SENT_DEDUP.has(dedupeKey)) return
   if (!options.noDedupe) SENT_DEDUP.add(dedupeKey)
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
   const sessionId = getSessionId()
 
   // Fire-and-forget. Use sendBeacon when available for reliability on unload.
@@ -59,14 +59,14 @@ export function trackEvent(
   try {
     if (navigator.sendBeacon) {
       const blob = new Blob([body], { type: 'application/json' })
-      navigator.sendBeacon(`${apiUrl}/public/${slug}/event`, blob)
+      navigator.sendBeacon(`${apiUrl}/api/public/${slug}/event`, blob)
       return
     }
   } catch {
     /* fall through */
   }
 
-  fetch(`${apiUrl}/public/${slug}/event`, {
+  fetch(`${apiUrl}/api/public/${slug}/event`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body,

@@ -23,20 +23,22 @@ const BUTTON_OPTIONS: ButtonStyle[] = ["solid", "outline", "ghost"]
 
 const PALETTE_KEYS: Array<keyof NonNullable<ThemeTokens["palette"]>> = [
   "primary",
+  "secondary",
   "accent",
-  "background",
+  "bg",
   "surface",
   "text",
-  "textMuted",
+  "muted",
   "border",
 ]
 const PALETTE_LABEL: Record<string, string> = {
   primary: "Primario",
+  secondary: "Secundario",
   accent: "Acento",
-  background: "Fondo",
+  bg: "Fondo",
   surface: "Superficie",
   text: "Texto",
-  textMuted: "Texto suave",
+  muted: "Texto suave",
   border: "Borde",
 }
 
@@ -70,7 +72,7 @@ export function TokensEditor({ tokens, palettes, onPatch }: Props) {
                 title={p.name}
               >
                 <div style={S.presetSwatches}>
-                  {(["primary", "accent", "background", "text"] as const).map((k) => (
+                  {(["primary", "accent", "bg", "text"] as const).map((k) => (
                     <span
                       key={k}
                       style={{
