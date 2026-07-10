@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { BS_RATE, PREVIEW_PRODUCTS, SCRAPED, TEMPLATES, VERTICALS, type StoreState } from "./data"
 
-export type PreviewMode = "identity" | "instagram" | "instagram-found" | "template" | "final"
+export type PreviewMode = "identity" | "instagram"
 
 interface PhonePreviewProps {
   mode: PreviewMode
@@ -15,12 +15,12 @@ export function PhonePreview({ mode, store, onbStep }: PhonePreviewProps) {
   const name = store.name || ""
   const slug = store.slug || ""
   const tpl = TEMPLATES.find((t) => t.id === store.template) || TEMPLATES[0]
-  const accent = mode === "instagram-found" || tpl.id === "warm" ? "#C63E2A" : tpl.accent
+  const accent = tpl.id === "warm" ? "#C63E2A" : tpl.accent
   const isDark = tpl.id === "dark"
   const subInk = isDark ? "rgba(255,255,255,0.55)" : "var(--ink-3)"
   const bodyInk = isDark ? "rgba(255,255,255,0.85)" : "var(--ink-2)"
 
-  const showPhotos = mode === "instagram-found" || mode === "template" || mode === "final" || onbStep >= 4
+  const showPhotos = onbStep >= 4
   const [currency, setCurrency] = useState<"USD" | "BS">("USD")
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function PhonePreview({ mode, store, onbStep }: PhonePreviewProps) {
   const fmtPrice = (usd: number) => (currency === "USD" ? `$${usd}` : `Bs. ${(usd * BS_RATE).toFixed(0)}`)
 
   // Empty state: step 0 with no name
-  if (!name && onbStep === 0 && mode !== "final") {
+  if (!name && onbStep === 0) {
     return (
       <div style={{ padding: "56px 22px 22px", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "linear-gradient(180deg, #F8FAFF, #fff)", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 20% 20%, rgba(30,58,138,0.04), transparent 40%), radial-gradient(circle at 80% 80%, rgba(220,74,61,0.04), transparent 40%)" }} />

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { ApiError } from "@/lib/http/types"
 import { StoreHttpRepository } from "@/lib/stores-api/store.http-repository"
@@ -18,7 +19,7 @@ import {
 
 type Screen =
   | "welcome" | "login" | "login-error" | "forgot" | "register" | "register-exists"
-  | "onb" | "celebration" | "ready" | "ai-catalog" | "scraper-failed"
+  | "onb" | "celebration" | "ai-catalog" | "scraper-failed"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"
 function startGoogleOAuth() {
@@ -55,6 +56,7 @@ const ONB_PREVIEW: PreviewMode[] = ["identity", "identity", "instagram"]
 const ONB_CTA: (string | null)[] = [null, null, "¡Crear mi tienda! 🎉"]
 
 export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = false }: { initialScreen?: Screen; showScreenJumper?: boolean }) {
+  const router = useRouter()
   const [screen, setScreen] = useState<Screen>(initialScreen)
   const [onbStep, setOnbStep] = useState(0)
   const [navOpen, setNavOpen] = useState(false)
@@ -130,7 +132,6 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
     { num: "04", label: "Onboarding · Link", onClick: () => goOnb(1) },
     { num: "05", label: "Onboarding · Instagram", onClick: () => goOnb(2) },
     { num: "06", label: "🎉 Celebración", onClick: () => goScreen("celebration") },
-    { num: "07", label: "Tienda lista", onClick: () => goScreen("ready") },
   ]
 
   return (
@@ -168,8 +169,7 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
       )}
       {screen === "register-exists" && <RegisterExistsScreen email={conflictEmail} onLogin={() => goScreen("login")} onForgot={() => goScreen("forgot")} onRegister={() => goScreen("register")} />}
       {screen === "scraper-failed" && <ScraperFailedScreen onScratch={() => goOnb(5)} />}
-      {screen === "celebration" && <CelebrationScreen name={user?.name ?? null} onReady={() => goScreen("ready")} />}
-      {screen === "ready" && <ReadyScreen store={store} />}
+      {screen === "celebration" && <CelebrationScreen name={user?.name ?? null} onReady={() => router.push("/dashboard")} />}
       {screen === "ai-catalog" && <AiCatalog onBack={() => goOnb(4)} onContinue={() => goOnb(5)} />}
 
       {screen === "onb" && (
@@ -771,62 +771,6 @@ function CelebrationScreen({ name, onReady }: { name: string | null; onReady: ()
         <h1 style={{ fontSize: 80, lineHeight: 1, letterSpacing: "-0.04em", fontWeight: 700, margin: "0 0 18px" }}>¡Tu tienda está <span className="serif-it" style={{ color: "var(--accent-2)" }}>viva!</span></h1>
         <p style={{ fontSize: 20, color: "rgba(255,255,255,0.85)", margin: "0 0 36px" }}>{firstName ? `Qué bueno tenerte aquí, ${firstName}. ` : "Qué bueno tenerte aquí. "}Ya puedes empezar a vender por bylink.</p>
         <button type="button" onClick={onReady} style={{ padding: "18px 32px", background: "#fff", color: "var(--brand)", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 16, cursor: "pointer", boxShadow: "0 16px 40px -10px rgba(0,0,0,0.4)" }}>Ver mi tienda →</button>
-      </div>
-    </div>
-  )
-}
-
-function ReadyScreen({ store }: { store: StoreState }) {
-  const [copied, setCopied] = useState(false)
-  const slug = store.slug || "tu-tienda"
-  const nextSteps = [
-    { icon: "👀", bg: "rgba(30,58,138,0.1)", color: "var(--brand)", title: "Ver mi tienda en vivo", desc: "Como la verán tus clientes", href: `/${slug}` },
-    { icon: "📦", bg: "rgba(220,74,61,0.1)", color: "var(--accent)", title: "Agregar mis productos", desc: "Sube fotos, precios y stock", href: "/dashboard?view=catalog" },
-    { icon: "📊", bg: "rgba(16,185,129,0.1)", color: "var(--success)", title: "Ir al dashboard", desc: "Estadísticas, pedidos y configuración", href: "/dashboard" },
-  ]
-  return (
-    <div className="ad-shell">
-      <div className="ad-left">
-        <Logo />
-        <div style={{ flex: 1, maxWidth: 480, margin: "0 auto", width: "100%", padding: "40px 0" }}>
-          <div className="mono" style={{ fontSize: 11, color: "var(--success)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>— ¡todo listo!</div>
-          <h1 style={{ fontSize: 44, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 700, margin: "0 0 12px" }}>Tu tienda está en <span className="serif-it" style={{ color: "var(--brand)" }}>vivo</span>.</h1>
-          <p style={{ fontSize: 16, color: "var(--ink-2)", margin: "0 0 28px" }}>Comparte tu link y empieza a recibir pedidos hoy mismo.</p>
-          <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.1em", marginBottom: 8 }}>TU LINK PÚBLICO</div>
-          <div style={{ padding: 18, border: "1.5px solid var(--brand)", borderRadius: 14, background: "rgba(30,58,138,0.04)", display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="mono" style={{ fontSize: 17, fontWeight: 700, color: "var(--brand)", wordBreak: "break-all" }}>bylink.app/{slug}</div>
-            </div>
-            <button type="button" onClick={() => { navigator.clipboard?.writeText(`bylink.app/${slug}`); setCopied(true); setTimeout(() => setCopied(false), 1500) }} style={{ padding: "10px 16px", background: "var(--brand)", color: "#fff", borderRadius: 10, fontWeight: 600, fontSize: 13, flexShrink: 0, border: "none", cursor: "pointer" }}>{copied ? "✓ Copiado" : "Copiar"}</button>
-          </div>
-          <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-            {[["📸", "Instagram"], ["💬", "WhatsApp"], ["🎵", "TikTok"], ["🔗", "QR"]].map(([icon, label]) => (
-              <button key={label} type="button" className="ad-btn ad-btn-ghost" style={{ padding: "14px 8px", flexDirection: "column", gap: 6, fontSize: 12 }}><span style={{ fontSize: 22 }}>{icon}</span>{label}</button>
-            ))}
-          </div>
-          <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.1em", margin: "32px 0 12px" }}>SIGUIENTES PASOS</div>
-          <div style={{ display: "grid", gap: 10 }}>
-            {nextSteps.map((s) => (
-              <Link key={s.title} href={s.href} className="ad-opt">
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: s.bg, color: s.color, display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>{s.icon}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>{s.title}</div>
-                  <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{s.desc}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="ad-right">
-        <div className="ad-glow" />
-        <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-          <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.12em" }}>YA ESTÁ EN VIVO</div>
-          <div className="ad-phone">
-            <div className="ad-phone-notch" />
-            <div className="ad-phone-screen"><PhonePreview mode="final" store={store} onbStep={7} /></div>
-          </div>
-        </div>
       </div>
     </div>
   )
