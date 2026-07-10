@@ -11,6 +11,7 @@ import { VenezuelaFlag } from "@/components/bylink/venezuela-flag"
 import { Icon } from "@/components/bylink/icon"
 import { PhonePreview, type PreviewMode } from "./phone-preview"
 import { AiCatalog } from "./ai-catalog"
+import { CinematicScraper } from "./cinematic-scraper"
 import {
   AUTH_STYLES,
   slugify,
@@ -19,7 +20,7 @@ import {
 
 type Screen =
   | "welcome" | "login" | "login-error" | "forgot" | "register" | "register-exists"
-  | "onb" | "celebration" | "ai-catalog" | "scraper-failed"
+  | "onb" | "importing" | "celebration" | "ai-catalog" | "scraper-failed"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"
 function startGoogleOAuth() {
@@ -103,7 +104,7 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
         await storeRepo.update(created.id, { instagramHandle: handle }).catch(() => {})
       }
       await loadSession()
-      goScreen("celebration")
+      goScreen(store.instagramImport === true && handle ? "importing" : "celebration")
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "No se pudo crear la tienda"
       setCreateError(msg)
@@ -131,6 +132,7 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
     { num: "03", label: "Onboarding · Nombre", onClick: () => goOnb(0) },
     { num: "04", label: "Onboarding · Link", onClick: () => goOnb(1) },
     { num: "05", label: "Onboarding · Instagram", onClick: () => goOnb(2) },
+    { num: "05a", label: "📸 Importando de IG", onClick: () => { patch({ instagram: "@rosa.atelier" }); goScreen("importing") } },
     { num: "06", label: "🎉 Celebración", onClick: () => goScreen("celebration") },
   ]
 
@@ -169,6 +171,7 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
       )}
       {screen === "register-exists" && <RegisterExistsScreen email={conflictEmail} onLogin={() => goScreen("login")} onForgot={() => goScreen("forgot")} onRegister={() => goScreen("register")} />}
       {screen === "scraper-failed" && <ScraperFailedScreen onScratch={() => goOnb(5)} />}
+      {screen === "importing" && <CinematicScraper handle={store.instagram} onDone={() => goScreen("celebration")} />}
       {screen === "celebration" && <CelebrationScreen name={user?.name ?? null} onReady={() => router.push("/dashboard")} />}
       {screen === "ai-catalog" && <AiCatalog onBack={() => goOnb(4)} onContinue={() => goOnb(5)} />}
 

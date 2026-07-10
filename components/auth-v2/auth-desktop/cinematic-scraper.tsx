@@ -128,9 +128,21 @@ export function CinematicScraper({ handle, onDone }: CinematicScraperProps) {
           </div>
           bylink<span style={{ color: "#3B5BDB" }}>.</span>
         </div>
-        <div className="cinema-terminal" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
-          <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#10B981", boxShadow: "0 0 8px #10B981" }} />
-          BYLINK.AI ENGINE · scraping en vivo
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div className="cinema-terminal" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
+            <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#10B981", boxShadow: "0 0 8px #10B981" }} />
+            BYLINK.AI ENGINE · scraping en vivo
+          </div>
+          {!done && (
+            <button
+              type="button"
+              onClick={close}
+              className="cinema-terminal"
+              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 999, padding: "6px 14px", fontSize: 11, color: "rgba(255,255,255,0.7)", cursor: "pointer" }}
+            >
+              Saltar, seguir importando en segundo plano →
+            </button>
+          )}
         </div>
       </div>
 

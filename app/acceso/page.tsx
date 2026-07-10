@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 
 type Screen =
   | "welcome" | "login" | "login-error" | "forgot" | "register" | "register-exists"
-  | "onb" | "celebration" | "ai-catalog" | "scraper-failed"
-const VALID: Screen[] = ["welcome", "login", "login-error", "forgot", "register", "register-exists", "onb", "celebration", "ai-catalog", "scraper-failed"]
+  | "onb" | "importing" | "celebration" | "ai-catalog" | "scraper-failed"
+const VALID: Screen[] = ["welcome", "login", "login-error", "forgot", "register", "register-exists", "onb", "importing", "celebration", "ai-catalog", "scraper-failed"]
 
 interface Props {
   searchParams: Promise<{ screen?: string }>
