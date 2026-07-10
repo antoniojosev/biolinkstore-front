@@ -31,6 +31,7 @@ export interface ProductAttributeResponse {
   id: string
   name: string
   type: string
+  role: string
   options: string[]
   optionsMeta?: Record<string, any>
   sortOrder: number
@@ -66,6 +67,7 @@ export interface CreateProductDto {
 export interface ProductAttributeDto {
   name: string
   type?: string
+  role?: string
   options: string[]
   optionsMeta?: Record<string, any>
   sortOrder?: number
@@ -84,6 +86,7 @@ export interface UpdateProductDto {
   isVisible?: boolean
   isFeatured?: boolean
   isOnSale?: boolean
+  attributes?: ProductAttributeDto[]
   categoryIds?: string[]
 }
 

@@ -1,10 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import type { CreateProductDto, UpdateProductDto, ProductResponse, PriceCurrency } from "@/lib/products-api/types"
+import { useEffect, useMemo, useState } from "react"
+import type { CreateProductDto, UpdateProductDto, ProductResponse, PriceCurrency, ProductAttributeDto } from "@/lib/products-api/types"
 import type { CategoryResponse } from "@/lib/categories-api/types"
+import { ProductHttpRepository } from "@/lib/products-api/product.http-repository"
 import { ApiError } from "@/lib/http/types"
+import { useAuth } from "@/contexts/auth-context"
 import { UploadButton } from "./upload-button"
+import { AttributesEditor } from "./attributes-editor"
+import { VariantsEditor, type VariantDraft } from "./variants-editor"
 
 interface ProductFormSheetProps {
   open: boolean
@@ -12,8 +16,8 @@ interface ProductFormSheetProps {
   product: ProductResponse | null
   categories: CategoryResponse[]
   onClose(): void
-  onCreate(dto: CreateProductDto): Promise<void>
-  onUpdate(id: string, dto: UpdateProductDto): Promise<void>
+  onCreate(dto: CreateProductDto): Promise<ProductResponse>
+  onUpdate(id: string, dto: UpdateProductDto): Promise<ProductResponse>
   onDelete(id: string): Promise<void>
 }
 
@@ -30,11 +34,18 @@ interface FormState {
   isVisible: boolean
   isFeatured: boolean
   categoryIds: string[]
+  attributes: ProductAttributeDto[]
+  variants: VariantDraft[]
 }
 
 const EMPTY: FormState = {
   name: "", sku: "", description: "", basePrice: "", priceCurrency: "VES",
   compareAtPrice: "", stock: "", images: [], newImageUrl: "", isVisible: true, isFeatured: false, categoryIds: [],
+  attributes: [], variants: [],
+}
+
+function comboKey(combo: Record<string, string>): string {
+  return Object.entries(combo).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${k}:${v}`).join("|")
 }
 
 function fromProduct(p: ProductResponse): FormState {
@@ -51,6 +62,8 @@ function fromProduct(p: ProductResponse): FormState {
     isVisible: p.isVisible,
     isFeatured: p.isFeatured,
     categoryIds: [...(p.categoryIds ?? [])],
+    attributes: (p.attributes ?? []).map((a) => ({ name: a.name, type: a.type, role: a.role, options: [...a.options], optionsMeta: a.optionsMeta, sortOrder: a.sortOrder })),
+    variants: (p.variants ?? []).map((v) => ({ combination: v.combination, priceAdjustment: v.priceAdjustment, stock: v.stock != null ? String(v.stock) : "" })),
   }
 }
 
@@ -65,6 +78,8 @@ const SHEET_STYLES = `
 
 export function ProductFormSheet({ open, storeId, product, categories, onClose, onCreate, onUpdate, onDelete }: ProductFormSheetProps) {
   const editing = product != null
+  const { http } = useAuth()
+  const productRepo = useMemo(() => new ProductHttpRepository(http), [http])
   const [form, setForm] = useState<FormState>(EMPTY)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -107,18 +122,48 @@ export function ProductFormSheet({ open, storeId, product, categories, onClose, 
     setError(null)
   }
 
+  async function reconcileVariants(productId: string) {
+    if (!storeId) return
+    const existing = product?.variants ?? []
+    const existingByKey = new Map(existing.map((v) => [comboKey(v.combination), v]))
+    const currentKeys = new Set(form.variants.map((v) => comboKey(v.combination)))
+
+    for (const draft of form.variants) {
+      const key = comboKey(draft.combination)
+      const prev = existingByKey.get(key)
+      const stockN = draft.stock.trim() ? parseInt(draft.stock, 10) : undefined
+      if (!prev) {
+        await productRepo.createVariant(storeId, productId, {
+          combination: draft.combination,
+          priceAdjustment: draft.priceAdjustment,
+          stock: stockN,
+        })
+      } else if (prev.priceAdjustment !== draft.priceAdjustment || (prev.stock ?? undefined) !== stockN) {
+        await productRepo.updateVariant(storeId, productId, prev.id, {
+          priceAdjustment: draft.priceAdjustment,
+          stock: stockN,
+        })
+      }
+    }
+    for (const prev of existing) {
+      if (!currentKeys.has(comboKey(prev.combination))) {
+        await productRepo.deleteVariant(storeId, productId, prev.id)
+      }
+    }
+  }
+
   async function save() {
     if (!form.name.trim() || !form.basePrice) { setError("Nombre y precio base son obligatorios"); return }
     setSaving(true); setError(null)
     const price = parseFloat(form.basePrice)
     const compare = form.compareAtPrice ? parseFloat(form.compareAtPrice) : undefined
     const stockN = form.stock ? parseInt(form.stock, 10) : undefined
-    // priceCurrency intentionally omitted: backend main doesn't accept it yet
-    // (lands with BE-117). Field stays in the UI so we wire it without churn.
+    const validAttributes = form.attributes.filter((a) => a.name.trim() && a.options.length > 0)
     const baseDto: CreateProductDto & UpdateProductDto = {
       name: form.name.trim(),
       description: form.description.trim() || undefined,
       basePrice: price,
+      priceCurrency: form.priceCurrency,
       compareAtPrice: compare,
       stock: stockN,
       sku: form.sku.trim() || undefined,
@@ -126,10 +171,13 @@ export function ProductFormSheet({ open, storeId, product, categories, onClose, 
       isFeatured: form.isFeatured,
       images: form.images.length > 0 ? form.images : undefined,
       categoryIds: form.categoryIds.length > 0 ? form.categoryIds : undefined,
+      attributes: validAttributes,
     }
     try {
-      if (editing && product) await onUpdate(product.id, baseDto)
-      else await onCreate(baseDto as CreateProductDto)
+      const saved = editing && product
+        ? await onUpdate(product.id, baseDto)
+        : await onCreate(baseDto as CreateProductDto)
+      await reconcileVariants(saved.id)
       onClose()
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "No se pudo guardar")
@@ -264,6 +312,18 @@ export function ProductFormSheet({ open, storeId, product, categories, onClose, 
                 </div>
               </div>
             )}
+
+            <div>
+              <label className="label" style={{ marginBottom: 8, display: "block" }}>Atributos (talla, color…)</label>
+              <AttributesEditor attributes={form.attributes} onChange={(attributes) => patch({ attributes })} />
+            </div>
+
+            <VariantsEditor
+              basePrice={parseFloat(form.basePrice) || 0}
+              attributes={form.attributes}
+              variants={form.variants}
+              onChange={(variants) => patch({ variants })}
+            />
           </div>
         </div>
 

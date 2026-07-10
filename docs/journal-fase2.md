@@ -150,3 +150,25 @@ Fuente: `docs/plan-fase2-front-prod.md`. Rama `fase2/front-prod` desde `staging/
 **Diferido (no es bug, es alcance de otro bloque):** revocar una invitación pendiente no tiene endpoint en el backend (`delete()` existe en el repositorio pero ningún controller lo expone) — se dejó fuera porque no es parte del bug de conteo, es una feature nueva; documentado por si se quiere agregar después.
 
 **Verificación:** backend `pnpm build` limpio (nuevo endpoint + fix de límite compilan) · frontend `npx tsc --noEmit` y `pnpm build` limpios.
+
+---
+
+## B6 — Productos: paridad total (2026-07-09)
+
+**`priceCurrency` — confirmado backend real, sin cambios de API:** el comentario en `product-form-sheet.tsx` decía "backend main doesn't accept it yet (lands with BE-117)". Verificado contra `CreateProductDto`/backend real: **ya lo acepta** (`@IsIn(['USD','EUR','VES'])`) desde antes de esta sesión — el comentario estaba obsoleto, no la limitación. Se agregó `priceCurrency: form.priceCurrency` al DTO enviado; cero cambios de backend.
+
+**Hallazgo grande: la tabla de precios por variante del legacy nunca funcionó de verdad.** Al leer `app/dashboard/productos/[id]/editar/page.tsx` para "portar" `VariantPricingTable`, encontré que su estado `variantPricing`/`setVariantPricing` **solo se leía a sí mismo** (prop `pricing`/`onChange` de ida y vuelta con el propio componente) — `onSubmit` nunca lo enviaba a ningún lado. El backend sí tiene todo el soporte real (`ProductVariant` model + `POST/PATCH/DELETE .../products/:id/variants`, y el cliente `ProductHttpRepository` YA tenía `createVariant`/`updateVariant`/`deleteVariant` implementados) — nadie los llamaba. No había nada funcional que "portar" 1:1; se construyó la integración real desde cero sobre la API que ya existía.
+
+**Atributos también tenían un límite real en el backend (no solo en el legacy):** `UpdateProductDto` del backend **no tenía campo `attributes`** — solo `CreateProductDto` lo aceptaba. Un producto podía nacer con atributos pero nunca se le podían editar después vía la API existente. Fix de backend (aditivo, sin tocar seguridad):
+- `UpdateProductDto` (+`ProductAttributeDto` reusado de create), `UpdateProductData` (dominio) y `PrismaProductRepository.update()` — mismo patrón `deleteMany + create` que ya usa `categoryIds` en esa misma función (reemplazo completo, no diff — los atributos no tienen id estable del lado del cliente).
+- `UpdateProductUseCase` normaliza `dto.attributes` igual que `CreateProductUseCase` (`type ?? 'text'`, `role ?? 'variant'`, `sortOrder ?? index`).
+- Frontend: `UpdateProductDto`/`ProductAttributeDto`/`ProductAttributeResponse` (faltaba `role`) actualizados para que los tipos coincidan.
+
+**Nuevos componentes v2 (reemplazan lo que el legacy prometía pero no cumplía):**
+- `components/dashboard-v2/attributes-editor.tsx`: CRUD de atributos (nombre, tipo, **rol** — nuevo concepto del backend que el legacy no tenía: `variant` crea combinaciones con precio/stock propio, el resto es solo informativo), opciones con tags, selector de color hex por opción.
+- `components/dashboard-v2/variants-editor.tsx`: genera el producto cartesiano de las opciones de los atributos con `role === "variant"` (NO de todos los atributos como hacía el legacy — así una especificación como "Material" no explota en SKUs innecesarios) y edita ajuste de precio + stock por combinación, con el precio final calculado en vivo.
+- `product-form-sheet.tsx`: al guardar, hace la reconciliación real contra `product.variants` — crea las combinaciones nuevas, actualiza las que cambiaron de precio/stock, borra las que ya no aplican (el usuario quitó una opción). Requirió cambiar `onCreate`/`onUpdate` para que devuelvan el `ProductResponse` (antes `Promise<void>`) — la reconciliación de variantes necesita el id real del producto, que en creación no se conoce hasta que el POST responde.
+
+**Retiro de las 3 rutas legacy de productos** (mismo patrón ya usado por `/dashboard/categorias` etc.): `app/dashboard/productos/{page,crear/page,[id]/editar/page}.tsx` ahora son `redirect("/dashboard?view=catalog")`. Confirmado que `variant-pricing-table.tsx`, `product-attributes-builder.tsx` y `product-image-upload.tsx` quedaron sin ningún importador → **eliminados** (no diferidos a B8, ya que B6 mismo los deja huérfanos).
+
+**Verificación:** backend `pnpm build` limpio · frontend `npx tsc --noEmit` y `pnpm build` limpios (mismas 39 rutas, las 3 de productos ahora son redirects estáticos donde antes eran páginas completas).

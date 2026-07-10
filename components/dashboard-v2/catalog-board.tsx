@@ -95,13 +95,15 @@ export function CatalogBoard() {
   }
   async function handleCreate(dto: CreateProductDto) {
     if (!storeId) throw new Error("Sin tienda activa")
-    await productRepo.create(storeId, dto)
+    const created = await productRepo.create(storeId, dto)
     setRefreshTick((n) => n + 1)
+    return created
   }
   async function handleUpdate(id: string, dto: UpdateProductDto) {
     if (!storeId) throw new Error("Sin tienda activa")
-    await productRepo.update(storeId, id, dto)
+    const updated = await productRepo.update(storeId, id, dto)
     setRefreshTick((n) => n + 1)
+    return updated
   }
   async function handleDelete(id: string) {
     if (!storeId) throw new Error("Sin tienda activa")
