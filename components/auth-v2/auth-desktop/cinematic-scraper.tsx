@@ -13,6 +13,10 @@ interface CinematicScraperProps {
   onDone: () => void
 }
 
+// TODO(no urgente): esta pantalla usa su propia paleta (#3B5BDB azul brillante,
+// negro puro) en vez de los tokens navy-coral del resto de bylink — revisar si
+// vale la pena alinearla con --brand/--accent/--bg cuando se retome este flujo.
+
 const cinemaStyles = `
 @keyframes cinemaFade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes cinemaFadeOut { to { opacity: 0; } }

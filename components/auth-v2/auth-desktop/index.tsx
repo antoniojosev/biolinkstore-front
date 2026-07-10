@@ -104,6 +104,8 @@ export function AuthDesktopFlow({ initialScreen = "welcome", showScreenJumper = 
         await storeRepo.update(created.id, { instagramHandle: handle }).catch(() => {})
       }
       await loadSession()
+      // TODO(no urgente): el CTA "¡Crear mi tienda!" no avisa que va a abrir la
+      // animación de importación — revisar si el salto directo se siente abrupto.
       goScreen(store.instagramImport === true && handle ? "importing" : "celebration")
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "No se pudo crear la tienda"
