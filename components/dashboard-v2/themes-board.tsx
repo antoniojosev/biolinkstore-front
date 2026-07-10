@@ -64,7 +64,7 @@ export function ThemesBoard({ onOpenEditor }: Props) {
       <a href="mailto:hola@bylink.app?subject=ByLink%20Studio" style={S.promoBanner} title="Un diseñador del equipo bylink diseña tu tienda completa">
         <div style={S.promoTxt}>
           <span style={S.promoHeadline}>¿Ninguno es tu marca?</span>
-          <p style={S.promoSub}>Un diseñador del equipo bylink te la hace a medida. Entrega en 7 días.</p>
+          <p style={S.promoSub}>Un diseñador del equipo bylink te la hace a medida.</p>
         </div>
         <span style={S.promoCta}>Desde $199 →</span>
       </a>

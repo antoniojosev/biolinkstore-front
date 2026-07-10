@@ -118,7 +118,7 @@ export function TemplatesSidebar({ templates, activeTemplate, storePlan, loading
           >
             <div style={S.studioTag}>bylink studio</div>
             <div style={S.studioHeadline}>¿Ninguno es tu marca?</div>
-            <div style={S.studioSub}>Un diseñador te la hace a medida. Entrega en 7 días.</div>
+            <div style={S.studioSub}>Un diseñador te la hace a medida.</div>
             <div style={S.studioFoot}>
               <span>
                 Desde <strong style={{ color: "#E8C07A" }}>$199</strong>
