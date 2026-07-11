@@ -17,6 +17,8 @@ interface Props {
 
 export function SectionsPanel({ template, sections, selectedKey, onSelectSection, onReorder, onToggleVisible, onAddSection, onGoToThemes }: Props) {
   const [addOpen, setAddOpen] = useState(false)
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
   function move(index: number, dir: -1 | 1) {
     const target = index + dir
@@ -24,6 +26,35 @@ export function SectionsPanel({ template, sections, selectedKey, onSelectSection
     const next = sections.slice()
     ;[next[index], next[target]] = [next[target], next[index]]
     onReorder(next)
+  }
+
+  function resetDrag() {
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
+
+  function handleDragStart(e: React.DragEvent, index: number) {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = "move"
+  }
+
+  function handleDragOver(e: React.DragEvent, index: number) {
+    e.preventDefault()
+    if (draggedIndex === null || draggedIndex === index) return
+    if (dragOverIndex !== index) setDragOverIndex(index)
+  }
+
+  function handleDrop(e: React.DragEvent, index: number) {
+    e.preventDefault()
+    if (draggedIndex === null || draggedIndex === index) {
+      resetDrag()
+      return
+    }
+    const next = sections.slice()
+    const [moved] = next.splice(draggedIndex, 1)
+    next.splice(index, 0, moved)
+    onReorder(next)
+    resetDrag()
   }
 
   const schemaSections = template?.sectionSchema?.sections ?? []
@@ -47,13 +78,29 @@ export function SectionsPanel({ template, sections, selectedKey, onSelectSection
         {sections.map((s, i) => {
           const isSelected = s.key === selectedKey
           const isHidden = s.visible === false
+          const isDragging = draggedIndex === i
+          const isDragOver = dragOverIndex === i && draggedIndex !== i
           return (
             <div
               key={s.key}
+              draggable
+              onDragStart={(e) => handleDragStart(e, i)}
+              onDragOver={(e) => handleDragOver(e, i)}
+              onDrop={(e) => handleDrop(e, i)}
+              onDragEnd={resetDrag}
               onClick={() => onSelectSection(s.key)}
-              style={{ ...S.row, ...(isSelected ? S.rowSelected : null), ...(isHidden ? S.rowHidden : null) }}
+              style={{
+                ...S.row,
+                ...(isSelected ? S.rowSelected : null),
+                ...(isHidden ? S.rowHidden : null),
+                ...(isDragging ? S.rowDragging : null),
+                ...(isDragOver ? S.rowDragOver : null),
+              }}
             >
               <div style={S.gripCol}>
+                <span style={S.gripHandle} title="Arrastrar para reordenar">
+                  ⠿
+                </span>
                 <button type="button" onClick={(e) => { e.stopPropagation(); move(i, -1) }} disabled={i === 0} style={S.gripBtn} title="Subir">
                   ↑
                 </button>
@@ -139,10 +186,13 @@ const S: Record<string, React.CSSProperties> = {
   },
   rowSelected: { borderColor: "var(--brand)", background: "rgba(30,58,138,0.05)", boxShadow: "0 0 0 1px var(--brand)" },
   rowHidden: { opacity: 0.5 },
-  gripCol: { display: "flex", flexDirection: "column", gap: 1, flexShrink: 0 },
+  rowDragging: { opacity: 0.4 },
+  rowDragOver: { borderColor: "var(--brand)", boxShadow: "0 -2px 0 0 var(--brand)" },
+  gripCol: { display: "flex", flexDirection: "column", alignItems: "center", gap: 1, flexShrink: 0, cursor: "grab" },
+  gripHandle: { fontSize: 12, color: "var(--ink-3)", lineHeight: 1, letterSpacing: -1 },
   gripBtn: {
-    width: 18, height: 14, border: "none", background: "none", color: "var(--ink-3)",
-    fontSize: 10, cursor: "pointer", lineHeight: 1, padding: 0,
+    width: 18, height: 12, border: "none", background: "none", color: "var(--ink-3)",
+    fontSize: 9, cursor: "pointer", lineHeight: 1, padding: 0,
   },
   icon: { width: 26, height: 26, borderRadius: 7, background: "var(--bg-2)", color: "var(--ink-2)", display: "grid", placeItems: "center", fontSize: 12, flexShrink: 0 },
   info: { flex: 1, minWidth: 0 },
