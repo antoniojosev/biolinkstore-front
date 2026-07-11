@@ -488,11 +488,129 @@ function HeroSection({ section, store, resolved }: SectionProps) {
   const title = s(section, "headline", store.name)
   const subtitle = s(section, "subheadline", store.bio ?? "")
   const image = s(section, "image")
-  const eyebrow = s(section, "eyebrow")
+  // Bug: el schema declara "kicker" (3 de 9 templates lo tienen), el renderer
+  // leia "eyebrow" - una prop que ningun template declara. Nunca se mostraba.
+  const eyebrow = s(section, "kicker")
   const ctaLabel = s(section, "ctaLabel", "Ver catálogo")
   const ctaHrefValue = ctaHref(section, store, `Hola ${store.name}, vi tu tienda y quiero más info`)
   const ctaExternal = s(section, "ctaType", "scroll") !== "scroll"
+  const layout = s(section, "layout", "split")
+  const centered = layout === "compact" || layout === "banner"
+  const onDark = layout === "banner" && Boolean(image)
 
+  const eyebrowEl = eyebrow ? (
+    <div
+      style={{
+        color: onDark ? "rgba(255,255,255,0.9)" : "var(--bl-accent)",
+        fontWeight: 700,
+        fontSize: 12,
+        textTransform: "uppercase",
+        letterSpacing: 0.08,
+        marginBottom: 14,
+      }}
+    >
+      {eyebrow}
+    </div>
+  ) : null
+
+  const ctasEl = (
+    <div style={{ display: "flex", gap: 10, marginTop: 26, justifyContent: centered ? "center" : "flex-start" }}>
+      <a
+        href={ctaHrefValue}
+        {...(ctaExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        style={buttonStyleProps(resolved.buttonStyle, resolved.radiusPx)}
+      >
+        {ctaLabel}
+      </a>
+      {store.whatsappNumber && s(section, "ctaType", "scroll") !== "whatsapp" && (
+        <a
+          href={whatsappUrl(store.whatsappNumber, `Hola ${store.name}, vi tu tienda y quiero más info`)}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            ...buttonStyleProps(resolved.buttonStyle, resolved.radiusPx, "secondary"),
+            background: "transparent",
+            color: onDark ? "#fff" : "var(--bl-text)",
+            border: `1.5px solid ${onDark ? "rgba(255,255,255,0.6)" : "var(--bl-border)"}`,
+          }}
+        >
+          WhatsApp
+        </a>
+      )}
+    </div>
+  )
+
+  if (layout === "compact") {
+    return (
+      <SectionShell>
+        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+          {eyebrowEl}
+          <h1
+            style={{
+              fontFamily: "var(--bl-heading-font)",
+              fontSize: "clamp(32px, 5vw, 48px)",
+              letterSpacing: "-0.025em",
+              lineHeight: 1.1,
+              margin: 0,
+              color: "var(--bl-text)",
+            }}
+          >
+            {title}
+          </h1>
+          {subtitle && (
+            <p style={{ fontSize: 16, lineHeight: 1.55, color: "var(--bl-text-muted)", marginTop: 16, maxWidth: 480, marginInline: "auto" }}>
+              {subtitle}
+            </p>
+          )}
+          {ctasEl}
+        </div>
+      </SectionShell>
+    )
+  }
+
+  if (layout === "banner" && image) {
+    return (
+      <section
+        className="bl-section"
+        style={{
+          position: "relative",
+          minHeight: "56vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "calc(var(--bl-spacing) * 2.4) 28px",
+          overflow: "hidden",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={image} alt={title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.55))" }} />
+        <div style={{ position: "relative", maxWidth: 640, textAlign: "center", color: "#fff" }}>
+          {eyebrowEl}
+          <h1
+            style={{
+              fontFamily: "var(--bl-heading-font)",
+              fontSize: "clamp(36px, 5vw, 56px)",
+              letterSpacing: "-0.025em",
+              lineHeight: 1.05,
+              margin: 0,
+              color: "#fff",
+            }}
+          >
+            {title}
+          </h1>
+          {subtitle && (
+            <p style={{ fontSize: 17, lineHeight: 1.55, color: "rgba(255,255,255,0.85)", marginTop: 18, maxWidth: 520, marginInline: "auto" }}>
+              {subtitle}
+            </p>
+          )}
+          {ctasEl}
+        </div>
+      </section>
+    )
+  }
+
+  // split — default, y fallback si "banner" se eligió sin imagen cargada
   return (
     <SectionShell>
       <div
@@ -505,20 +623,7 @@ function HeroSection({ section, store, resolved }: SectionProps) {
         }}
       >
         <div>
-          {eyebrow && (
-            <div
-              style={{
-                color: "var(--bl-accent)",
-                fontWeight: 700,
-                fontSize: 12,
-                textTransform: "uppercase",
-                letterSpacing: 0.08,
-                marginBottom: 14,
-              }}
-            >
-              {eyebrow}
-            </div>
-          )}
+          {eyebrowEl}
           <h1
             style={{
               fontFamily: "var(--bl-heading-font)",
@@ -544,33 +649,7 @@ function HeroSection({ section, store, resolved }: SectionProps) {
               {subtitle}
             </p>
           )}
-          <div style={{ display: "flex", gap: 10, marginTop: 26 }}>
-            <a
-              href={ctaHrefValue}
-              {...(ctaExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              style={buttonStyleProps(resolved.buttonStyle, resolved.radiusPx)}
-            >
-              {ctaLabel}
-            </a>
-            {store.whatsappNumber && s(section, "ctaType", "scroll") !== "whatsapp" && (
-              <a
-                href={whatsappUrl(
-                  store.whatsappNumber,
-                  `Hola ${store.name}, vi tu tienda y quiero más info`,
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  ...buttonStyleProps(resolved.buttonStyle, resolved.radiusPx, "secondary"),
-                  background: "transparent",
-                  color: "var(--bl-text)",
-                  border: "1.5px solid var(--bl-border)",
-                }}
-              >
-                WhatsApp
-              </a>
-            )}
-          </div>
+          {ctasEl}
         </div>
         {image && (
           /* eslint-disable-next-line @next/next/no-img-element */
@@ -675,6 +754,30 @@ function ProductGridSection({ section, products, categories, store, resolved, on
   const filterByCategory = bool(section, "filterByCategory", false)
   const showPrice = bool(section, "showPrice", true)
   const showSku = bool(section, "showSku", false)
+  const groupBy = s(section, "groupBy", "none")
+
+  const grid = (items: TemplateProduct[]) => (
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fit, minmax(${colMinWidth}, 1fr))`, gap: 18 }}>
+      {items.map((p) => (
+        <ProductCard key={p.id} product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} showPrice={showPrice} showSku={showSku} onOpen={onOpenProduct} />
+      ))}
+    </div>
+  )
+
+  const groupedByCategory = groupBy === "category" && categories.length > 0
+  const groups = groupedByCategory
+    ? (() => {
+        const byName = new Map<string, TemplateProduct[]>()
+        for (const p of products) {
+          const key = p.category || "Otros"
+          byName.set(key, [...(byName.get(key) ?? []), p])
+        }
+        const ordered = categories.map((c) => ({ name: c.name, items: byName.get(c.name) ?? [] })).filter((g) => g.items.length > 0)
+        const known = new Set(categories.map((c) => c.name))
+        const rest = products.filter((p) => !known.has(p.category || ""))
+        return rest.length > 0 ? [...ordered, { name: "Otros", items: rest }] : ordered
+      })()
+    : null
 
   return (
     <SectionShell>
@@ -712,18 +815,17 @@ function ProductGridSection({ section, products, categories, store, resolved, on
       )}
       {products.length === 0 ? (
         <p style={{ color: "var(--bl-text-muted)" }}>Aún no hay productos publicados.</p>
-      ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(auto-fit, minmax(${colMinWidth}, 1fr))`,
-            gap: 18,
-          }}
-        >
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} showPrice={showPrice} showSku={showSku} onOpen={onOpenProduct} />
+      ) : groups ? (
+        <div style={{ display: "grid", gap: "calc(var(--bl-spacing) * 1.5)" }}>
+          {groups.map((g) => (
+            <div key={g.name}>
+              <h3 style={{ fontFamily: "var(--bl-heading-font)", fontSize: 18, fontWeight: 600, margin: "0 0 14px" }}>{g.name}</h3>
+              {grid(g.items)}
+            </div>
           ))}
         </div>
+      ) : (
+        grid(products)
       )}
     </SectionShell>
   )
@@ -734,19 +836,74 @@ function FeaturedProductsSection({ section, products, store, resolved, onOpenPro
   const productIdItems = arr<{ id?: string }>(section, "productIds")
   const productIds = productIdItems.map((it) => it.id).filter((id): id is string => Boolean(id))
   const subset = productIds.length > 0 ? products.filter((p) => productIds.includes(p.id)) : products.slice(0, 4)
+  const layout = s(section, "layout", "grid")
+
+  const heading = (
+    <h2
+      style={{
+        fontFamily: "var(--bl-heading-font)",
+        fontSize: 28,
+        letterSpacing: "-0.02em",
+        margin: "0 0 calc(var(--bl-spacing) * 1.2)",
+      }}
+    >
+      {title}
+    </h2>
+  )
+
+  if (layout === "carousel") {
+    return (
+      <SectionShell background="var(--bl-surface)">
+        {heading}
+        <div style={{ display: "flex", gap: 18, overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: 4 }}>
+          {subset.map((p) => (
+            <div key={p.id} style={{ minWidth: 220, flexShrink: 0, scrollSnapAlign: "start" }}>
+              <ProductCard product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} onOpen={onOpenProduct} />
+            </div>
+          ))}
+        </div>
+      </SectionShell>
+    )
+  }
+
+  if (layout === "spotlight" && subset.length > 0) {
+    const [first, ...rest] = subset
+    return (
+      <SectionShell background="var(--bl-surface)">
+        {heading}
+        <div style={{ display: "grid", gridTemplateColumns: rest.length > 0 ? "1.3fr 1fr" : "1fr", gap: "calc(var(--bl-spacing) * 1.5)", alignItems: "start" }}>
+          <button
+            type="button"
+            onClick={() => onOpenProduct?.(first)}
+            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left", color: "var(--bl-text)", font: "inherit" }}
+          >
+            <div style={{ aspectRatio: "4/3", borderRadius: resolved.radiusPx, background: "var(--bl-border)", overflow: "hidden" }}>
+              {first.image && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={first.image} alt={first.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              )}
+            </div>
+            <div style={{ fontWeight: 700, fontSize: 20, marginTop: 14 }}>{first.name}</div>
+            {first.description && <p style={{ fontSize: 14, color: "var(--bl-text-muted)", marginTop: 6, lineHeight: 1.5 }}>{first.description}</p>}
+            <div style={{ fontFamily: "var(--bl-mono-font)", fontSize: 16, color: "var(--bl-primary)", fontWeight: 600, marginTop: 8 }}>
+              {priceLabel(first.price, priceCtx, store.currency)}
+            </div>
+          </button>
+          {rest.length > 0 && (
+            <div style={{ display: "grid", gap: 12 }}>
+              {rest.map((p) => (
+                <ProductCard key={p.id} product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} onOpen={onOpenProduct} />
+              ))}
+            </div>
+          )}
+        </div>
+      </SectionShell>
+    )
+  }
 
   return (
     <SectionShell background="var(--bl-surface)">
-      <h2
-        style={{
-          fontFamily: "var(--bl-heading-font)",
-          fontSize: 28,
-          letterSpacing: "-0.02em",
-          margin: "0 0 calc(var(--bl-spacing) * 1.2)",
-        }}
-      >
-        {title}
-      </h2>
+      {heading}
       <div
         style={{
           display: "grid",
@@ -764,18 +921,70 @@ function FeaturedProductsSection({ section, products, store, resolved, onOpenPro
 
 function CategoriesSection({ section, categories, resolved }: SectionProps) {
   const title = s(section, "title", "Categorías")
+  const layout = s(section, "layout", "pills")
+  const heading = (
+    <h2 style={{ fontFamily: "var(--bl-heading-font)", fontSize: 24, letterSpacing: "-0.02em", margin: "0 0 16px" }}>{title}</h2>
+  )
+
+  if (layout === "cards") {
+    return (
+      <SectionShell>
+        {heading}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14 }}>
+          {categories.map((c) => (
+            <a
+              key={c.id}
+              href={`#category-${c.id}`}
+              style={{
+                display: "block",
+                padding: "22px 16px",
+                textAlign: "center",
+                border: "1px solid var(--bl-border)",
+                borderRadius: resolved.radiusPx,
+                background: "var(--bl-surface)",
+                textDecoration: "none",
+                color: "var(--bl-text)",
+                fontWeight: 600,
+                fontSize: 14,
+              }}
+            >
+              {c.name}
+            </a>
+          ))}
+        </div>
+      </SectionShell>
+    )
+  }
+
+  if (layout === "sidebar") {
+    return (
+      <SectionShell>
+        {heading}
+        <div style={{ display: "flex", flexDirection: "column", maxWidth: 280 }}>
+          {categories.map((c) => (
+            <a
+              key={c.id}
+              href={`#category-${c.id}`}
+              style={{
+                padding: "12px 14px",
+                textDecoration: "none",
+                color: "var(--bl-text)",
+                fontSize: 14,
+                fontWeight: 500,
+                borderBottom: "1px solid var(--bl-border)",
+              }}
+            >
+              {c.name}
+            </a>
+          ))}
+        </div>
+      </SectionShell>
+    )
+  }
+
   return (
     <SectionShell>
-      <h2
-        style={{
-          fontFamily: "var(--bl-heading-font)",
-          fontSize: 24,
-          letterSpacing: "-0.02em",
-          margin: "0 0 16px",
-        }}
-      >
-        {title}
-      </h2>
+      {heading}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
         {categories.map((c) => (
           <a
@@ -804,7 +1013,39 @@ function AboutSection({ section, resolved }: SectionProps) {
   const title = s(section, "title", "Sobre nosotros")
   const body = s(section, "body")
   const image = s(section, "image")
-  const layout = s(section, "layout", "left")
+  // Bug: el schema declara split-left/split-right/centered, pero esto comparaba
+  // contra "left"/"right" — nunca matcheaba, así que elegir una opción no hacía nada.
+  const layout = s(section, "layout", "split-left")
+
+  if (layout === "centered" || !image) {
+    return (
+      <SectionShell background="var(--bl-surface)">
+        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+          {image && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={image}
+              alt={title}
+              style={{ width: 160, height: 160, borderRadius: "50%", objectFit: "cover", margin: "0 auto 24px" }}
+            />
+          )}
+          <h2
+            style={{
+              fontFamily: "var(--bl-heading-font)",
+              fontSize: 28,
+              letterSpacing: "-0.02em",
+              margin: "0 0 14px",
+            }}
+          >
+            {title}
+          </h2>
+          {body && (
+            <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--bl-text-muted)" }}>{body}</p>
+          )}
+        </div>
+      </SectionShell>
+    )
+  }
 
   return (
     <SectionShell background="var(--bl-surface)">
@@ -812,12 +1053,12 @@ function AboutSection({ section, resolved }: SectionProps) {
         className="bl-about-grid"
         style={{
           display: "grid",
-          gridTemplateColumns: image ? (layout === "right" ? "1fr 1fr" : "1fr 1fr") : "1fr",
+          gridTemplateColumns: "1fr 1fr",
           gap: "calc(var(--bl-spacing) * 1.5)",
           alignItems: "center",
         }}
       >
-        {image && layout === "left" && (
+        {layout === "split-left" && (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={image}
@@ -840,7 +1081,7 @@ function AboutSection({ section, resolved }: SectionProps) {
             <p style={{ fontSize: 15, lineHeight: 1.65, color: "var(--bl-text-muted)" }}>{body}</p>
           )}
         </div>
-        {image && layout === "right" && (
+        {layout === "split-right" && (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={image}
@@ -984,29 +1225,66 @@ function SocialsSection({ section }: SectionProps) {
   )
 }
 
+function GalleryItem({ item, index, resolved, aspectRatio = "1/1", breakInside }: { item: { image?: string; caption?: string }; index: number; resolved: ReturnType<typeof resolveTokens>; aspectRatio?: string; breakInside?: boolean }) {
+  if (!item.image) return null
+  return (
+    <figure style={{ margin: breakInside ? "0 0 10px" : 0, breakInside: breakInside ? "avoid" : undefined }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={item.image}
+        alt={item.caption ?? `Imagen ${index + 1}`}
+        style={{ width: "100%", aspectRatio: breakInside ? undefined : aspectRatio, objectFit: "cover", borderRadius: resolved.radiusPx, display: "block" }}
+      />
+      {item.caption && <figcaption style={{ marginTop: 6, fontSize: 12, color: "var(--bl-text-muted)" }}>{item.caption}</figcaption>}
+    </figure>
+  )
+}
+
 function GallerySection({ section, resolved }: SectionProps) {
   const title = s(section, "title", "Galería")
   const items = arr<{ image?: string; caption?: string }>(section, "items")
+  const layout = s(section, "layout", "grid")
   if (items.length === 0) return null
+
+  const heading = <h2 style={{ fontFamily: "var(--bl-heading-font)", fontSize: 24, margin: "0 0 18px" }}>{title}</h2>
+
+  if (layout === "carousel") {
+    return (
+      <SectionShell>
+        {heading}
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: 4 }}>
+          {items.map((it, i) =>
+            it.image ? (
+              <div key={i} style={{ minWidth: 200, flexShrink: 0, scrollSnapAlign: "start" }}>
+                <GalleryItem item={it} index={i} resolved={resolved} />
+              </div>
+            ) : null,
+          )}
+        </div>
+      </SectionShell>
+    )
+  }
+
+  if (layout === "masonry") {
+    return (
+      <SectionShell>
+        {heading}
+        <div style={{ columnCount: 3, columnGap: 10 }}>
+          {items.map((it, i) => (
+            <GalleryItem key={i} item={it} index={i} resolved={resolved} breakInside />
+          ))}
+        </div>
+      </SectionShell>
+    )
+  }
+
   return (
     <SectionShell>
-      <h2 style={{ fontFamily: "var(--bl-heading-font)", fontSize: 24, margin: "0 0 18px" }}>{title}</h2>
+      {heading}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
-        {items.map((it, i) =>
-          it.image ? (
-            <figure key={i} style={{ margin: 0 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={it.image}
-                alt={it.caption ?? `Imagen ${i + 1}`}
-                style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", borderRadius: resolved.radiusPx }}
-              />
-              {it.caption && (
-                <figcaption style={{ marginTop: 6, fontSize: 12, color: "var(--bl-text-muted)" }}>{it.caption}</figcaption>
-              )}
-            </figure>
-          ) : null,
-        )}
+        {items.map((it, i) => (
+          <GalleryItem key={i} item={it} index={i} resolved={resolved} />
+        ))}
       </div>
     </SectionShell>
   )
@@ -1017,7 +1295,45 @@ function TextBlockSection({ section }: SectionProps) {
   const headline = s(section, "headline")
   const body = s(section, "body")
   const align = s(section, "align", "left")
+  const layout = s(section, "layout", "editorial")
   if (!body && !headline) return null
+
+  const kickerEl = kicker ? (
+    <div style={{ color: "var(--bl-accent)", fontWeight: 700, fontSize: 12, textTransform: "uppercase", letterSpacing: 0.08, marginBottom: 10 }}>
+      {kicker}
+    </div>
+  ) : null
+
+  if (layout === "centered-quote") {
+    return (
+      <SectionShell>
+        <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "center" }}>
+          {kickerEl}
+          {headline && (
+            <h2 style={{ fontFamily: "var(--bl-heading-font)", fontStyle: "italic", fontWeight: 400, fontSize: 32, letterSpacing: "-0.01em", margin: "0 0 14px", lineHeight: 1.3 }}>
+              “{headline}”
+            </h2>
+          )}
+          {body && <div style={{ fontSize: 15, lineHeight: 1.6, color: "var(--bl-text-muted)" }}>{body}</div>}
+        </div>
+      </SectionShell>
+    )
+  }
+
+  if (layout === "two-column") {
+    return (
+      <SectionShell>
+        {headline && (
+          <h2 style={{ fontFamily: "var(--bl-heading-font)", fontSize: 26, letterSpacing: "-0.02em", margin: "0 0 16px" }}>{headline}</h2>
+        )}
+        {kickerEl}
+        {body && (
+          <div style={{ fontSize: 15, lineHeight: 1.65, color: "var(--bl-text)", columnCount: 2, columnGap: 32 }}>{body}</div>
+        )}
+      </SectionShell>
+    )
+  }
+
   return (
     <SectionShell>
       <div
@@ -1027,9 +1343,7 @@ function TextBlockSection({ section }: SectionProps) {
           textAlign: align as React.CSSProperties["textAlign"],
         }}
       >
-        {kicker && (
-          <div style={{ color: "var(--bl-accent)", fontWeight: 700, fontSize: 12, textTransform: "uppercase", letterSpacing: 0.08, marginBottom: 10 }}>{kicker}</div>
-        )}
+        {kickerEl}
         {headline && (
           <h2 style={{ fontFamily: "var(--bl-heading-font)", fontSize: 26, letterSpacing: "-0.02em", margin: "0 0 12px" }}>{headline}</h2>
         )}
@@ -1131,39 +1445,56 @@ function StatsSection({ section }: SectionProps) {
   )
 }
 
+function TestimonialCard({ item }: { item: { quote?: string; author?: string } }) {
+  return (
+    <blockquote
+      style={{
+        background: "var(--bl-background)",
+        border: "1px solid var(--bl-border)",
+        borderRadius: 12,
+        padding: 22,
+        margin: 0,
+      }}
+    >
+      <p style={{ margin: 0, fontStyle: "italic", lineHeight: 1.55 }}>{item.quote}</p>
+      {item.author && (
+        <footer style={{ marginTop: 12, fontSize: 12, color: "var(--bl-text-muted)", fontFamily: "var(--bl-mono-font)" }}>
+          — {item.author}
+        </footer>
+      )}
+    </blockquote>
+  )
+}
+
 function TestimonialsSection({ section }: SectionProps) {
   const title = s(section, "title", "Lo que dicen")
   const items = arr<{ quote?: string; author?: string }>(section, "items")
+  const layout = s(section, "layout", "cards")
   if (items.length === 0) return null
+
+  const heading = <h2 style={{ fontFamily: "var(--bl-heading-font)", fontSize: 24, margin: "0 0 22px" }}>{title}</h2>
+
+  if (layout === "carousel") {
+    return (
+      <SectionShell background="var(--bl-surface)">
+        {heading}
+        <div style={{ display: "flex", gap: 18, overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: 4 }}>
+          {items.map((it, i) => (
+            <div key={i} style={{ minWidth: 280, flexShrink: 0, scrollSnapAlign: "start" }}>
+              <TestimonialCard item={it} />
+            </div>
+          ))}
+        </div>
+      </SectionShell>
+    )
+  }
+
   return (
     <SectionShell background="var(--bl-surface)">
-      <h2 style={{ fontFamily: "var(--bl-heading-font)", fontSize: 24, margin: "0 0 22px" }}>{title}</h2>
+      {heading}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
         {items.map((it, i) => (
-          <blockquote
-            key={i}
-            style={{
-              background: "var(--bl-background)",
-              border: "1px solid var(--bl-border)",
-              borderRadius: 12,
-              padding: 22,
-              margin: 0,
-            }}
-          >
-            <p style={{ margin: 0, fontStyle: "italic", lineHeight: 1.55 }}>{it.quote}</p>
-            {it.author && (
-              <footer
-                style={{
-                  marginTop: 12,
-                  fontSize: 12,
-                  color: "var(--bl-text-muted)",
-                  fontFamily: "var(--bl-mono-font)",
-                }}
-              >
-                — {it.author}
-              </footer>
-            )}
-          </blockquote>
+          <TestimonialCard key={i} item={it} />
         ))}
       </div>
     </SectionShell>

@@ -9,12 +9,15 @@ interface Props {
   def: SectionDef | null
   node: SectionNode | null
   onPropsChange: (props: Record<string, unknown>) => void
-  onVariantChange: (variant: string) => void
   onToggleVisible: () => void
   onDelete: () => void
 }
 
-export function SectionInspector({ def, node, onPropsChange, onVariantChange, onToggleVisible, onDelete }: Props) {
+// Nota: el layout/variante visual de una sección (ej. hero split/compact/banner)
+// se controla con una prop `layout` normal declarada en el schema del template,
+// no con section.variant — ese campo existe en el backend pero el renderer no
+// lo lee, así que un selector separado acá sería otro control que no hace nada.
+export function SectionInspector({ def, node, onPropsChange, onToggleVisible, onDelete }: Props) {
   const { store } = useAuth()
 
   if (!def || !node) {
@@ -32,19 +35,6 @@ export function SectionInspector({ def, node, onPropsChange, onVariantChange, on
   return (
     <div style={S.wrap}>
       <div style={S.title}>{sectionLabel(def.type)}</div>
-
-      {def.variants && def.variants.length > 0 && (
-        <div style={S.group}>
-          <span style={S.groupLbl}>Variante</span>
-          <select value={node.variant ?? def.variants[0]} onChange={(e) => onVariantChange(e.target.value)} style={S.select}>
-            {def.variants.map((v) => (
-              <option key={v} value={v}>
-                {v}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
 
       {propEntries.length > 0 && (
         <div style={S.group}>

@@ -73,10 +73,6 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
     t.replaceSections(sections.map((s) => (s.key === key ? { ...s, props } : s)))
   }
 
-  function handleVariantChange(key: string, variant: string) {
-    t.replaceSections(sections.map((s) => (s.key === key ? { ...s, variant } : s)))
-  }
-
   async function handlePublish() {
     setConfirmingPublish(false)
     try {
@@ -213,7 +209,6 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
                 def={selectedDef}
                 node={selectedNode}
                 onPropsChange={(props) => selectedNode && handlePropsChange(selectedNode.key, props)}
-                onVariantChange={(variant) => selectedNode && handleVariantChange(selectedNode.key, variant)}
                 onToggleVisible={() => selectedNode && handleToggleVisible(selectedNode.key)}
                 onDelete={() => selectedNode && handleDeleteSection(selectedNode.key)}
               />
