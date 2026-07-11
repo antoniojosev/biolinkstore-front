@@ -134,7 +134,8 @@ const S: Record<string, React.CSSProperties> = {
   list: { flex: 1, overflowY: "auto", padding: "4px 12px 12px", display: "flex", flexDirection: "column", gap: 8 },
   row: {
     display: "flex", alignItems: "center", gap: 8, padding: "8px 8px",
-    border: "1px solid var(--line)", borderRadius: 10, background: "var(--bg)", cursor: "pointer",
+    borderWidth: 1, borderStyle: "solid", borderColor: "var(--line)",
+    borderRadius: 10, background: "var(--bg)", cursor: "pointer",
   },
   rowSelected: { borderColor: "var(--brand)", background: "rgba(30,58,138,0.05)", boxShadow: "0 0 0 1px var(--brand)" },
   rowHidden: { opacity: 0.5 },

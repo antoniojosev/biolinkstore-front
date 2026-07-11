@@ -157,7 +157,9 @@ const S: Record<string, React.CSSProperties> = {
   filters: { display: "flex", flexWrap: "wrap", gap: 6, marginTop: -4 },
   chip: {
     padding: "6px 14px",
-    border: "1px solid var(--line)",
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "var(--line)",
     background: "transparent",
     borderRadius: 999,
     fontSize: 12,
@@ -182,7 +184,9 @@ const S: Record<string, React.CSSProperties> = {
   muted: { color: "var(--ink-3)", fontSize: 13, padding: "40px 8px", textAlign: "center", gridColumn: "1 / -1" },
   card: {
     background: "var(--bg-elev)",
-    border: "1px solid var(--line)",
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "var(--line)",
     borderRadius: 14,
     overflow: "hidden",
     display: "flex",
