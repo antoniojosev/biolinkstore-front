@@ -342,7 +342,8 @@ const S: Record<string, React.CSSProperties> = {
   rightTabs: { display: "flex", borderBottom: "1px solid var(--line)", flexShrink: 0 },
   rightTab: {
     flex: 1, padding: "10px", textAlign: "center", fontSize: 12, fontWeight: 600, color: "var(--ink-3)",
-    cursor: "pointer", borderBottom: "2px solid transparent", background: "none", border: "none", fontFamily: "inherit",
+    cursor: "pointer", background: "none", fontFamily: "inherit",
+    borderTop: "none", borderLeft: "none", borderRight: "none", borderBottom: "2px solid transparent",
     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
   },
   rightTabActive: { color: "var(--brand)", borderBottomColor: "var(--brand)" },
