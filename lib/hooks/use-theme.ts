@@ -95,6 +95,32 @@ export function useTheme(): UseThemeResult {
     void refresh()
   }, [refresh])
 
+  // `listTemplates()` returns the lightweight catalog (no sectionSchema/defaultTokens).
+  // The editor needs the full detail for whichever template is active, so fetch it
+  // separately and merge it into the matching entry once we know the active key.
+  const activeTemplateKey = theme?.activeTemplate ?? null
+  useEffect(() => {
+    if (!activeTemplateKey) return
+    let cancelled = false
+    repo
+      .getTemplate(activeTemplateKey)
+      .then((detail) => {
+        if (cancelled) return
+        setTemplates((prev) => {
+          const idx = prev.findIndex((x) => x.key === activeTemplateKey)
+          if (idx === -1) return prev
+          if (prev[idx].sectionSchema) return prev
+          const next = prev.slice()
+          next[idx] = { ...next[idx], ...detail }
+          return next
+        })
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [activeTemplateKey, repo])
+
   const flushPending = useCallback(async () => {
     if (!storeId) return
     const tokens = pendingTokensRef.current
