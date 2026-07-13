@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { useTheme } from "@/lib/hooks/use-theme"
 import type { SectionDef, SectionNode } from "@/lib/page-builder-api"
@@ -27,6 +27,15 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [rightTab, setRightTab] = useState<RightTab>("design")
   const [device, setDevice] = useState<PreviewDevice>("desktop")
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)")
+    setIsMobile(mq.matches)
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener("change", onChange)
+    return () => mq.removeEventListener("change", onChange)
+  }, [])
 
   const activeTemplate = useMemo(
     () => t.templates.find((x) => x.key === t.theme?.activeTemplate) ?? null,
@@ -117,6 +126,76 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
 
   const statusColor =
     t.status === "saving" ? "#ECA200" : t.status === "error" ? "#C53030" : t.status === "saved" ? "#0E6940" : "var(--ink-3)"
+
+  // fase2-P4, tiempo 1: en móvil no cabe la grilla de 3 columnas — se muestra
+  // el borrador a pantalla completa (ya fiel gracias al container query de
+  // P1) + Publicar/Descartar. Edición de secciones queda para P5 (editor
+  // móvil completo, fase aparte).
+  if (isMobile) {
+    return (
+      <div style={S.wrapMobile}>
+        <div style={S.toolbarMobile}>
+          <span style={{ ...S.statusPill, color: statusColor, borderColor: statusColor }}>
+            <span style={{ ...S.statusDot, background: statusColor }} />
+            {statusLabel}
+          </span>
+          <div style={S.toolRightMobile}>
+            <button type="button" onClick={handleReset} style={S.btnGhost}>
+              Descartar
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmingPublish(true)}
+              disabled={!hasUnpublishedChanges || t.status === "saving"}
+              style={{
+                ...S.btnPrimary,
+                opacity: !hasUnpublishedChanges || t.status === "saving" ? 0.5 : 1,
+                cursor: !hasUnpublishedChanges || t.status === "saving" ? "default" : "pointer",
+              }}
+            >
+              Publicar
+            </button>
+          </div>
+        </div>
+
+        {t.error && (
+          <div role="alert" style={S.errorBar}>
+            {t.error}
+          </div>
+        )}
+
+        <div style={S.mobileNotice}>Para editar secciones y textos, entrá desde una computadora.</div>
+
+        <div style={S.mobilePreview}>
+          {t.isLoading && !t.theme ? (
+            <div style={S.canvasMuted}>Cargando editor…</div>
+          ) : (
+            <EditorCanvas template={activeTemplate} draft={t.theme?.draft ?? null} bare />
+          )}
+        </div>
+
+        {confirmingPublish && (
+          <div role="dialog" aria-modal="true" style={S.modalBackdrop} onClick={() => setConfirmingPublish(false)}>
+            <div style={S.modal} onClick={(e) => e.stopPropagation()}>
+              <h3 style={S.modalTitle}>Publicar cambios</h3>
+              <p style={S.modalBody}>
+                Tus visitantes verán el nuevo diseño inmediatamente. Si algo sale mal, podés revertir desde una
+                computadora.
+              </p>
+              <div style={S.modalActions}>
+                <button type="button" onClick={() => setConfirmingPublish(false)} style={S.btnGhost}>
+                  Cancelar
+                </button>
+                <button type="button" onClick={handlePublish} style={S.btnPrimary}>
+                  Confirmar publicación
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div style={S.wrap}>
@@ -256,6 +335,35 @@ const S: Record<string, React.CSSProperties> = {
     flexDirection: "column",
     background: "var(--bg)",
   },
+  wrapMobile: {
+    minHeight: "calc(100vh - 60px)",
+    display: "flex",
+    flexDirection: "column",
+    background: "var(--bg)",
+  },
+  toolbarMobile: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+    padding: "10px 14px",
+    borderBottom: "1px solid var(--line)",
+    background: "var(--bg-elev)",
+    flexShrink: 0,
+    position: "sticky",
+    top: 0,
+    zIndex: 10,
+  },
+  toolRightMobile: { display: "flex", alignItems: "center", gap: 8 },
+  mobileNotice: {
+    padding: "8px 14px",
+    fontSize: 12,
+    color: "var(--ink-2)",
+    background: "var(--bg-2)",
+    borderBottom: "1px solid var(--line)",
+    flexShrink: 0,
+  },
+  mobilePreview: { flex: 1 },
   toolbar: {
     display: "flex",
     alignItems: "center",

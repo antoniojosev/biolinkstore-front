@@ -10,12 +10,14 @@ import type { PreviewDevice } from "./device-toggle"
 interface Props {
   template: Template | null
   draft: DraftTheme | null
-  selectedKey: string | null
-  onSelectSection: (key: string) => void
+  selectedKey?: string | null
+  onSelectSection?: (key: string) => void
   device?: PreviewDevice
+  /** Vista de solo-lectura a ancho completo (móvil real, fase2-P4) — sin marco ni selección. */
+  bare?: boolean
 }
 
-export function EditorCanvas({ template, draft, selectedKey, onSelectSection, device = "desktop" }: Props) {
+export function EditorCanvas({ template, draft, selectedKey, onSelectSection, device = "desktop", bare = false }: Props) {
   const real = useStoreCatalogPreview()
   const [demoProducts, setDemoProducts] = useState<TemplateProduct[]>([])
   const [demoCategories, setDemoCategories] = useState<TemplateCategory[]>([])
@@ -63,14 +65,14 @@ export function EditorCanvas({ template, draft, selectedKey, onSelectSection, de
   }
 
   return (
-    <div style={device === "mobile" ? S.frameMobile : S.frameDesktop}>
+    <div style={bare ? S.frameBare : device === "mobile" ? S.frameMobile : S.frameDesktop}>
       <TemplateRenderer
         store={real.store}
         products={products}
         categories={categories}
         theme={theme}
-        editorSelectedKey={selectedKey ?? undefined}
-        onSectionClick={onSelectSection}
+        editorSelectedKey={bare ? undefined : selectedKey ?? undefined}
+        onSectionClick={bare ? undefined : onSelectSection}
       />
     </div>
   )
@@ -101,5 +103,8 @@ const S: Record<string, React.CSSProperties> = {
     borderStyle: "solid",
     borderColor: "#111",
   },
+  // Ancho completo, sin marco — el viewport real del teléfono ya es angosto,
+  // así que el container query del renderer apila el layout solo.
+  frameBare: { width: "100%" },
   muted: { margin: "auto", fontSize: 13, color: "var(--ink-3)" },
 }
