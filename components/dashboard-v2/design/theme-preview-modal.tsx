@@ -59,6 +59,7 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
   const [error, setError] = useState(false)
   const [device, setDevice] = useState<PreviewDevice>("desktop")
   const [source, setSource] = useState<DataSource>("demo")
+  const [fullscreen, setFullscreen] = useState(false)
   const real = useStoreCatalogPreview()
 
   useEffect(() => {
@@ -66,6 +67,7 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
     setData(null)
     setError(false)
     setSource("demo")
+    setFullscreen(false)
     setLoading(true)
     fetchTemplatePreview(templateKey)
       .then((res) => (res ? setData(res) : setError(true)))
@@ -83,8 +85,8 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
       : demoMapped
 
   return (
-    <div style={S.overlay} onClick={onClose}>
-      <div style={S.modal} onClick={(e) => e.stopPropagation()}>
+    <div style={fullscreen ? S.overlayFull : S.overlay} onClick={fullscreen ? undefined : onClose}>
+      <div style={fullscreen ? S.modalFull : S.modal} onClick={(e) => e.stopPropagation()}>
         <div style={S.head}>
           <div style={S.headTitle}>{data ? `Vista previa — ${data.name}` : "Vista previa"}</div>
           <div style={S.headRight}>
@@ -112,6 +114,15 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
               </button>
             </div>
             <DeviceToggle device={device} onChange={setDevice} />
+            <button
+              type="button"
+              onClick={() => setFullscreen((v) => !v)}
+              style={S.closeBtn}
+              aria-label={fullscreen ? "Salir de pantalla completa" : "Ver en pantalla completa"}
+              title={fullscreen ? "Salir de pantalla completa" : "Ver en pantalla completa"}
+            >
+              {fullscreen ? "⤡" : "⛶"}
+            </button>
             <button type="button" onClick={onClose} style={S.closeBtn} aria-label="Cerrar">
               ✕
             </button>
@@ -161,6 +172,28 @@ const S: Record<string, React.CSSProperties> = {
     flexDirection: "column",
     overflow: "hidden",
     boxShadow: "0 40px 80px -20px rgba(0,0,0,0.4)",
+  },
+  // Pantalla completa: mismo componente, sin el marco de modal — ocupa todo
+  // el viewport en vez de abrir una ruta nueva (que heredaría el sidebar
+  // legacy de /dashboard/layout.tsx).
+  overlayFull: {
+    position: "fixed",
+    inset: 0,
+    background: "#fff",
+    zIndex: 300,
+    padding: 0,
+  },
+  modalFull: {
+    background: "#fff",
+    borderRadius: 0,
+    width: "100%",
+    height: "100%",
+    maxWidth: "none",
+    maxHeight: "none",
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    boxShadow: "none",
   },
   head: {
     display: "flex",
