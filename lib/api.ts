@@ -10,6 +10,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 // ─── Backend DTO types (match public endpoint responses) ─────────────────────
 
+interface BackendStoreSocial {
+  platform: string
+  url: string
+}
+
 interface BackendStore {
   id: string
   slug: string
@@ -22,6 +27,7 @@ interface BackendStore {
   whatsappNumbers: string[]
   instagramHandle: string | null
   currencyConfig: { code?: string; symbol?: string } | null
+  socials?: BackendStoreSocial[]
   [key: string]: unknown
 }
 
@@ -76,6 +82,7 @@ function adaptStore(dto: BackendStore): StoreProfile {
       ? dto.plan
       : 'FREE') as 'FREE' | 'PRO' | 'BUSINESS',
     address: typeof dto.address === 'string' ? dto.address : undefined,
+    socials: dto.socials,
   }
 }
 

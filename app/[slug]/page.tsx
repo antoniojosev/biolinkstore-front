@@ -265,6 +265,7 @@ export default async function StorePage({ params, searchParams }: Props) {
           whatsappNumber: fetched.store.whatsappNumbers?.[0],
           currency: fetched.store.currency,
           address: (draftPreview?.store.address as string | undefined) ?? fetched.store.address,
+          socials: fetched.store.socials,
         }}
         products={templateProducts}
         categories={categories}

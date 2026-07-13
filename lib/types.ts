@@ -52,4 +52,6 @@ export interface StoreProfile {
   template: TemplateId
   plan: 'FREE' | 'PRO' | 'BUSINESS'
   address?: string
+  /** BE-124: redes reales de la tienda, ya visibles y ordenadas. */
+  socials?: { platform: string; url: string }[]
 }

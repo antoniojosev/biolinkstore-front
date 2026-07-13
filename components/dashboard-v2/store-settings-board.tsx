@@ -11,6 +11,7 @@ import { TeamMembersCard } from "./team-members-card"
 import { WhatsappTemplateCard } from "./whatsapp-template-card"
 import { CustomRatesCard } from "./custom-rates-card"
 import { MultiStoreCard } from "./multi-store-card"
+import { SocialLinksCard } from "./social-links-card"
 
 interface FormState {
   name: string
@@ -175,6 +176,8 @@ export function StoreSettingsBoard() {
           </div>
         </div>
       </div>
+
+      <SocialLinksCard />
 
       <MultiStoreCard />
 

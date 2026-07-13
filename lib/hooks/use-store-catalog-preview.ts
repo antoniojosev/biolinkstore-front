@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { ProductHttpRepository } from "@/lib/products-api/product.http-repository"
 import { CategoryHttpRepository } from "@/lib/categories-api/category.http-repository"
+import { StoreSocialLinksHttpRepository } from "@/lib/store-social-links-api"
 import type { ProductResponse } from "@/lib/products-api/types"
 import type { CategoryResponse } from "@/lib/categories-api/types"
-import type { TemplateProduct, TemplateCategory, TemplateStore } from "@/components/storefront-v2/template/template-renderer"
+import type { TemplateProduct, TemplateCategory, TemplateStore, TemplateSocialLink } from "@/components/storefront-v2/template/template-renderer"
 
 function mapRealProduct(p: ProductResponse, categoryNameById: Map<string, string>): TemplateProduct {
   return {
@@ -45,8 +46,10 @@ export function useStoreCatalogPreview(): StoreCatalogPreview {
   const { http, store } = useAuth()
   const productRepo = useMemo(() => new ProductHttpRepository(http), [http])
   const categoryRepo = useMemo(() => new CategoryHttpRepository(http), [http])
+  const socialRepo = useMemo(() => new StoreSocialLinksHttpRepository(http), [http])
   const [products, setProducts] = useState<TemplateProduct[]>([])
   const [categories, setCategories] = useState<TemplateCategory[]>([])
+  const [socials, setSocials] = useState<TemplateSocialLink[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -59,17 +62,24 @@ export function useStoreCatalogPreview(): StoreCatalogPreview {
     Promise.all([
       productRepo.findAll(store.id, { limit: 100, isVisible: true }).catch(() => ({ data: [] as ProductResponse[] })),
       categoryRepo.findAll(store.id).catch(() => ({ data: [] as CategoryResponse[] })),
-    ]).then(([p, c]) => {
+      socialRepo.list(store.id).catch(() => []),
+    ]).then(([p, c, links]) => {
       if (cancelled) return
       const categoryNameById = new Map(c.data.map((cat) => [cat.id, cat.name]))
       setProducts(p.data.map((prod) => mapRealProduct(prod, categoryNameById)))
       setCategories(c.data.map((cat) => ({ id: cat.id, name: cat.name })))
+      setSocials(
+        links
+          .filter((l) => l.visible)
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+          .map((l) => ({ platform: l.platform, url: l.url })),
+      )
       setIsLoading(false)
     })
     return () => {
       cancelled = true
     }
-  }, [store?.id, productRepo, categoryRepo])
+  }, [store?.id, productRepo, categoryRepo, socialRepo])
 
   const templateStore: TemplateStore | null = store
     ? {
@@ -82,6 +92,7 @@ export function useStoreCatalogPreview(): StoreCatalogPreview {
         phone: undefined,
         currency: store.currency,
         whatsappNumber: store.whatsappNumbers?.[0],
+        socials,
       }
     : null
 

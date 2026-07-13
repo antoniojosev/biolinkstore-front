@@ -35,6 +35,11 @@ export interface TemplateCategory {
   name: string
 }
 
+export interface TemplateSocialLink {
+  platform: string
+  url: string
+}
+
 export interface TemplateStore {
   name: string
   username?: string | null
@@ -46,6 +51,8 @@ export interface TemplateStore {
   email?: string | null
   phone?: string | null
   address?: string | null
+  /** BE-124: redes reales de la tienda (plataforma-managed) — tienen prioridad sobre section.props.items. */
+  socials?: TemplateSocialLink[]
 }
 
 export interface TemplateRendererProps {
@@ -1197,9 +1204,14 @@ function HoursSection({ section }: SectionProps) {
   )
 }
 
-function SocialsSection({ section }: SectionProps) {
+function SocialsSection({ section, store }: SectionProps) {
   const title = s(section, "title")
-  const items = arr<{ platform?: string; url?: string }>(section, "items")
+  // BE-124: redes reales de la tienda tienen prioridad; los props del tema
+  // quedan como fallback para tiendas que aún no configuraron sus redes.
+  const items =
+    store.socials && store.socials.length > 0
+      ? store.socials
+      : arr<{ platform?: string; url?: string }>(section, "items")
   return (
     <SectionShell background="var(--bl-surface)">
       {title && (
