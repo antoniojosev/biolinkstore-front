@@ -287,6 +287,7 @@ const S: Record<string, React.CSSProperties> = {
   },
   presetGrid: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 },
   preset: {
+    minWidth: 0,
     border: "1px solid var(--line)",
     background: "var(--bg-elev)",
     borderRadius: 8,
@@ -301,9 +302,13 @@ const S: Record<string, React.CSSProperties> = {
   },
   presetSwatches: { display: "flex", gap: 3 },
   swatch: { width: 18, height: 18, borderRadius: 4, border: "1px solid var(--line)" },
-  presetName: { fontSize: 11, fontWeight: 600 },
-  fieldGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 },
-  colorField: { display: "flex", flexDirection: "column", gap: 4 },
+  presetName: { fontSize: 11, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
+  // minWidth:0 en el ítem de la grilla (no solo en colorText, adentro):
+  // el "ancho mínimo automático" de un grid item con `1fr` se calcula sobre
+  // SU PROPIO min-content, y sin esto la grilla se ensancha para acomodarlo
+  // aunque los descendientes ya puedan achicarse.
+  fieldGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, minWidth: 0 },
+  colorField: { display: "flex", flexDirection: "column", gap: 4, minWidth: 0 },
   colorLabel: { fontSize: 11, color: "var(--ink-2)", fontWeight: 500 },
   colorRow: { display: "flex", alignItems: "center", gap: 6 },
   colorInput: {
