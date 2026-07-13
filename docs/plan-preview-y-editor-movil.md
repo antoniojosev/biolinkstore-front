@@ -1,8 +1,8 @@
 # Plan — Preview fiel, probador con datos propios y editor en móvil
 
 > Rama frontend: `fase2/front-prod` · Rama backend: `fase2/front-prod-support`
-> Continuación de `plan-temas-recetas.md` (2026-07-13). Estado: PLAN, pendiente de implementación.
-> Decidido en conversación con Antonio: enfoque móvil "en dos tiempos" (P4 barato ahora, P5 editor completo después).
+> Continuación de `plan-temas-recetas.md` (2026-07-13).
+> **Estado: P1–P5 IMPLEMENTADOS (2026-07-13)** — los dos tiempos completos. `tsc`/`pnpm build` limpios en cada fase, commits separados por fase en `fase2/front-prod`. No se necesitó backend/migración en ningún punto (P3 resultó ser 100% frontend — ver nota en P3). Pendiente: verificación manual en dispositivo/DevTools real (sin browser automation en esta sesión) y las decisiones abiertas al final del doc.
 
 ## Contexto (verificado en código, 2026-07-13)
 
@@ -14,7 +14,7 @@
 
 ---
 
-## Fase P1 — Responsive fiel: container queries + toggle Desktop/Móvil
+## Fase P1 — Responsive fiel: container queries + toggle Desktop/Móvil ✅ IMPLEMENTADO
 
 **La pieza técnica que habilita todo lo demás. Va primero.**
 
@@ -30,7 +30,9 @@
 
 Verificación: hero `split` apila en el frame de 390px del editor; tienda pública idéntica antes/después a 360px y 1440px; `tsc` + `pnpm build`.
 
-## Fase P2 — Probador "Mi tienda" en el preview de Temas
+**Nota de implementación**: el frame del canvas ya tenía `maxWidth: 640` (bajo el breakpoint de 760px) — con container queries eso hubiera forzado SIEMPRE el layout apilado en el editor sin importar el toggle. Se subió a `1040px` en modo desktop.
+
+## Fase P2 — Probador "Mi tienda" en el preview de Temas ✅ IMPLEMENTADO
 
 **Frontend puro. Depende de P1 solo para heredar el toggle de dispositivo en el mismo modal.**
 
@@ -43,38 +45,27 @@ Verificación: hero `split` apila en el frame de 390px del editor; tienda públi
 
 Verificación: probarse un tema con catálogo real y con tienda vacía; aplicar desde el probador y confirmar que el editor abre con el tema nuevo.
 
-## Fase P3 — Redes sociales como datos de tienda (backend chico)
+## Fase P3 — Redes sociales como datos de tienda ✅ IMPLEMENTADO (sin backend)
 
-**El único item con backend. Independiente de P1/P2 — puede ir en paralelo.**
+**Hallazgo al implementar: el backend YA tenía esto resuelto (BE-124)** — tabla relacional `StoreSocialLink` (platform/url/label/sortOrder/visible), lazy-migration desde el JSON legacy, CRUD completo (`/api/stores/:storeId/socials`) y ya expuesto en `GET /api/public/:slug` como `socials[]`. El frontend simplemente nunca lo consumía. No hizo falta ningún campo nuevo, migración, ni tocar el backend — todo el trabajo fue frontend:
 
-1. `Store.socials Json?` — array `[{ platform: 'instagram'|'tiktok'|..., url: string }]` (mismo shape que hoy usa `socials.items` en los temas). Migración additive generada y dejada en `prisma/migrations/` — **NO se corre** sin OK de Antonio (regla de sesión).
-2. Exponer en: DTO de store autenticado, response de tienda pública, y `TemplateStore` (frontend) gana `socials?: Array<{platform, url}>`.
-3. `SocialsSection` (y footer si muestra redes): lee `store.socials` primero, `section.props.items` como fallback/override — los temas existentes no se rompen.
-4. UI de edición en Configuración de la tienda (lista simple plataforma+URL).
-5. Seed/demo data: sin cambios (el demo `store` puede ganar socials de ejemplo, opcional).
+1. ~~`Store.socials Json?`~~ — no aplica, ya existe como tabla relacional.
+2. `TemplateStore.socials` (frontend) + `app/[slug]/page.tsx`/`lib/api.ts` propagan `socials` desde el endpoint público ya existente.
+3. `SocialsSection` lee `store.socials` primero, `section.props.items` como fallback — los temas existentes no se rompen.
+4. `SocialLinksCard` nuevo en Configuración: CRUD completo contra el controller autenticado que ya existía sin consumidor.
+5. `useStoreCatalogPreview` (compartido con P2) trae las redes reales visibles y ordenadas — editor y probador las heredan sin cambios adicionales.
 
-Verificación: cambiar de tema y confirmar que las redes viajan; tema viejo con `props.items` sigue mostrando lo suyo si la tienda no configuró redes.
+Verificación: `GET /api/public/demo-store` confirmado con `socials: []` en runtime (tienda real sin redes configuradas todavía — el campo existe y viaja).
 
-## Fase P4 — Diseño en móvil, tiempo 1: modo preview + publicar
+## Fase P4 — Diseño en móvil, tiempo 1: modo preview + publicar ✅ IMPLEMENTADO (superado por P5)
 
-**Barato. Cierra el hueco de UX antes de que exista el editor móvil real. Depende de P1 (el preview a pantalla completa ya es fiel gratis: el contenedor ES angosto).**
+En `theme-editor.tsx`, a ≤768px (mismo breakpoint y misma detección `matchMedia` que ya usa `panel-official.tsx`), se implementó primero el modo solo-preview+publicar descrito acá — luego, en la misma sesión, se pidió avanzar directamente a P5, que lo reemplaza (P5 es un superset: mismo toolbar, pero con edición real en vez del aviso "entrá desde una computadora"). La tab Temas (`themes-board.tsx`) ya funcionaba bien en 390px sin cambios (grid `auto-fill, minmax(240px,1fr)` cae a 1 columna sin overflow).
 
-En `theme-editor.tsx`, a ≤768px (mismo breakpoint y misma detección `matchMedia` que ya usa `panel-official.tsx`):
-
-1. NO se renderiza la grilla de 3 columnas. En su lugar:
-   - **Preview del borrador a pantalla completa** (el `EditorCanvas` sin selección, o `TemplateRenderer` directo — decidir en implementación; sin overlays de selección).
-   - **Barra de acciones táctil** (sticky bottom, encima del m-bottom-nav): estado del borrador + **Publicar** + **Descartar**.
-   - Cuando exista Fase B (recetas): bloque de **Recetas** arriba del preview — un tap, perfectas para móvil.
-   - Aviso: *"Para editar secciones y textos, entrá desde una computadora"*.
-2. La tab Temas (`themes-board.tsx`) sí debe funcionar completa en móvil (es grid de cards + modal — revisar que el modal y los filtros se vean bien a 390px, ajustar lo que haga falta).
-
-Verificación: flujo completo en 390px real (DevTools + teléfono): entrar a Diseño → ver preview fiel → publicar. Nada desborda horizontalmente.
-
-## Fase P5 — Editor móvil completo, tiempo 2
-
-**Fase propia, NO entra en fase2/front-prod. Prerrequisitos: P1–P4 mergeados, editor desktop estable en prod, idealmente Fase B (recetas) hecha.**
+## Fase P5 — Editor móvil completo, tiempo 2 ✅ IMPLEMENTADO
 
 Objetivo de aceptación: **todo lo editable en desktop es editable en teléfono.** La lógica es compartida (`useTheme`, `replaceSections`, `SectionInspector` auto-generado); lo que se rehace es solo el layout, con los patrones móviles que el panel ya tiene (bottom sheets estilo `quick-actions-sheet`).
+
+**Nota**: se implementó en la misma sesión que P1-P4 (no como fase separada post-prod) por pedido explícito de Antonio ("sigue hasta el final hasta que entregues los dos tiempos completos").
 
 Arquitectura del layout móvil:
 
@@ -107,7 +98,17 @@ Sugerido para fase2/front-prod: P1 → P2 → P4 (frontend puro, mismo sprint) c
 
 ## Decisiones abiertas
 
-1. Ancho del frame móvil del preview: 390px (iPhone 12–15) vs 360px (Android chico). Propuesta: frame de 390px, y la verificación manual siempre a 360px.
-2. ¿Marco visual de teléfono (notch, bordes) en el modo móvil del preview, o solo el recuadro angosto? (cosmético, decidir al implementar).
-3. En P4, ¿el preview móvil permite tap para navegar (abrir producto, carrito demo) o es estático? Propuesta: interactivo, es más útil como "así lo ve tu cliente".
-4. Nombre visible del probador: "Mi tienda" vs "Probar con mis datos" vs "Probador". Propuesta: toggle corto "Ejemplo | Mi tienda".
+1. Ancho del frame móvil del preview: 390px (iPhone 12–15) vs 360px (Android chico). Implementado con 390px.
+2. ¿Marco visual de teléfono (notch, bordes) en el modo móvil del preview, o solo el recuadro angosto? Implementado: borde negro grueso simple (cosmético, se puede refinar).
+3. Preview móvil interactivo (tap a producto, etc.) — sí, es el mismo TemplateRenderer real, no una versión estática.
+4. Nombre visible del probador: implementado como toggle corto "Ejemplo | Mi tienda".
+
+## Pendiente de verificación (no se pudo probar en navegador real esta sesión)
+
+No hay herramienta de automatización de navegador disponible en este entorno — todo el trabajo se verificó con `tsc --noEmit` + `pnpm build` + lectura de código end-to-end, pero falta:
+
+1. Confirmar visualmente que el hero se apila de verdad en el frame de 390px (editor y modal de Temas) y en el editor móvil real.
+2. Probar el editor móvil (P5) en un teléfono real o DevTools: abrir sheet de secciones, tocar una sección en el canvas, editar un prop, reordenar, publicar.
+3. Revisar la composición visual del toolbar sticky del editor móvil contra el m-topbar fijo de `panel-official.tsx` (ambos son `position: fixed`/`sticky` — no debería solaparse gracias al padding de `.stage`, pero no se verificó con los ojos).
+4. Touch targets del `SectionInspector`/`SectionsPanel` dentro de los sheets — funcionalmente completos, pulido fino de tamaños táctiles (mencionado en el hito M3 original) no se hizo pixel por pixel.
+5. `SocialLinksCard`: probado el flujo de lectura (`GET /api/public/demo-store` con `socials: []`), no se probó crear/editar/reordenar un link real end-to-end (requeriría sesión autenticada en navegador).
