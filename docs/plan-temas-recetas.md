@@ -103,6 +103,18 @@ type StylePreset = {
 - Grep guard: ninguna variante declarada en el seed sin caso en el renderer (script o revisión manual — si alguna queda fuera, quitarla del seed antes que dejar promesa vacía **[regla: schema nunca promete lo que el renderer no dibuja]**).
 - Journal (`docs/journal-fase2.md`) + memoria + commits por fase (`fase2/temas-A1`, `fase2/temas-B`, …).
 
+### Fase E — Capa diseñador: renderers por tema (dispatcher)
+
+> Acordado con Antonio 2026-07-13. Separa dos capas con libertades distintas: el **diseñador** crea temas desde cero con libertad total de layout/markup/CSS; el **vendedor** edita de forma controlada solo lo que el tema expone. El schema deja de ser el límite del diseñador y pasa a ser **el contrato de lo que el vendedor puede tocar** (modelo Shopify: theme code + settings schema).
+
+1. **Dispatcher**: `TemplateRenderer` pasa a resolver por tema — si existe `components/storefront-v2/themes/<key>/`, usa el renderer propio del tema; si no, cae al renderer base actual (que pasa a ser la "librería base"). Los temas existentes no se tocan. Un renderer custom recibe el mismo contrato: `store/products/categories` + tree + tokens + callbacks del editor (`editorSelectedKey`/`onSectionClick`).
+2. **Reglas del framework v2** (van a `theme-framework.md`):
+   - Todo lo editable por el vendedor DEBE ser una prop del schema (el inspector se auto-genera); lo que no está en el schema es diseño fijo e intocable.
+   - El renderer del tema debe soportar cualquier combinación que su schema permita (secciones ocultas, reordenadas, props vacíos).
+   - Responsive por **container query o auto-fit, nunca `@media`** (para que los previews no mientan — ver `plan-preview-y-editor-movil.md` P1) y es responsabilidad del tema custom; entra al checklist de entrega (probar 360px).
+3. **Tema de prueba**: un tema con renderer propio para validar el contrato end-to-end (editor, preview, tienda pública) antes de escribir el doc de Fase C sobre este modelo.
+4. Costo asumido: cada tema custom es código a mantener; la garantía estructural de calidad la reemplaza el checklist.
+
 ## 4. Decisiones ya tomadas (por Antonio, 2026-07-11)
 
 - Edición libre se mantiene intacta — las recetas suman, no restringen.
