@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { fetchTemplatePreview, type TemplatePreviewData } from "@/lib/page-builder-api"
 import { TemplateRenderer, type TemplateProduct, type TemplateCategory, type TemplateStore } from "@/components/storefront-v2/template/template-renderer"
+import { DeviceToggle, type PreviewDevice } from "./device-toggle"
 
 interface Props {
   templateKey: string | null
@@ -53,6 +54,7 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
   const [data, setData] = useState<TemplatePreviewData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
+  const [device, setDevice] = useState<PreviewDevice>("desktop")
 
   useEffect(() => {
     if (!templateKey) return
@@ -72,14 +74,21 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
       <div style={S.modal} onClick={(e) => e.stopPropagation()}>
         <div style={S.head}>
           <div style={S.headTitle}>{data ? `Vista previa — ${data.name}` : "Vista previa"}</div>
-          <button type="button" onClick={onClose} style={S.closeBtn} aria-label="Cerrar">
-            ✕
-          </button>
+          <div style={S.headRight}>
+            <DeviceToggle device={device} onChange={setDevice} />
+            <button type="button" onClick={onClose} style={S.closeBtn} aria-label="Cerrar">
+              ✕
+            </button>
+          </div>
         </div>
         <div style={S.body}>
           {loading && <div style={S.state}>Cargando preview…</div>}
           {error && <div style={S.state}>No se pudo cargar la vista previa.</div>}
-          {mapped && <TemplateRenderer store={mapped.store} products={mapped.products} categories={mapped.categories} theme={mapped.theme} />}
+          {mapped && (
+            <div style={device === "mobile" ? S.deviceFrameMobile : S.deviceFrameDesktop}>
+              <TemplateRenderer store={mapped.store} products={mapped.products} categories={mapped.categories} theme={mapped.theme} />
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -117,7 +126,23 @@ const S: Record<string, React.CSSProperties> = {
     flexShrink: 0,
   },
   headTitle: { fontSize: 14, fontWeight: 700, color: "var(--ink)" },
+  headRight: { display: "flex", alignItems: "center", gap: 10 },
   closeBtn: { background: "var(--bg-2)", border: "none", borderRadius: 8, width: 30, height: 30, cursor: "pointer", color: "var(--ink-2)", fontSize: 13 },
   body: { overflowY: "auto", flex: 1 },
   state: { padding: 60, textAlign: "center", color: "var(--ink-3)", fontSize: 13 },
+  // Desktop: sin cap propio (el modal mismo, maxWidth 1100, ya supera el
+  // breakpoint móvil del renderer). Móvil: marco fijo de iPhone, por debajo
+  // del breakpoint — dispara el container query de verdad.
+  deviceFrameDesktop: {},
+  deviceFrameMobile: {
+    width: 390,
+    margin: "20px auto",
+    background: "#fff",
+    borderRadius: 24,
+    boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+    overflow: "hidden",
+    borderWidth: 8,
+    borderStyle: "solid",
+    borderColor: "#111",
+  },
 }

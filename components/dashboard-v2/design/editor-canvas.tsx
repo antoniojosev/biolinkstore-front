@@ -9,12 +9,14 @@ import type { CategoryResponse } from "@/lib/categories-api/types"
 import { fetchTemplatePreview } from "@/lib/page-builder-api"
 import type { DraftTheme, Template, PublicStoreTheme } from "@/lib/page-builder-api"
 import { TemplateRenderer, type TemplateProduct, type TemplateCategory, type TemplateStore } from "@/components/storefront-v2/template/template-renderer"
+import type { PreviewDevice } from "./device-toggle"
 
 interface Props {
   template: Template | null
   draft: DraftTheme | null
   selectedKey: string | null
   onSelectSection: (key: string) => void
+  device?: PreviewDevice
 }
 
 function mapRealProduct(p: ProductResponse, categoryNameById: Map<string, string>): TemplateProduct {
@@ -41,7 +43,7 @@ function mapRealProduct(p: ProductResponse, categoryNameById: Map<string, string
   }
 }
 
-export function EditorCanvas({ template, draft, selectedKey, onSelectSection }: Props) {
+export function EditorCanvas({ template, draft, selectedKey, onSelectSection, device = "desktop" }: Props) {
   const { http, store } = useAuth()
   const productRepo = useMemo(() => new ProductHttpRepository(http), [http])
   const categoryRepo = useMemo(() => new CategoryHttpRepository(http), [http])
@@ -113,7 +115,7 @@ export function EditorCanvas({ template, draft, selectedKey, onSelectSection }: 
   }
 
   return (
-    <div style={S.frame}>
+    <div style={device === "mobile" ? S.frameMobile : S.frameDesktop}>
       <TemplateRenderer
         store={templateStore}
         products={products}
@@ -127,14 +129,29 @@ export function EditorCanvas({ template, draft, selectedKey, onSelectSection }: 
 }
 
 const S: Record<string, React.CSSProperties> = {
-  frame: {
+  // > 760px (el breakpoint móvil del renderer) para que el container query
+  // no dispare el layout apilado en esta vista.
+  frameDesktop: {
     width: "100%",
-    maxWidth: 640,
+    maxWidth: 1040,
     margin: "0 auto",
     background: "#fff",
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
     overflow: "hidden",
+  },
+  // Ancho fijo de iPhone — por debajo del breakpoint, el layout apilado se
+  // dispara de verdad (container query, no viewport).
+  frameMobile: {
+    width: 390,
+    margin: "0 auto",
+    background: "#fff",
+    borderRadius: 24,
+    boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+    overflow: "hidden",
+    borderWidth: 8,
+    borderStyle: "solid",
+    borderColor: "#111",
   },
   muted: { margin: "auto", fontSize: 13, color: "var(--ink-3)" },
 }

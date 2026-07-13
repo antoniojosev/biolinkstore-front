@@ -81,6 +81,11 @@ export function TemplateRenderer({ store, products, categories, theme, onOpenPro
     color: "var(--bl-text)",
     fontFamily: "var(--bl-body-font)",
     minHeight: "100vh",
+    // El breakpoint "móvil" de RESPONSIVE_STYLES mide el ancho de ESTE
+    // contenedor, no el viewport — así un preview embebido en un frame
+    // angosto (editor, modal de temas) apila el layout de verdad.
+    containerType: "inline-size",
+    containerName: "bl-store",
   } as CSSProperties
 
   return (
@@ -166,9 +171,11 @@ export function TemplateRenderer({ store, products, categories, theme, onOpenPro
 
 // Real breakpoint for layouts that must STACK (not just shrink columns) on
 // mobile — hero/about are asymmetric text+image pairs, auto-fit grids elsewhere
-// already collapse naturally via minmax().
+// already collapse naturally via minmax(). Container query (not @media): mide
+// el ancho del <main> (containerName: bl-store), no el viewport, para que un
+// preview embebido en un frame angosto muestre el layout móvil real.
 const RESPONSIVE_STYLES = `
-@media (max-width: 760px) {
+@container bl-store (max-width: 760px) {
   .bl-hero-grid, .bl-about-grid { grid-template-columns: 1fr !important; }
   .bl-section { padding-top: calc(var(--bl-spacing) * 1.4) !important; padding-bottom: calc(var(--bl-spacing) * 1.4) !important; }
   .bl-navbar { padding: 14px 16px !important; }

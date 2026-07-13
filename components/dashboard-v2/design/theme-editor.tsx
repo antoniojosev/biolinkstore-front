@@ -9,6 +9,7 @@ import { SectionsPanel } from "./sections-panel"
 import { SectionInspector } from "./section-inspector"
 import { TokensEditor } from "./tokens-editor"
 import { sectionLabel } from "./section-labels"
+import { DeviceToggle, type PreviewDevice } from "./device-toggle"
 
 interface Props {
   /** Optional — when the editor is the whole Diseño view there's nothing to go back to. */
@@ -25,6 +26,7 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
   const [confirmingPublish, setConfirmingPublish] = useState(false)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [rightTab, setRightTab] = useState<RightTab>("design")
+  const [device, setDevice] = useState<PreviewDevice>("desktop")
 
   const activeTemplate = useMemo(
     () => t.templates.find((x) => x.key === t.theme?.activeTemplate) ?? null,
@@ -132,6 +134,7 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
             <span style={{ ...S.statusDot, background: statusColor }} />
             {statusLabel}
           </span>
+          <DeviceToggle device={device} onChange={setDevice} />
           <button type="button" className="btn btn-ghost btn-sm" onClick={handleOpenPreview} style={S.btnGhost}>
             Abrir preview
           </button>
@@ -180,7 +183,13 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
           {t.isLoading && !t.theme ? (
             <div style={S.canvasMuted}>Cargando editor…</div>
           ) : (
-            <EditorCanvas template={activeTemplate} draft={t.theme?.draft ?? null} selectedKey={selectedKey} onSelectSection={selectSection} />
+            <EditorCanvas
+              template={activeTemplate}
+              draft={t.theme?.draft ?? null}
+              selectedKey={selectedKey}
+              onSelectSection={selectSection}
+              device={device}
+            />
           )}
         </main>
 
