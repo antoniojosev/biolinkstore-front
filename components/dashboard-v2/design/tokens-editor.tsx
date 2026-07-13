@@ -309,6 +309,7 @@ const S: Record<string, React.CSSProperties> = {
   },
   colorText: {
     flex: 1,
+    minWidth: 0,
     padding: "6px 8px",
     border: "1px solid var(--line)",
     borderRadius: 6,
