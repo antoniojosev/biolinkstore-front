@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react"
 import { fetchTemplatePreview, type TemplatePreviewData } from "@/lib/page-builder-api"
 import { TemplateRenderer, type TemplateProduct, type TemplateCategory, type TemplateStore } from "@/components/storefront-v2/template/template-renderer"
+import { useStoreCatalogPreview } from "@/lib/hooks/use-store-catalog-preview"
 import { DeviceToggle, type PreviewDevice } from "./device-toggle"
+
+type DataSource = "demo" | "mine"
 
 interface Props {
   templateKey: string | null
@@ -55,11 +58,14 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [device, setDevice] = useState<PreviewDevice>("desktop")
+  const [source, setSource] = useState<DataSource>("demo")
+  const real = useStoreCatalogPreview()
 
   useEffect(() => {
     if (!templateKey) return
     setData(null)
     setError(false)
+    setSource("demo")
     setLoading(true)
     fetchTemplatePreview(templateKey)
       .then((res) => (res ? setData(res) : setError(true)))
@@ -67,7 +73,14 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
   }, [templateKey])
 
   if (!templateKey) return null
-  const mapped = data ? mapPreview(data) : null
+  const demoMapped = data ? mapPreview(data) : null
+  // "Mi tienda": mismo tree/tokens default del template, pero con tu tienda,
+  // catálogo y categorías reales — el contenido editado de TU tema actual
+  // (headline, etc.) no viaja, porque pertenece a un árbol distinto.
+  const shown =
+    source === "mine" && demoMapped && real.store && real.hasProducts
+      ? { store: real.store, products: real.products, categories: real.categories, theme: demoMapped.theme }
+      : demoMapped
 
   return (
     <div style={S.overlay} onClick={onClose}>
@@ -75,18 +88,50 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
         <div style={S.head}>
           <div style={S.headTitle}>{data ? `Vista previa — ${data.name}` : "Vista previa"}</div>
           <div style={S.headRight}>
+            <div style={S.sourceToggle} role="group" aria-label="Datos de ejemplo o de mi tienda">
+              <button
+                type="button"
+                onClick={() => setSource("demo")}
+                style={{ ...S.sourceBtn, ...(source === "demo" ? S.sourceBtnActive : null) }}
+              >
+                Ejemplo
+              </button>
+              <button
+                type="button"
+                onClick={() => real.hasProducts && setSource("mine")}
+                disabled={!real.hasProducts}
+                title={real.hasProducts ? undefined : "Cargá productos para probarte el tema con tu catálogo"}
+                style={{
+                  ...S.sourceBtn,
+                  ...(source === "mine" ? S.sourceBtnActive : null),
+                  opacity: real.hasProducts ? 1 : 0.45,
+                  cursor: real.hasProducts ? "pointer" : "not-allowed",
+                }}
+              >
+                Mi tienda
+              </button>
+            </div>
             <DeviceToggle device={device} onChange={setDevice} />
             <button type="button" onClick={onClose} style={S.closeBtn} aria-label="Cerrar">
               ✕
             </button>
           </div>
         </div>
+        {source === "mine" && shown === demoMapped && demoMapped && (
+          <div style={S.notice}>Mostrando datos de ejemplo — tu tienda todavía no tiene productos cargados.</div>
+        )}
+        {source === "mine" && shown !== demoMapped && (
+          <div style={S.notice}>
+            Tu tienda y catálogo real con la estética de este tema. Los textos que editaste en tu tema actual (títulos,
+            subtítulos) no se muestran acá — cada tema trae los suyos.
+          </div>
+        )}
         <div style={S.body}>
           {loading && <div style={S.state}>Cargando preview…</div>}
           {error && <div style={S.state}>No se pudo cargar la vista previa.</div>}
-          {mapped && (
+          {shown && (
             <div style={device === "mobile" ? S.deviceFrameMobile : S.deviceFrameDesktop}>
-              <TemplateRenderer store={mapped.store} products={mapped.products} categories={mapped.categories} theme={mapped.theme} />
+              <TemplateRenderer store={shown.store} products={shown.products} categories={shown.categories} theme={shown.theme} />
             </div>
           )}
         </div>
@@ -127,8 +172,42 @@ const S: Record<string, React.CSSProperties> = {
   },
   headTitle: { fontSize: 14, fontWeight: 700, color: "var(--ink)" },
   headRight: { display: "flex", alignItems: "center", gap: 10 },
+  sourceToggle: {
+    display: "flex",
+    gap: 2,
+    padding: 2,
+    background: "var(--bg-2)",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "var(--line)",
+  },
+  sourceBtn: {
+    padding: "5px 10px",
+    border: "none",
+    background: "transparent",
+    borderRadius: 6,
+    fontSize: 11.5,
+    fontWeight: 600,
+    cursor: "pointer",
+    color: "var(--ink-3)",
+    fontFamily: "inherit",
+  },
+  sourceBtnActive: {
+    background: "var(--bg-elev)",
+    color: "var(--ink)",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.08)",
+  },
   closeBtn: { background: "var(--bg-2)", border: "none", borderRadius: 8, width: 30, height: 30, cursor: "pointer", color: "var(--ink-2)", fontSize: 13 },
   body: { overflowY: "auto", flex: 1 },
+  notice: {
+    padding: "8px 18px",
+    fontSize: 12,
+    color: "var(--ink-2)",
+    background: "var(--bg-2)",
+    borderBottom: "1px solid var(--line)",
+    flexShrink: 0,
+  },
   state: { padding: 60, textAlign: "center", color: "var(--ink-3)", fontSize: 13 },
   // Desktop: sin cap propio (el modal mismo, maxWidth 1100, ya supera el
   // breakpoint móvil del renderer). Móvil: marco fijo de iPhone, por debajo

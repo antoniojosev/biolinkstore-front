@@ -1,14 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
-import { useAuth } from "@/contexts/auth-context"
-import { ProductHttpRepository } from "@/lib/products-api/product.http-repository"
-import { CategoryHttpRepository } from "@/lib/categories-api/category.http-repository"
-import type { ProductResponse } from "@/lib/products-api/types"
-import type { CategoryResponse } from "@/lib/categories-api/types"
+import { useEffect, useState } from "react"
 import { fetchTemplatePreview } from "@/lib/page-builder-api"
 import type { DraftTheme, Template, PublicStoreTheme } from "@/lib/page-builder-api"
-import { TemplateRenderer, type TemplateProduct, type TemplateCategory, type TemplateStore } from "@/components/storefront-v2/template/template-renderer"
+import { TemplateRenderer, type TemplateProduct, type TemplateCategory } from "@/components/storefront-v2/template/template-renderer"
+import { useStoreCatalogPreview } from "@/lib/hooks/use-store-catalog-preview"
 import type { PreviewDevice } from "./device-toggle"
 
 interface Props {
@@ -19,57 +15,19 @@ interface Props {
   device?: PreviewDevice
 }
 
-function mapRealProduct(p: ProductResponse, categoryNameById: Map<string, string>): TemplateProduct {
-  return {
-    id: p.id,
-    name: p.name,
-    category: categoryNameById.get(p.categoryIds?.[0] ?? "") ?? "",
-    price: p.basePrice,
-    image: p.images?.[0],
-    images: p.images,
-    description: p.description ?? "",
-    sku: p.sku ?? undefined,
-    stock: p.stock,
-    variants: p.variants.length > 0
-      ? p.variants.map((v) => ({
-          id: v.id,
-          combination: v.combination,
-          priceAdjustment: v.priceAdjustment,
-          stock: v.stock,
-          image: v.image,
-          isAvailable: v.isAvailable,
-        }))
-      : undefined,
-  }
-}
-
 export function EditorCanvas({ template, draft, selectedKey, onSelectSection, device = "desktop" }: Props) {
-  const { http, store } = useAuth()
-  const productRepo = useMemo(() => new ProductHttpRepository(http), [http])
-  const categoryRepo = useMemo(() => new CategoryHttpRepository(http), [http])
-  const [products, setProducts] = useState<TemplateProduct[]>([])
-  const [categories, setCategories] = useState<TemplateCategory[]>([])
+  const real = useStoreCatalogPreview()
+  const [demoProducts, setDemoProducts] = useState<TemplateProduct[]>([])
+  const [demoCategories, setDemoCategories] = useState<TemplateCategory[]>([])
 
   useEffect(() => {
-    if (!store?.id || !template) return
+    // Tienda sin productos todavía — mismo fallback a demo data que usa el
+    // preview público, para que el canvas no se vea vacío mientras se diseña.
+    if (!template || real.isLoading || real.hasProducts) return
     let cancelled = false
-
-    Promise.all([
-      productRepo.findAll(store.id, { limit: 100, isVisible: true }).catch(() => ({ data: [] as ProductResponse[] })),
-      categoryRepo.findAll(store.id).catch(() => ({ data: [] as CategoryResponse[] })),
-    ]).then(async ([p, c]) => {
-      if (cancelled) return
-      if (p.data.length > 0) {
-        const categoryNameById = new Map(c.data.map((cat) => [cat.id, cat.name]))
-        setProducts(p.data.map((prod) => mapRealProduct(prod, categoryNameById)))
-        setCategories(c.data.map((cat) => ({ id: cat.id, name: cat.name })))
-        return
-      }
-      // Tienda sin productos todavía — mismo fallback a demo data que usa el
-      // preview público, para que el canvas no se vea vacío mientras se diseña.
-      const demo = await fetchTemplatePreview(template.key)
+    fetchTemplatePreview(template.key).then((demo) => {
       if (cancelled || !demo) return
-      setProducts(
+      setDemoProducts(
         demo.demoData.products.map((dp) => ({
           id: dp.id,
           name: dp.name,
@@ -81,29 +39,19 @@ export function EditorCanvas({ template, draft, selectedKey, onSelectSection, de
           sku: dp.sku,
         })),
       )
-      setCategories(demo.demoData.categories.map((c2) => ({ id: c2.id, name: c2.name })))
+      setDemoCategories(demo.demoData.categories.map((c2) => ({ id: c2.id, name: c2.name })))
     })
-
     return () => {
       cancelled = true
     }
-  }, [store?.id, template, productRepo, categoryRepo])
+  }, [template, real.isLoading, real.hasProducts])
 
-  if (!store || !template) {
+  if (!real.store || !template) {
     return <div style={S.muted}>Cargando editor…</div>
   }
 
-  const templateStore: TemplateStore = {
-    name: store.name,
-    slug: store.slug,
-    bio: store.description,
-    avatar: store.logo,
-    address: store.address,
-    email: store.email,
-    phone: undefined,
-    currency: store.currency,
-    whatsappNumber: store.whatsappNumbers?.[0],
-  }
+  const products = real.hasProducts ? real.products : demoProducts
+  const categories = real.hasProducts ? real.categories : demoCategories
 
   const theme: PublicStoreTheme = {
     template: template.key,
@@ -117,7 +65,7 @@ export function EditorCanvas({ template, draft, selectedKey, onSelectSection, de
   return (
     <div style={device === "mobile" ? S.frameMobile : S.frameDesktop}>
       <TemplateRenderer
-        store={templateStore}
+        store={real.store}
         products={products}
         categories={categories}
         theme={theme}
