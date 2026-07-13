@@ -10,6 +10,9 @@ import { SectionInspector } from "./section-inspector"
 import { TokensEditor } from "./tokens-editor"
 import { sectionLabel } from "./section-labels"
 import { DeviceToggle, type PreviewDevice } from "./device-toggle"
+import { BottomSheet } from "./bottom-sheet"
+
+type MobileSheet = "sections" | "section" | "design" | null
 
 interface Props {
   /** Optional — when the editor is the whole Diseño view there's nothing to go back to. */
@@ -28,6 +31,7 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
   const [rightTab, setRightTab] = useState<RightTab>("design")
   const [device, setDevice] = useState<PreviewDevice>("desktop")
   const [isMobile, setIsMobile] = useState(false)
+  const [mobileSheet, setMobileSheet] = useState<MobileSheet>(null)
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 768px)")
@@ -127,10 +131,14 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
   const statusColor =
     t.status === "saving" ? "#ECA200" : t.status === "error" ? "#C53030" : t.status === "saved" ? "#0E6940" : "var(--ink-3)"
 
-  // fase2-P4, tiempo 1: en móvil no cabe la grilla de 3 columnas — se muestra
-  // el borrador a pantalla completa (ya fiel gracias al container query de
-  // P1) + Publicar/Descartar. Edición de secciones queda para P5 (editor
-  // móvil completo, fase aparte).
+  // fase2-P5: editor móvil completo. Misma lógica que el desktop (useTheme,
+  // replaceSections, SectionInspector auto-generado) — lo que cambia es el
+  // layout: canvas a pantalla completa + bottom sheets en vez de 3 columnas.
+  function selectSectionMobile(key: string) {
+    setSelectedKey(key)
+    setMobileSheet("section")
+  }
+
   if (isMobile) {
     return (
       <div style={S.wrapMobile}>
@@ -164,23 +172,71 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
           </div>
         )}
 
-        <div style={S.mobileNotice}>Para editar secciones y textos, entrá desde una computadora.</div>
+        <div style={S.mobileSegRow}>
+          <button type="button" onClick={() => setMobileSheet("sections")} style={S.mobileSegBtn}>
+            🧱 Secciones
+          </button>
+          <button type="button" onClick={() => setMobileSheet("design")} style={S.mobileSegBtn}>
+            🎨 Diseño
+          </button>
+        </div>
 
         <div style={S.mobilePreview}>
           {t.isLoading && !t.theme ? (
             <div style={S.canvasMuted}>Cargando editor…</div>
           ) : (
-            <EditorCanvas template={activeTemplate} draft={t.theme?.draft ?? null} bare />
+            <EditorCanvas
+              template={activeTemplate}
+              draft={t.theme?.draft ?? null}
+              bare
+              selectedKey={selectedKey}
+              onSelectSection={selectSectionMobile}
+            />
           )}
         </div>
+
+        <BottomSheet open={mobileSheet === "sections"} title="Secciones" onClose={() => setMobileSheet(null)}>
+          <SectionsPanel
+            sheet
+            template={activeTemplate}
+            sections={sections}
+            selectedKey={selectedKey}
+            onSelectSection={selectSectionMobile}
+            onReorder={handleReorder}
+            onToggleVisible={handleToggleVisible}
+            onAddSection={handleAddSection}
+            onGoToThemes={() => onGoToThemes?.()}
+          />
+        </BottomSheet>
+
+        <BottomSheet
+          open={mobileSheet === "section"}
+          title={selectedNode ? sectionLabel(selectedNode.type) : "Sección"}
+          onClose={() => setMobileSheet(null)}
+        >
+          <SectionInspector
+            def={selectedDef}
+            node={selectedNode}
+            onPropsChange={(props) => selectedNode && handlePropsChange(selectedNode.key, props)}
+            onToggleVisible={() => selectedNode && handleToggleVisible(selectedNode.key)}
+            onDelete={() => {
+              if (selectedNode) handleDeleteSection(selectedNode.key)
+              setMobileSheet(null)
+            }}
+          />
+        </BottomSheet>
+
+        <BottomSheet open={mobileSheet === "design"} title="Diseño" onClose={() => setMobileSheet(null)}>
+          <TokensEditor tokens={draftTokens} palettes={t.palettes} onPatch={t.patchTokens} />
+        </BottomSheet>
 
         {confirmingPublish && (
           <div role="dialog" aria-modal="true" style={S.modalBackdrop} onClick={() => setConfirmingPublish(false)}>
             <div style={S.modal} onClick={(e) => e.stopPropagation()}>
               <h3 style={S.modalTitle}>Publicar cambios</h3>
               <p style={S.modalBody}>
-                Tus visitantes verán el nuevo diseño inmediatamente. Si algo sale mal, podés revertir desde una
-                computadora.
+                Tus visitantes verán el nuevo diseño inmediatamente. Si algo sale mal, puedes <strong>Revertir</strong>{" "}
+                desde esta misma barra.
               </p>
               <div style={S.modalActions}>
                 <button type="button" onClick={() => setConfirmingPublish(false)} style={S.btnGhost}>
@@ -335,8 +391,10 @@ const S: Record<string, React.CSSProperties> = {
     flexDirection: "column",
     background: "var(--bg)",
   },
+  // Sin altura fija: la página crece con el contenido y scrollea entera
+  // (el offset por el topbar/bottom-nav fijos ya lo reserva panel-official
+  // vía el padding de .stage) — el toolbar queda sticky para Publicar rápido.
   wrapMobile: {
-    minHeight: "calc(100vh - 60px)",
     display: "flex",
     flexDirection: "column",
     background: "var(--bg)",
@@ -355,15 +413,27 @@ const S: Record<string, React.CSSProperties> = {
     zIndex: 10,
   },
   toolRightMobile: { display: "flex", alignItems: "center", gap: 8 },
-  mobileNotice: {
+  mobileSegRow: {
+    display: "flex",
+    gap: 8,
     padding: "8px 14px",
-    fontSize: 12,
-    color: "var(--ink-2)",
-    background: "var(--bg-2)",
     borderBottom: "1px solid var(--line)",
+    background: "var(--bg-elev)",
     flexShrink: 0,
   },
-  mobilePreview: { flex: 1 },
+  mobileSegBtn: {
+    flex: 1,
+    padding: "9px 10px",
+    border: "1px solid var(--line)",
+    background: "var(--bg)",
+    borderRadius: 10,
+    fontSize: 12.5,
+    fontWeight: 600,
+    color: "var(--ink)",
+    cursor: "pointer",
+    fontFamily: "inherit",
+  },
+  mobilePreview: {},
   toolbar: {
     display: "flex",
     alignItems: "center",

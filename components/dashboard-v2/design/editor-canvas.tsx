@@ -13,7 +13,7 @@ interface Props {
   selectedKey?: string | null
   onSelectSection?: (key: string) => void
   device?: PreviewDevice
-  /** Vista de solo-lectura a ancho completo (móvil real, fase2-P4) — sin marco ni selección. */
+  /** Ancho completo, sin marco de card (móvil real, fase2-P4/P5) — la selección sigue funcionando si se pasan selectedKey/onSelectSection. */
   bare?: boolean
 }
 
@@ -71,8 +71,8 @@ export function EditorCanvas({ template, draft, selectedKey, onSelectSection, de
         products={products}
         categories={categories}
         theme={theme}
-        editorSelectedKey={bare ? undefined : selectedKey ?? undefined}
-        onSectionClick={bare ? undefined : onSelectSection}
+        editorSelectedKey={selectedKey ?? undefined}
+        onSectionClick={onSelectSection}
       />
     </div>
   )

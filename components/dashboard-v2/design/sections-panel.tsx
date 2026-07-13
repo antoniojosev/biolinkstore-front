@@ -13,9 +13,11 @@ interface Props {
   onToggleVisible: (key: string) => void
   onAddSection: (def: SectionDef) => void
   onGoToThemes: () => void
+  /** true dentro de un bottom sheet móvil (fase2-P5): ancho completo, sin borde lateral. */
+  sheet?: boolean
 }
 
-export function SectionsPanel({ template, sections, selectedKey, onSelectSection, onReorder, onToggleVisible, onAddSection, onGoToThemes }: Props) {
+export function SectionsPanel({ template, sections, selectedKey, onSelectSection, onReorder, onToggleVisible, onAddSection, onGoToThemes, sheet = false }: Props) {
   const [addOpen, setAddOpen] = useState(false)
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
@@ -62,7 +64,7 @@ export function SectionsPanel({ template, sections, selectedKey, onSelectSection
   const availableDefs = schemaSections.filter((def) => def.removable !== false || !presentTypes.has(def.type))
 
   return (
-    <aside style={S.aside}>
+    <aside style={sheet ? S.asideSheet : S.aside}>
       <div style={S.current}>
         <div style={S.currentLabel}>Editando template</div>
         <div style={S.currentRow}>
@@ -168,6 +170,12 @@ const S: Record<string, React.CSSProperties> = {
     width: 260,
     flexShrink: 0,
     borderRight: "1px solid var(--line)",
+    display: "flex",
+    flexDirection: "column",
+    background: "var(--bg-elev)",
+  },
+  asideSheet: {
+    width: "100%",
     display: "flex",
     flexDirection: "column",
     background: "var(--bg-elev)",
