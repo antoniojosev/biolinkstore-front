@@ -80,9 +80,13 @@ export function EditorCanvas({ template, draft, selectedKey, onSelectSection, de
 
 const S: Record<string, React.CSSProperties> = {
   // > 760px (el breakpoint móvil del renderer) para que el container query
-  // no dispare el layout apilado en esta vista.
+  // no dispare el layout apilado en esta vista. minWidth: 780 asegura que si
+  // la ventana es angosta, el canvas scrollee localmente (.canvas tiene
+  // overflowX:auto) en vez de que "Desktop" muestre el layout móvil solo por
+  // falta de espacio.
   frameDesktop: {
     width: "100%",
+    minWidth: 780,
     maxWidth: 1040,
     margin: "0 auto",
     background: "#fff",

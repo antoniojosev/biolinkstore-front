@@ -505,9 +505,11 @@ const S: Record<string, React.CSSProperties> = {
   body: { flex: 1, display: "flex", minHeight: 0 },
   canvas: {
     flex: 1,
+    minWidth: 0,
     background: "var(--bg-2)",
     padding: 20,
     overflowY: "auto",
+    overflowX: "auto",
   },
   canvasMuted: {
     margin: "auto",
