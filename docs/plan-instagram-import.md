@@ -92,9 +92,13 @@ ANTHROPIC_API_KEY=      # para Haiku (clasificación + parseo)
 3. **I3 — Frontend**: endpoint de estado + banner con los 3 estados + copy del gate PRO.
 4. **I4 — Verificación**: import real contra una cuenta IG pública de prueba, builds limpios, journal.
 
-## Abierto (para resolver con Antonio)
+## Decisiones cerradas (2026-07-14, segunda ronda)
 
-1. **Cuenta de Apify**: ¿existe o la creamos? (tier gratis para desarrollo). Elegir actor concreto del marketplace al implementar (verificar precios vigentes).
-2. **API key de Anthropic** para el backend: ¿tenés una para esto o la generamos?
-3. Límite PRO exacto (propuesta: 100 posts).
-4. ¿Reintentos de import son ilimitados o 1 activo a la vez? (propuesta: 1 activo, botón reintentar solo en FAILED).
+1. **Cuenta de Apify**: Antonio ya tiene (tier gratis, le meterá saldo). Elegir actor concreto del marketplace al implementar (verificar precios vigentes).
+2. **Modelo de IA**: **Haiku 4.5** (`claude-haiku-4-5`) para TODO el pipeline — clasificación visual + extracción de caption en UNA llamada multimodal por post, con structured outputs (`messages.parse()`, JSON garantizado). Costo ≈ $0.09 por import de 30 posts (≈$0.05 si se downscalea la imagen a ~768px antes de mandarla). Se evaluó Gemini 2.5 Flash-Lite ($0.10/$0.40 por MTok, ~9x más barato ≈ $0.01/import) — descartado para v1: agregar un segundo proveedor de IA (key, SDK, manejo de errores) no se justifica por ~8 centavos por import; revisitar si el volumen supera ~5-10k imports/mes. Sonnet 5 queda como escalación opcional para posts con confidence baja (v1.1, no v1).
+3. **1 import activo a la vez**; botón reintentar solo en estado FAILED.
+
+## Abierto
+
+1. **API key de Anthropic** para el backend: ¿existe una para ByLink o se genera?
+2. Límite PRO exacto (propuesta: 100 posts).
