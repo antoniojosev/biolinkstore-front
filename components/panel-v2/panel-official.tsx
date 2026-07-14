@@ -140,7 +140,7 @@ const STYLES = `
 .bpanel .lt-stock-pill.zero { background: rgba(0,0,0,0.06); color: var(--ink-3); }
 .bpanel .lt-cat { color: var(--ink-2); font-size: 12px; }
 .bpanel .lt-more { color: var(--ink-3); }
-.bpanel .m-bottom-nav, .bpanel .m-fab, .bpanel .m-topbar { display: none; }
+.bpanel .m-bottom-nav, .bpanel .m-fab, .bpanel .m-topbar, .bpanel .quick-actions-sheet { display: none; }
 .bpanel .m-topbar .m-logo { width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; font-family: var(--font-serif); font-style: italic; font-weight: 800; font-size: 14px; }
 .bpanel .m-topbar .m-store-pill { flex: 1; padding: 6px 10px; background: var(--bg-2); border-radius: 999px; display: flex; align-items: center; gap: 6px; font-size: 11px; font-family: var(--font-mono); color: var(--ink-2); overflow: hidden; }
 .bpanel .m-topbar .m-store-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
