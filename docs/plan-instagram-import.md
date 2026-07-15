@@ -1,8 +1,8 @@
 # Plan — Import real de Instagram (Apify + IA)
 
 > Rama frontend: `fase2/front-prod` · Rama backend: `fase2/front-prod-support`
-> Sesión "iteraciones v1" (2026-07-14). Estado: PLAN, pendiente de implementación.
-> Primera de las 3 iteraciones acordadas (IG import → link compartible → temas B-E).
+> Sesión "iteraciones v1" (2026-07-14/15).
+> **Estado: I1-I3 IMPLEMENTADOS.** Primera de las 3 iteraciones acordadas (IG import → link compartible → temas B-E).
 
 ## Decisiones tomadas por Antonio (2026-07-14)
 
@@ -87,10 +87,10 @@ ANTHROPIC_API_KEY=      # para Haiku (clasificación + parseo)
 
 ## Orden de implementación (commits verificables)
 
-1. **I1 — Backend base**: tabla + migración (sin correr), cliente Apify (arrancar run, consultar estado, leer dataset), use-case StartImport conectado al trigger existente.
-2. **I2 — Pipeline**: clasificación/extracción con Haiku + descarga/resubida de imágenes + creación de productos ocultos + resolución lazy y poll fire-and-forget.
-3. **I3 — Frontend**: endpoint de estado + banner con los 3 estados + copy del gate PRO.
-4. **I4 — Verificación**: import real contra una cuenta IG pública de prueba, builds limpios, journal.
+1. **I1 — Backend base** ✅ — tabla + migración (generada, `20260714061947_instagram_import`, **sin correr**), cliente Apify (`ApifyInstagramClient`: startRun/getRunStatus/getDatasetItems contra `apify~instagram-scraper`), `StartInstagramImportUseCase` conectado al trigger existente vía evento `store.instagram-import.requested` (no acopla `stores` al nuevo módulo).
+2. **I2 — Pipeline** ✅ — `InstagramPostClassifierService` (Haiku 4.5 + `output_config.format` json_schema), descarga/resubida de imágenes (`download-image.util.ts` + `IStorageService` existente), `ProcessInstagramPostUseCase` (crea producto oculto vía `CreateProductUseCase`, respeta límite de plan — al alcanzarlo el resto de posts se marca skipped sin gastar más Haiku), `PollInstagramImportUseCase` (secuencial, no paralelo — contadores post por post) + resolución lazy vía `ImportProcessingLockService` (lock en memoria, un solo proceso backend hoy).
+3. **I3 — Frontend** ✅ — `GET /stores/:id/instagram-import/latest` + hook `useInstagramImportStatus` (polling 2.5s) + banner con los 3 estados reales (antes eran solo un pill fijo que nunca se resolvía) + card en Catálogo simplificada a "pegá tu handle → import real" (se encontró y reemplazó un contrato especulativo previo de "candidatos a aprobar" que no coincidía con la decisión de auto-crear oculto).
+4. **I4 — Verificación**: pendiente — requiere `APIFY_TOKEN` y `ANTHROPIC_API_KEY` reales (ver "Abierto"). `tsc --noEmit` y `pnpm build`/`nest build` limpios en ambos repos: eso sí se verificó. Falta la corrida real contra una cuenta IG de prueba — en particular, confirmar los nombres de campo exactos que devuelve el dataset del actor de Apify (`caption`/`images`/`ownerFullName`/`ownerUsername` — mapeados defensivamente en `apify-instagram.client.ts` contra la doc pública, sin probar en vivo todavía).
 
 ## Decisiones cerradas (2026-07-14, segunda ronda)
 
