@@ -1,114 +1,48 @@
-// Contract this frontend expects from the BE-128 Instagram import.
-//
-// The real backend will use Apify + AI to scrape the merchant's Instagram
-// profile, detect product-like posts, and propose candidates. While the
-// backend is in development, the UI lives against the contract below.
-// The repo gracefully degrades when the endpoint returns 404 so the
-// merchant sees a "in construction" state instead of a crash.
+// Contrato real contra el backend de import de Instagram (Apify + Claude Haiku).
+// Reemplaza un contrato especulativo anterior (jobs/candidatos con revisión
+// previa) por el flujo que se construyó de verdad: el backend clasifica y
+// crea los productos directo (ocultos), el vendedor los revisa en el
+// catálogo normal — no hay paso de "aprobar candidatos" en el frontend.
 import type { HttpClient } from "@/lib/http/client"
 
-export type ImportJobStatus =
-  | "QUEUED"
-  | "SCRAPING"
-  | "PROCESSING"
-  | "READY"
-  | "FAILED"
+export type InstagramImportStatus = "RUNNING" | "PROCESSING" | "DONE" | "FAILED"
 
-export interface ImportCandidate {
+export interface InstagramImportProduct {
   id: string
-  /** Suggested name (AI extracted from the post caption). */
   name: string
-  /** Suggested description (AI cleaned caption). */
-  description: string
-  /** R2/S3 URL where Apify uploaded the post image. */
-  imageUrl: string
-  /** AI's best price guess in USD, null if it couldn't infer one. */
-  suggestedPriceUsd: number | null
-  /** Original Instagram post URL — surfaced in the UI for context. */
-  sourceUrl: string
+  images: string[]
+  basePrice: number
 }
 
-export interface ImportJob {
-  jobId: string
-  status: ImportJobStatus
-  /** 0-100 — UI shows a progress bar. */
-  progress: number
-  /** Populated when status === READY. */
-  candidates?: ImportCandidate[]
-  /** Populated when status === FAILED. */
-  error?: string
-}
-
-export interface CommitOverride {
-  name?: string
-  description?: string
-  priceUsd?: number
-}
-
-export interface CommitResult {
-  createdProductIds: string[]
-}
-
-export class InstagramImportNotImplemented extends Error {
-  constructor() {
-    super("El backend de import desde Instagram todavía no está disponible")
-    this.name = "InstagramImportNotImplemented"
-  }
+export interface InstagramImportStatusResponse {
+  id: string
+  status: InstagramImportStatus
+  handle: string
+  profileName: string | null
+  profileFollowers: number | null
+  postsFound: number
+  postsProcessed: number
+  postsSkipped: number
+  productsCreated: number
+  products: InstagramImportProduct[]
+  error: string | null
+  requestedAt: string
+  finishedAt: string | null
 }
 
 export class InstagramImportHttpRepository {
   constructor(private readonly http: HttpClient) {}
 
-  /** Start a job for `profileUrl`. Backend returns a job id and an initial status. */
-  async start(storeId: string, profileUrl: string): Promise<ImportJob> {
+  /** null cuando la tienda todavía no pidió ningún import (404 del backend). */
+  async getLatest(storeId: string): Promise<InstagramImportStatusResponse | null> {
     try {
-      return await this.http.post<ImportJob>(
-        `/api/stores/${storeId}/instagram-import/jobs`,
-        { profileUrl },
+      return await this.http.get<InstagramImportStatusResponse>(
+        `/api/stores/${storeId}/instagram-import/latest`,
       )
     } catch (err) {
-      this.maybeRethrowNotImplemented(err)
+      const e = err as { status?: number; isNotFound?: boolean }
+      if (e?.status === 404 || e?.isNotFound) return null
       throw err
-    }
-  }
-
-  /** Poll the job. Frontend hits this every ~2 seconds while not READY/FAILED. */
-  async poll(storeId: string, jobId: string): Promise<ImportJob> {
-    try {
-      return await this.http.get<ImportJob>(
-        `/api/stores/${storeId}/instagram-import/jobs/${encodeURIComponent(jobId)}`,
-      )
-    } catch (err) {
-      this.maybeRethrowNotImplemented(err)
-      throw err
-    }
-  }
-
-  /**
-   * Persist the candidates the merchant ticked, optionally with last-minute
-   * overrides (e.g. price they just typed in).
-   */
-  async commit(
-    storeId: string,
-    jobId: string,
-    candidateIds: string[],
-    overrides: Record<string, CommitOverride> = {},
-  ): Promise<CommitResult> {
-    try {
-      return await this.http.post<CommitResult>(
-        `/api/stores/${storeId}/instagram-import/jobs/${encodeURIComponent(jobId)}/commit`,
-        { candidateIds, overrides },
-      )
-    } catch (err) {
-      this.maybeRethrowNotImplemented(err)
-      throw err
-    }
-  }
-
-  private maybeRethrowNotImplemented(err: unknown): void {
-    const e = err as { status?: number; isNotFound?: boolean }
-    if (e?.status === 404 || e?.isNotFound) {
-      throw new InstagramImportNotImplemented()
     }
   }
 }
