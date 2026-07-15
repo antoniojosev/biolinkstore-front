@@ -112,6 +112,8 @@ type StylePreset = {
    - Todo lo editable por el vendedor DEBE ser una prop del schema (el inspector se auto-genera); lo que no está en el schema es diseño fijo e intocable.
    - El renderer del tema debe soportar cualquier combinación que su schema permita (secciones ocultas, reordenadas, props vacíos).
    - Responsive por **container query o auto-fit, nunca `@media`** (para que los previews no mientan — ver `plan-preview-y-editor-movil.md` P1) y es responsabilidad del tema custom; entra al checklist de entrega (probar 360px).
+   - **La página de detalle de producto (`/{tienda}/{producto}`) es obligatoria en todo tema** (decidido 2026-07-15, ver `plan-link-producto.md`). La capa base ya provee una (`product-page-client.tsx`, estilizada por tokens) — un tema custom PUEDE traer su propia vista de detalle, pero si la trae debe cubrir el contrato completo: galería, selección de variantes, cantidad, agregar al carrito, precio con línea en Bs cuando hay tasa, botón compartir, y responsive por container query. Si no la trae, hereda la base — nunca puede quedar una tienda sin detalle de producto.
+   - **El OG/metadata NUNCA es responsabilidad del tema**: se genera a nivel de ruta (`generateMetadata`, server-rendered porque el crawler de WhatsApp no ejecuta JS) — tienda y producto ya lo tienen resuelto por la plataforma. Un diseñador de temas no puede romperlo ni necesita implementarlo; ningún tema debe intentar inyectar meta tags propios.
 3. **Tema de prueba**: un tema con renderer propio para validar el contrato end-to-end (editor, preview, tienda pública) antes de escribir el doc de Fase C sobre este modelo.
 4. Costo asumido: cada tema custom es código a mantener; la garantía estructural de calidad la reemplaza el checklist.
 
