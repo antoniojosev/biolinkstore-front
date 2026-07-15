@@ -1,7 +1,7 @@
 # Plan — Link compartible por producto (iteración 2)
 
 > Rama frontend: `fase2/front-prod` · Backend: **sin cambios** (todo lo necesario ya existe).
-> Sesión "iteraciones v1" (2026-07-15). Estado: PLAN.
+> Sesión "iteraciones v1" (2026-07-15). **Estado: IMPLEMENTADO** (verificado en dev: OG server-rendered con datos reales, redirect de slug inexistente, cards con links reales).
 > Segunda de las 3 iteraciones acordadas (IG import ✅ → **link compartible** → temas B-E).
 
 ## Panorama (verificado en código, 2026-07-15)
