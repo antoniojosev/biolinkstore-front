@@ -15,21 +15,22 @@
 
 **La restricción que define el diseño**: el crawler de WhatsApp no ejecuta JS — el OG (título/foto/precio en el preview del chat) tiene que salir **server-rendered**. Eso obliga a que el link sea una ruta real con `generateMetadata`, no un estado del sheet.
 
-## Diseño elegido
+## Diseño elegido (Modelo B — decidido por Antonio 2026-07-15)
 
-**El link de producto NO abre una página distinta: abre la tienda completa con el sheet del producto ya abierto.**
+**Cada producto tiene su página propia (`/{tienda}/{producto}`), renderizada por el sistema de temas y obligatoria en todos los temas.** Se descartó el modelo "sheet sobre la tienda": el sheet nunca sería diferenciable por tema, y la visión de producto es que la vista de detalle sea parte del framework de temas.
 
-Razón de producto: el comprador que recibe el link en WhatsApp aterriza viendo el producto (sheet abierto, listo para agregar al carrito) **y** con toda la tienda detrás — puede seguir mirando, el carrito funciona, el checkout por WhatsApp funciona. Una página de producto aislada cortaría ese flujo. Es el patrón Linktree/Instagram-shop: el link vende el producto y de paso presenta la tienda.
+**Por capas, igual que el responsive**: la página de detalle se implementa UNA vez en el renderer base, estilizada por los tokens del tema (paleta/tipografías/radius) → todos los temas la tienen gratis, cumpliendo la regla "el diseñador compone, no programa". Cuando llegue Fase E (renderers por tema), un tema custom podrá traer su propia vista de detalle.
+
+**Navegación**: las cards de producto navegan a la página (estilo Shopify) — links reales `<a href>` (SEO + middle-click + compartir desde el menú contextual gratis). El sheet lateral se retira: la página es LA vista de detalle, con selección de variantes, cantidad y carrito completo. El carrito se comparte entre tienda y página (mismo CartProvider por slug).
 
 ### Piezas
 
-1. **`app/[slug]/[productSlug]/page.tsx`** deja de ser redirect →
-   - Extraer el cuerpo de `app/[slug]/page.tsx` (fetch de store/products/theme/rate + armado de `StorefrontClient`) a un componente/función compartida — las dos rutas lo llaman; la de producto pasa `initialProductSlug`.
-   - `generateMetadata` propio: fetch al endpoint público de producto individual → `title: "{producto} — {tienda}"`, `description` (descripción o línea de precio), `og:image` = primera foto del producto, canonical `https://bylink.app/{slug}/{productSlug}`. Producto inexistente/oculto → metadata de la tienda + la página redirige a `/{slug}` (comportamiento actual preservado).
-2. **`StorefrontClient`**: prop `initialProductSlug?: string` — al montar, busca el producto por slug en los ya fetcheados y lo abre **vía `handleOpenProduct`** (así el `PRODUCT_VIEW` del deep-link se trackea gratis). No encontrado → no-op (la tienda carga normal).
-3. **`TemplateProduct.slug?: string`** + mapeo en el armado de productos de la página (y en draft-preview con optional chaining).
-4. **Botón "Compartir" en `ProductDetailSheet`**: `navigator.share` (en móvil abre el share sheet nativo → WhatsApp directo) con fallback a `navigator.clipboard` + feedback inline "✓ Link copiado" (mismo patrón que el "✓ Agregado" existente; el storefront no usa la librería de toasts del dashboard).
-5. **URL sync suave**: al abrir un producto desde una card, `history.replaceState` a `/{slug}/{productSlug}`; al cerrar, de vuelta a `/{slug}`. `replaceState` (no push) a propósito: cero interacción con el botón atrás, cero manejo de popstate — v1 sin estados fantasma. El botón Compartir compone la URL por su cuenta, así que esto es solo para "copiar de la barra".
+1. **`app/[slug]/[productSlug]/page.tsx`** deja de ser redirect → página real:
+   - Mismos fetches que la tienda (store/products/theme/rate — helpers compartidos extraídos de `app/[slug]/page.tsx`), encuentra el producto por slug; inexistente/oculto → `redirect(/{slug})` (links viejos preservados).
+   - **`generateMetadata` optimizado para WhatsApp/redes** (el crawler no ejecuta JS — todo server-rendered): `og:title` "{producto} — {tienda}", `og:description` con el precio adelante ("$12 · descripción…" — WhatsApp lo muestra en el preview del chat), `og:image` = primera foto del producto con width/height, canonical `https://bylink.app/{slug}/{productSlug}`, twitter card. Usa el endpoint público de producto individual (ya existente).
+2. **`ProductPageClient`** (nuevo, en `storefront-v2/template/`): CartProvider + NavBar del renderer (exportada) + galería de fotos + nombre/precio (con línea en Bs si hay tasa) + selección de variantes (lógica movida del sheet) + cantidad + agregar al carrito + descripción + strip "Más de {tienda}" con otros productos + botón **Compartir** (`navigator.share` nativo → WhatsApp; fallback clipboard con "✓ Link copiado"). Dispara `PRODUCT_VIEW` al montar (cubre deep-links y navegación interna con un solo punto).
+3. **`TemplateProduct.slug?: string`** + prop opcional `productHref` en el renderer: cuando está, las cards son `<a href>`; cuando no (editor/previews), siguen siendo botones inertes.
+4. **`StorefrontClient`**: pasa `productHref` en vez de abrir el sheet; `ProductDetailSheet` queda sin caller → se elimina (su lógica de variantes vive ahora en la página).
 
 ### Reglas que caen solas
 

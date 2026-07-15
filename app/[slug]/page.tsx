@@ -6,36 +6,12 @@ import type { TemplateProduct } from "@/components/storefront-v2/template/templa
 import { fetchPublicTheme } from "@/lib/page-builder-api"
 import { fetchDraftPreview, type DraftPreviewProduct } from "@/lib/page-builder-api/draft-preview"
 import { getStoreBySlug } from "@/lib/api"
+import { fetchRawProducts, fetchPublicRate, mapTemplateProducts, type RawAttribute } from "@/lib/storefront-data"
 import type { Product } from "@/lib/types"
 
 interface Props {
   params: Promise<{ slug: string }>
   searchParams: Promise<{ preview?: string }>
-}
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
-
-interface RawAttribute {
-  id: string
-  name: string
-  type?: string
-  options: string[]
-  optionsMeta?: Record<string, { hex?: string }> | null
-}
-interface RawVariant {
-  id: string
-  combination: Record<string, string>
-  priceAdjustment?: number
-  stock?: number | null
-  image?: string | null
-  isAvailable?: boolean
-}
-interface RawProduct {
-  id: string
-  sku?: string | null
-  stock?: number | null
-  attributes?: RawAttribute[]
-  variants?: RawVariant[]
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -90,35 +66,6 @@ function extractColors(attrs: RawAttribute[]): { name: string; hex: string }[] {
   const a = colorAttr(attrs)
   if (!a) return []
   return a.options.map((opt) => ({ name: opt, hex: a.optionsMeta?.[opt]?.hex ?? "#94A3B8" }))
-}
-
-async function fetchRawProducts(slug: string): Promise<Map<string, RawProduct>> {
-  try {
-    const res = await fetch(`${API_URL}/api/public/${slug}/products?limit=100`, { cache: "no-store" })
-    if (!res.ok) return new Map()
-    const json = await res.json()
-    const list: RawProduct[] = Array.isArray(json?.data) ? json.data : []
-    return new Map(list.map((p) => [p.id, p]))
-  } catch {
-    return new Map()
-  }
-}
-
-interface RawOfficialRate {
-  code: string
-  valueVes: number
-}
-
-/** Público, sin auth — tasa BCV para el toggle USD/Bs del comprador. */
-async function fetchPublicRate(): Promise<RawOfficialRate | null> {
-  try {
-    const res = await fetch(`${API_URL}/api/public/rates`, { cache: "no-store" })
-    if (!res.ok) return null
-    const list: RawOfficialRate[] = await res.json()
-    return list.find((r) => r.code === "USD_BCV") ?? list[0] ?? null
-  } catch {
-    return null
-  }
 }
 
 /** Maps the vendor-only draft-preview product shape into TemplateProduct. */
@@ -226,29 +173,7 @@ export default async function StorePage({ params, searchParams }: Props) {
 
     const templateProducts: TemplateProduct[] = draftPreview
       ? draftPreview.products.map((p) => mapPreviewProduct(p, categoryNameById))
-      : fetched.products.map((p) => {
-          const raw = rawById.get(p.id)
-          const variants: TemplateProduct["variants"] = (raw?.variants ?? []).map((v) => ({
-            id: v.id,
-            combination: v.combination,
-            priceAdjustment: v.priceAdjustment ?? 0,
-            stock: v.stock ?? null,
-            image: v.image ?? null,
-            isAvailable: v.isAvailable ?? true,
-          }))
-          return {
-            id: p.id,
-            name: p.name,
-            category: p.category,
-            price: p.price,
-            image: pickImage(p),
-            images: p.images,
-            description: p.description,
-            sku: raw?.sku ?? undefined,
-            stock: raw?.stock ?? null,
-            variants: variants.length > 0 ? variants : undefined,
-          }
-        })
+      : mapTemplateProducts(fetched.products, rawById)
 
     const categories = draftPreview
       ? draftPreview.categories.map((c) => ({ id: c.id, name: c.name }))

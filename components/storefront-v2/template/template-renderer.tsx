@@ -20,6 +20,8 @@ export interface TemplateVariant {
 export interface TemplateProduct {
   id: string
   name: string
+  /** Slug único por tienda — habilita la página propia /{tienda}/{producto}. */
+  slug?: string
   category?: string
   price: number
   image?: string
@@ -61,6 +63,12 @@ export interface TemplateRendererProps {
   categories: TemplateCategory[]
   theme: PublicStoreTheme
   onOpenProduct?: (p: TemplateProduct) => void
+  /**
+   * Cuando está presente, las cards de producto son <a href> reales hacia la
+   * página propia del producto (SEO, middle-click, compartir). Sin él
+   * (editor/previews) las cards quedan como botones que llaman onOpenProduct.
+   */
+  productHref?: (p: TemplateProduct) => string | null
   cartCount?: number
   onOpenCart?: () => void
   /** Tasa pública (BCV) para el toggle de moneda del comprador. null si no está disponible. */
@@ -70,7 +78,7 @@ export interface TemplateRendererProps {
   onSectionClick?: (key: string) => void
 }
 
-export function TemplateRenderer({ store, products, categories, theme, onOpenProduct, cartCount = 0, onOpenCart, rate, editorSelectedKey, onSectionClick }: TemplateRendererProps) {
+export function TemplateRenderer({ store, products, categories, theme, onOpenProduct, productHref, cartCount = 0, onOpenCart, rate, editorSelectedKey, onSectionClick }: TemplateRendererProps) {
   const resolved = resolveTokens(theme.tokens)
   const sections = (theme.tree?.sections ?? []).filter(
     (s) => (s as { visible?: boolean }).visible !== false,
@@ -125,6 +133,7 @@ export function TemplateRenderer({ store, products, categories, theme, onOpenPro
               categories={categories}
               resolved={resolved}
               onOpenProduct={onOpenProduct}
+              productHref={productHref}
               priceCtx={priceCtx}
             />
           )
@@ -205,6 +214,7 @@ interface SectionProps {
   categories: TemplateCategory[]
   resolved: ReturnType<typeof resolveTokens>
   onOpenProduct?: (p: TemplateProduct) => void
+  productHref?: (p: TemplateProduct) => string | null
   priceCtx?: PriceContext
 }
 
@@ -286,7 +296,7 @@ function whatsappUrl(phone: string | null | undefined, message: string): string 
 // Layout chrome
 // ----------------------------------------------------------------------------
 
-function NavBar({
+export function NavBar({
   store,
   resolved,
   cartCount = 0,
@@ -692,6 +702,7 @@ function ProductCard({
   showPrice = true,
   showSku = false,
   onOpen,
+  href,
 }: {
   product: TemplateProduct
   resolved: ReturnType<typeof resolveTokens>
@@ -700,26 +711,26 @@ function ProductCard({
   showPrice?: boolean
   showSku?: boolean
   onOpen?: (product: TemplateProduct) => void
+  href?: string | null
 }) {
-  return (
-    <button
-      type="button"
-      onClick={() => onOpen?.(product)}
-      style={{
-        background: "var(--bl-surface)",
-        border: "1px solid var(--bl-border)",
-        borderRadius: resolved.radiusPx,
-        overflow: "hidden",
-        textAlign: "left",
-        cursor: "pointer",
-        color: "var(--bl-text)",
-        display: "flex",
-        flexDirection: "column",
-        gap: 10,
-        padding: 0,
-        font: "inherit",
-      }}
-    >
+  const cardStyle: CSSProperties = {
+    background: "var(--bl-surface)",
+    border: "1px solid var(--bl-border)",
+    borderRadius: resolved.radiusPx,
+    overflow: "hidden",
+    textAlign: "left",
+    cursor: "pointer",
+    color: "var(--bl-text)",
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+    padding: 0,
+    font: "inherit",
+    textDecoration: "none",
+  }
+
+  const body = (
+    <>
       <div style={{ aspectRatio: "4 / 3", background: "var(--bl-border)" }}>
         {product.image && (
           /* eslint-disable-next-line @next/next/no-img-element */
@@ -748,6 +759,19 @@ function ProductCard({
           </div>
         )}
       </div>
+    </>
+  )
+
+  if (href) {
+    return (
+      <a href={href} style={cardStyle}>
+        {body}
+      </a>
+    )
+  }
+  return (
+    <button type="button" onClick={() => onOpen?.(product)} style={cardStyle}>
+      {body}
     </button>
   )
 }
@@ -761,7 +785,7 @@ const LAYOUT_MINMAX: Record<string, string> = {
   list: "100%",
 }
 
-function ProductGridSection({ section, products, categories, store, resolved, onOpenProduct, priceCtx }: SectionProps) {
+function ProductGridSection({ section, products, categories, store, resolved, onOpenProduct, productHref, priceCtx }: SectionProps) {
   const title = s(section, "title", "Catálogo")
   const layout = s(section, "layout", "grid-3")
   const colMinWidth = LAYOUT_MINMAX[layout] ?? "220px"
@@ -773,7 +797,7 @@ function ProductGridSection({ section, products, categories, store, resolved, on
   const grid = (items: TemplateProduct[]) => (
     <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fit, minmax(${colMinWidth}, 1fr))`, gap: 18 }}>
       {items.map((p) => (
-        <ProductCard key={p.id} product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} showPrice={showPrice} showSku={showSku} onOpen={onOpenProduct} />
+        <ProductCard key={p.id} product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} showPrice={showPrice} showSku={showSku} onOpen={onOpenProduct} href={productHref?.(p)} />
       ))}
     </div>
   )
@@ -845,7 +869,7 @@ function ProductGridSection({ section, products, categories, store, resolved, on
   )
 }
 
-function FeaturedProductsSection({ section, products, store, resolved, onOpenProduct, priceCtx }: SectionProps) {
+function FeaturedProductsSection({ section, products, store, resolved, onOpenProduct, productHref, priceCtx }: SectionProps) {
   const title = s(section, "title", "Destacados")
   const productIdItems = arr<{ id?: string }>(section, "productIds")
   const productIds = productIdItems.map((it) => it.id).filter((id): id is string => Boolean(id))
@@ -872,7 +896,7 @@ function FeaturedProductsSection({ section, products, store, resolved, onOpenPro
         <div style={{ display: "flex", gap: 18, overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: 4 }}>
           {subset.map((p) => (
             <div key={p.id} style={{ minWidth: 220, flexShrink: 0, scrollSnapAlign: "start" }}>
-              <ProductCard product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} onOpen={onOpenProduct} />
+              <ProductCard product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} onOpen={onOpenProduct} href={productHref?.(p)} />
             </div>
           ))}
         </div>
@@ -882,31 +906,40 @@ function FeaturedProductsSection({ section, products, store, resolved, onOpenPro
 
   if (layout === "spotlight" && subset.length > 0) {
     const [first, ...rest] = subset
+    const firstHref = productHref?.(first)
+    const spotlightStyle: CSSProperties = { background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left", color: "var(--bl-text)", font: "inherit", textDecoration: "none", display: "block" }
+    const spotlightBody = (
+      <>
+        <div style={{ aspectRatio: "4/3", borderRadius: resolved.radiusPx, background: "var(--bl-border)", overflow: "hidden" }}>
+          {first.image && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={first.image} alt={first.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          )}
+        </div>
+        <div style={{ fontWeight: 700, fontSize: 20, marginTop: 14 }}>{first.name}</div>
+        {first.description && <p style={{ fontSize: 14, color: "var(--bl-text-muted)", marginTop: 6, lineHeight: 1.5 }}>{first.description}</p>}
+        <div style={{ fontFamily: "var(--bl-mono-font)", fontSize: 16, color: "var(--bl-primary)", fontWeight: 600, marginTop: 8 }}>
+          {priceLabel(first.price, priceCtx, store.currency)}
+        </div>
+      </>
+    )
     return (
       <SectionShell background="var(--bl-surface)">
         {heading}
         <div style={{ display: "grid", gridTemplateColumns: rest.length > 0 ? "1.3fr 1fr" : "1fr", gap: "calc(var(--bl-spacing) * 1.5)", alignItems: "start" }}>
-          <button
-            type="button"
-            onClick={() => onOpenProduct?.(first)}
-            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left", color: "var(--bl-text)", font: "inherit" }}
-          >
-            <div style={{ aspectRatio: "4/3", borderRadius: resolved.radiusPx, background: "var(--bl-border)", overflow: "hidden" }}>
-              {first.image && (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={first.image} alt={first.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              )}
-            </div>
-            <div style={{ fontWeight: 700, fontSize: 20, marginTop: 14 }}>{first.name}</div>
-            {first.description && <p style={{ fontSize: 14, color: "var(--bl-text-muted)", marginTop: 6, lineHeight: 1.5 }}>{first.description}</p>}
-            <div style={{ fontFamily: "var(--bl-mono-font)", fontSize: 16, color: "var(--bl-primary)", fontWeight: 600, marginTop: 8 }}>
-              {priceLabel(first.price, priceCtx, store.currency)}
-            </div>
-          </button>
+          {firstHref ? (
+            <a href={firstHref} style={spotlightStyle}>
+              {spotlightBody}
+            </a>
+          ) : (
+            <button type="button" onClick={() => onOpenProduct?.(first)} style={spotlightStyle}>
+              {spotlightBody}
+            </button>
+          )}
           {rest.length > 0 && (
             <div style={{ display: "grid", gap: 12 }}>
               {rest.map((p) => (
-                <ProductCard key={p.id} product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} onOpen={onOpenProduct} />
+                <ProductCard key={p.id} product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} onOpen={onOpenProduct} href={productHref?.(p)} />
               ))}
             </div>
           )}
@@ -926,7 +959,7 @@ function FeaturedProductsSection({ section, products, store, resolved, onOpenPro
         }}
       >
         {subset.map((p) => (
-          <ProductCard key={p.id} product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} onOpen={onOpenProduct} />
+          <ProductCard key={p.id} product={p} resolved={resolved} currency={store.currency} priceCtx={priceCtx} onOpen={onOpenProduct} href={productHref?.(p)} />
         ))}
       </div>
     </SectionShell>
