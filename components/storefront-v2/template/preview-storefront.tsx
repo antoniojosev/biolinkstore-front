@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import { CartProvider, useCart } from "@/lib/cart-context"
 import { WhatsAppPaymentProvider } from "@/lib/payment-providers/whatsapp"
-import { ThemeRenderer } from "@/components/storefront-v2/themes/registry"
+import { ThemeRenderer, getThemeOverlays } from "@/components/storefront-v2/themes/registry"
 import { resolveTokens } from "./tokens"
 import type { TemplateProduct, TemplateRendererProps } from "./template-renderer"
 import { CartSheet } from "./cart-sheet"
@@ -37,6 +37,12 @@ function PreviewInner(props: Props) {
   // renderer — este wrapper les provee las variables --bl-* del tema.
   const resolved = useMemo(() => resolveTokens(theme.tokens), [theme.tokens])
 
+  // Overlays PROPIOS del tema (cart-drawer / product-detail del diseño
+  // original) cuando el registry los define; genéricos como fallback.
+  const overlays = getThemeOverlays(theme.template)
+  const ProductSheet = overlays.ProductSheet ?? PreviewProductSheet
+  const ThemeCart = overlays.CartSheet ?? CartSheet
+
   return (
     <div style={resolved.cssVars as React.CSSProperties}>
       <ThemeRenderer
@@ -45,8 +51,8 @@ function PreviewInner(props: Props) {
         cartCount={totalItems}
         onOpenCart={() => setIsOpen(true)}
       />
-      <PreviewProductSheet product={detail} store={store} onClose={() => setDetail(null)} />
-      <CartSheet store={store} paymentProvider={paymentProvider} />
+      <ProductSheet product={detail} store={store} onClose={() => setDetail(null)} />
+      <ThemeCart store={store} paymentProvider={paymentProvider} />
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import { CartProvider, useCart } from "@/lib/cart-context"
 import { WhatsAppPaymentProvider } from "@/lib/payment-providers/whatsapp"
 import type { TemplateProduct, TemplateRendererProps } from "./template-renderer"
-import { ThemeRenderer } from "@/components/storefront-v2/themes/registry"
+import { ThemeRenderer, getThemeOverlays } from "@/components/storefront-v2/themes/registry"
 import { resolveTokens } from "./tokens"
 import { CartSheet } from "./cart-sheet"
 
@@ -40,6 +40,10 @@ function StorefrontInner(props: Props) {
   // los colores sin resolver (bug latente desde el split renderer/sheet).
   const resolved = useMemo(() => resolveTokens(props.theme.tokens), [props.theme.tokens])
 
+  // Carrito PROPIO del tema si el registry lo define (los temas legacy traen
+  // su cart-drawer como parte del diseño); genérico como fallback.
+  const ThemeCart = getThemeOverlays(props.theme.template).CartSheet ?? CartSheet
+
   return (
     <div style={resolved.cssVars as React.CSSProperties}>
       <ThemeRenderer
@@ -48,7 +52,7 @@ function StorefrontInner(props: Props) {
         cartCount={totalItems}
         onOpenCart={() => setIsOpen(true)}
       />
-      <CartSheet store={store} paymentProvider={paymentProvider} />
+      <ThemeCart store={store} paymentProvider={paymentProvider} />
     </div>
   )
 }

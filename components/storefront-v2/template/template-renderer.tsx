@@ -17,6 +17,20 @@ export interface TemplateVariant {
   isAvailable: boolean
 }
 
+/**
+ * Atributo de producto con rol semántico (mismos roles que el backend):
+ * sin role (o 'variant') = eje seleccionable · 'spec'/'tag' = ficha de
+ * inmueble · 'ingredient-included'/'ingredient-extra' = flujo "arma tu…".
+ * Los renderers por tema los consumen (specs de propiedades, ingredientes).
+ */
+export interface TemplateAttribute {
+  name: string
+  type: "text" | "color"
+  role?: string
+  options: string[]
+  optionsMeta?: Record<string, { hex?: string; priceDelta?: number }>
+}
+
 export interface TemplateProduct {
   id: string
   name: string
@@ -30,6 +44,12 @@ export interface TemplateProduct {
   sku?: string
   stock?: number | null
   variants?: TemplateVariant[]
+  /** Precio tachado (oferta) — los temas legacy muestran badge de sale. */
+  compareAtPrice?: number
+  /** Etiqueta corta del plato/pieza (ej. "Como te gusta" en poster). */
+  tagline?: string
+  featured?: boolean
+  attributes?: TemplateAttribute[]
 }
 
 export interface TemplateCategory {

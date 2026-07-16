@@ -59,6 +59,10 @@ export function mapPreview(data: TemplatePreviewData) {
     description: p.description,
     sku: p.sku,
     variants: demoVariants(p),
+    compareAtPrice: p.compareAtPrice,
+    tagline: p.tagline,
+    featured: p.featured,
+    attributes: p.attributes,
   }))
 
   const categories: TemplateCategory[] = data.demoData.categories.map((c) => ({ id: c.id, name: c.name }))
