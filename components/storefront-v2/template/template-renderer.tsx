@@ -1056,9 +1056,11 @@ function CategoriesSection({ section, categories, resolved }: SectionProps) {
   )
 }
 
-function AboutSection({ section, resolved }: SectionProps) {
+function AboutSection({ section, store, resolved }: SectionProps) {
   const title = s(section, "title", "Sobre nosotros")
-  const body = s(section, "body")
+  // Sin body propio, captura la bio real de la tienda (misma regla que el
+  // hero con el nombre): los datos guardados mandan, el default solo viste.
+  const body = s(section, "body", store.bio ?? "")
   const image = s(section, "image")
   // Bug: el schema declara split-left/split-right/centered, pero esto comparaba
   // contra "left"/"right" — nunca matcheaba, así que elegir una opción no hacía nada.
