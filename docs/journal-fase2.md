@@ -251,3 +251,18 @@ Cada eliminación se verificó primero con grep de importadores reales (no solo 
 **Fase 4 — theme-framework.md (Fase C).** Manual del diseñador en el backend junto al seed: anatomía del TemplateSeed, catálogo de las 16 secciones con las variantes REALES (grep-guard como fuente), recetas, contrato de renderers custom en 7 puntos (con lo que un custom NO hace: ni página de producto ni OG), las 10 reglas del framework, checklist de entrega y cómo probar.
 
 **Fase 5 — Verificación.** Automatizado: grep-guard variantes seed↔renderer (cero sin implementar), tsc+builds limpios ambos repos, 11 templates en el catálogo, 11 previews públicos 200, recetas viajando en el detalle. Pendiente de ojos (Antonio): pasada visual por los 11 temas en la galería (🖥/📱, probador), aplicar recetas en Vitrina/Noir/Menu y confirmar que el contenido no se pisa, y PersonaRenderer aplicado a una tienda real (editor + tienda pública + 360px).
+
+## 2026-07-16 — Fidelidad de temas (auditoría uno a uno) + preview interactivo
+
+- Auditoría legacy vs actual de los 11 temas (agente sobre `feat/multi-currency-rates`). Corregido por tokens/defaults: inmuebles (teal→negro+navy premium), luxora (sin dorado, sans), vitrina (off-white+turquesa+coral reales), noir (bronce #C9A86C + Source Serif 4), menu (ámbar #B45309, sans), poster (Anton), rosier (accent coral), atelier (bg beige, hero banner), estate (texto navy). Heros compact para los temas perfil-linktree (vitrina/luxora/menu/poster).
+- OJO: `template-data.ts` del legacy está desactualizado — las paletas reales salen de los index.tsx / globals.css.
+- Preview interactivo: `PreviewStorefront` (detalle sheet + carrito + checkout WA demo) en modal Temas y probador. Fix: CartSheet ahora hereda las vars `--bl-*` (bug latente también en tienda pública).
+- **Pendiente nivel 2 (renderers custom para fidelidad estructural completa)**, en orden de valor: 
+  1. vitrina/luxora — layout perfil linktree (sidebar desktop, avatar+buscador+categorías verticales, barra carrito sticky)
+  2. noir — header cinemático 65vh + grid editorial (featured full-width + pares) + separadores dorados
+  3. menu — carta agrupada por categoría con scroll-spy + barra pedido persistente
+  4. inmuebles — banner estado + quick filters glass + featured peek + tabs + footer oscuro
+  5. rosier — marquee serif italic + watermark N° + stats pill + bottom nav mobile
+  6. poster — fondo radial + hojas SVG + título gradient-clip + script Allura
+  7. atelier — hero cover borroso full-height + galería asimétrica 12col
+  8. estate — header navy con avatar dorado + property cards con specs + barra guardados
