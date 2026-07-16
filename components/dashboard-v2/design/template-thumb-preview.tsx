@@ -10,9 +10,10 @@ import { mapPreview } from "./theme-preview-modal"
 // previewImage sea null (pendiente pipeline a R2) — y de paso nunca queda
 // desactualizado respecto al seed.
 
-// Ancho virtual al que se renderiza el tema antes de escalar. Por encima del
-// breakpoint del container query → la carátula muestra el layout desktop.
-const VIRTUAL_WIDTH = 900
+// Ancho virtual al que se renderiza el tema antes de escalar: ancho de
+// teléfono, por debajo del breakpoint del container query → la carátula
+// muestra el layout móvil real dentro del marco de teléfono de la card.
+const VIRTUAL_WIDTH = 390
 
 // Un fetch por template por sesión de página, compartido entre re-mounts
 // (cambiar de chip de nicho desmonta/monta las cards).

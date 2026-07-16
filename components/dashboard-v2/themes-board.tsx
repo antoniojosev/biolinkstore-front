@@ -106,15 +106,17 @@ export function ThemesBoard({ onOpenEditor }: Props) {
             return (
               <div key={tpl.key} style={{ ...S.card, ...(isActive ? S.cardActive : null) }}>
                 <div style={S.thumb} onClick={() => setPreviewKey(tpl.key)}>
-                  {tpl.previewImage ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={tpl.previewImage} alt={tpl.name} style={S.thumbImg} />
-                  ) : (
-                    <TemplateThumbPreview
-                      templateKey={tpl.key}
-                      fallback={<div style={S.thumbPlaceholder}>{tpl.name.slice(0, 2).toUpperCase()}</div>}
-                    />
-                  )}
+                  <div style={S.thumbScreen}>
+                    {tpl.previewImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={tpl.previewImage} alt={tpl.name} style={S.thumbImg} />
+                    ) : (
+                      <TemplateThumbPreview
+                        templateKey={tpl.key}
+                        fallback={<div style={S.thumbPlaceholder}>{tpl.name.slice(0, 2).toUpperCase()}</div>}
+                      />
+                    )}
+                  </div>
                   {isActive && <div style={S.activeBadge}>Activo</div>}
                   {isGated && <div style={S.lockBadge}>{tpl.planRequired}</div>}
                 </div>
@@ -185,7 +187,7 @@ const S: Record<string, React.CSSProperties> = {
     color: "var(--ink)",
   },
   appliedLink: { background: "none", border: "none", color: "var(--success)", fontWeight: 700, fontSize: 13, cursor: "pointer" },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16 },
+  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 16 },
   muted: { color: "var(--ink-3)", fontSize: 13, padding: "40px 8px", textAlign: "center", gridColumn: "1 / -1" },
   card: {
     background: "var(--bg-elev)",
@@ -198,13 +200,28 @@ const S: Record<string, React.CSSProperties> = {
     flexDirection: "column",
   },
   cardActive: { borderColor: "var(--brand)", boxShadow: "0 0 0 1px var(--brand)" },
+  // Carátula formato teléfono (como los mockups de prod legacy): bezel oscuro
+  // alrededor de una "pantalla" donde vive el mini-render del tema. Las
+  // tiendas de los vendedores se viven en el teléfono — la carátula también.
   thumb: {
     position: "relative",
-    aspectRatio: "4 / 3",
+    aspectRatio: "10 / 19",
+    background: "#1c1c1e",
+    borderRadius: 30,
+    padding: 6,
+    margin: "14px 14px 0",
+    boxShadow: "0 0 0 1px rgba(0,0,0,0.15), 0 14px 28px -12px rgba(0,0,0,0.35)",
+    cursor: "pointer",
+  },
+  thumbScreen: {
+    position: "relative",
+    width: "100%",
+    height: "100%",
+    borderRadius: 24,
+    overflow: "hidden",
     background: "linear-gradient(135deg, var(--bg-2), var(--bg-elev))",
     display: "grid",
     placeItems: "center",
-    cursor: "pointer",
   },
   thumbImg: { width: "100%", height: "100%", objectFit: "cover" },
   thumbPlaceholder: { fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 30, color: "var(--ink-3)" },
