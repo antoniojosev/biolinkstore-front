@@ -3,7 +3,8 @@
 import { useMemo } from "react"
 import { CartProvider, useCart } from "@/lib/cart-context"
 import { WhatsAppPaymentProvider } from "@/lib/payment-providers/whatsapp"
-import { TemplateRenderer, type TemplateProduct, type TemplateRendererProps } from "./template-renderer"
+import type { TemplateProduct, TemplateRendererProps } from "./template-renderer"
+import { ThemeRenderer } from "@/components/storefront-v2/themes/registry"
 import { CartSheet } from "./cart-sheet"
 
 type Props = Omit<TemplateRendererProps, "onOpenProduct" | "productHref" | "cartCount" | "onOpenCart">
@@ -35,7 +36,7 @@ function StorefrontInner(props: Props) {
 
   return (
     <>
-      <TemplateRenderer
+      <ThemeRenderer
         {...props}
         productHref={productHref}
         cartCount={totalItems}

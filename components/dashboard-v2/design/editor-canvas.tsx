@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { fetchTemplatePreview } from "@/lib/page-builder-api"
 import type { DraftTheme, Template, PublicStoreTheme } from "@/lib/page-builder-api"
-import { TemplateRenderer, type TemplateProduct, type TemplateCategory } from "@/components/storefront-v2/template/template-renderer"
+import type { TemplateProduct, TemplateCategory } from "@/components/storefront-v2/template/template-renderer"
+import { ThemeRenderer } from "@/components/storefront-v2/themes/registry"
 import { useStoreCatalogPreview } from "@/lib/hooks/use-store-catalog-preview"
 import type { PreviewDevice } from "./device-toggle"
 
@@ -66,7 +67,7 @@ export function EditorCanvas({ template, draft, selectedKey, onSelectSection, de
 
   return (
     <div style={bare ? S.frameBare : device === "mobile" ? S.frameMobile : S.frameDesktop}>
-      <TemplateRenderer
+      <ThemeRenderer
         store={real.store}
         products={products}
         categories={categories}

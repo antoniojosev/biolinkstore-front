@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { fetchTemplatePreview, type TemplatePreviewData } from "@/lib/page-builder-api"
-import { TemplateRenderer, type TemplateProduct, type TemplateCategory, type TemplateStore } from "@/components/storefront-v2/template/template-renderer"
+import type { TemplateProduct, TemplateCategory, TemplateStore } from "@/components/storefront-v2/template/template-renderer"
+import { ThemeRenderer } from "@/components/storefront-v2/themes/registry"
 import { useStoreCatalogPreview } from "@/lib/hooks/use-store-catalog-preview"
 import { DeviceToggle, type PreviewDevice } from "./device-toggle"
 
@@ -142,7 +143,7 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
           {error && <div style={S.state}>No se pudo cargar la vista previa.</div>}
           {shown && (
             <div style={device === "mobile" ? S.deviceFrameMobile : S.deviceFrameDesktop}>
-              <TemplateRenderer store={shown.store} products={shown.products} categories={shown.categories} theme={shown.theme} />
+              <ThemeRenderer store={shown.store} products={shown.products} categories={shown.categories} theme={shown.theme} />
             </div>
           )}
         </div>

@@ -202,12 +202,12 @@ const RESPONSIVE_STYLES = `
 // Section dispatcher
 // ----------------------------------------------------------------------------
 
-interface PriceContext {
+export interface PriceContext {
   currency: string
   convert: (usdOrBasePrice: number) => number
 }
 
-interface SectionProps {
+export interface SectionProps {
   section: SectionNode
   store: TemplateStore
   products: TemplateProduct[]
@@ -218,7 +218,7 @@ interface SectionProps {
   priceCtx?: PriceContext
 }
 
-function SectionRenderer(props: SectionProps) {
+export function SectionRenderer(props: SectionProps) {
   switch (props.section.type) {
     case "hero":
       return <HeroSection {...props} />
