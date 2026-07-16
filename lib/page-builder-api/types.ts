@@ -25,6 +25,9 @@ export const FONT_WHITELIST = [
   'Space Grotesk',
   'Poppins',
   'Lora',
+  // Display condensado (Poster legacy) — solo trae peso 400; Google Fonts
+  // ignora los pesos no disponibles del href compartido.
+  'Anton',
 ] as const
 export type FontName = (typeof FONT_WHITELIST)[number]
 
