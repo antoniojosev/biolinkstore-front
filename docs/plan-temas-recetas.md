@@ -1,7 +1,8 @@
 # Plan — Temas como "kit de pizza": recetas, variantes reales y framework de diseño
 
 > Rama frontend: `fase2/front-prod` · Rama backend: `fase2/front-prod-support`
-> Continuación del editor de secciones (2026-07-10/11). Estado: PLAN, pendiente de implementación.
+> Continuación del editor de secciones (2026-07-10/11).
+> **Estado 2026-07-16**: Fase A ✅ (variantes reales) · Fase B ✅ (recetas: stylePresets + UI, 3 insignia) · Fase C ✅ (`igsotre-back/docs/theme-framework.md`) · Fase E ✅ parcial (dispatcher + PersonaRenderer fiel; resto de curados como aproximación hasta post-deploy) · Fase D: checks automatizados ✅ (grep-guard variantes, builds, 11 previews 200), pasada visual pendiente de Antonio.
 
 ## 1. El modelo (la analogía que gobierna todo)
 
