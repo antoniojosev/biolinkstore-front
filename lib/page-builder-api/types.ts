@@ -45,6 +45,8 @@ export interface TypographyTokens {
   headingFont?: FontName | string
   bodyFont?: FontName | string
   monoFont?: FontName | string
+  /** Escala tipográfica declarada por el seed (compact/normal/comfortable). El renderer aún no la consume, pero viaja en los tokens y las recetas la comparan. */
+  scale?: string
 }
 
 export interface ThemeTokens {
@@ -120,6 +122,22 @@ export interface StoreThemeResponse {
   rollback: PublishedTheme | null
 }
 
+/** Override opcional de sección dentro de una receta — solo pisa visible y/o las props que define, nunca el resto del contenido del vendedor. */
+export interface StylePresetSectionOverride {
+  key: string
+  visible?: boolean
+  props?: Record<string, unknown>
+}
+
+/** Receta alternativa curada por el diseñador: set COMPLETO de tokens + overrides opcionales de sección. La receta "Original" no viaja — se deriva de defaultTokens. */
+export interface StylePreset {
+  key: string
+  name: string
+  description?: string
+  tokens: ThemeTokens
+  sectionOverrides?: StylePresetSectionOverride[]
+}
+
 export interface Template {
   id: string
   key: string
@@ -129,6 +147,7 @@ export interface Template {
   previewImage: string | null
   sectionSchema: TemplateSectionSchema
   defaultTokens: ThemeTokens
+  stylePresets?: StylePreset[] | null
   version: number
   isActive: boolean
   sortOrder: number

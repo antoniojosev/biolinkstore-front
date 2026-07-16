@@ -8,6 +8,8 @@ import {
   type PalettePreset,
   type Radius,
   type Spacing,
+  type StylePreset,
+  type Template,
   type ThemeTokens,
 } from "@/lib/page-builder-api"
 
@@ -15,6 +17,25 @@ interface Props {
   tokens: ThemeTokens
   palettes: PalettePreset[]
   onPatch: (partial: ThemeTokens) => void
+  /** Template activo — habilita el bloque de Recetas (defaultTokens = "Original" + stylePresets del diseñador). */
+  template?: Template | null
+  /** Aplica una receta completa (tokens + overrides de sección). Vive en theme-editor porque necesita replaceSections. */
+  onApplyPreset?: (preset: StylePreset) => void
+}
+
+/**
+ * Firma canónica de un set de tokens para detectar qué receta está activa.
+ * Compara solo los campos que una receta define (colores en minúscula,
+ * tipografía, forma) — inmune al orden de claves del JSON.
+ */
+function tokensSignature(t: ThemeTokens | undefined | null): string {
+  if (!t) return ""
+  const p = t.palette ?? {}
+  return JSON.stringify({
+    c: PALETTE_KEYS.map((k) => (p[k] ?? "").toLowerCase()),
+    f: [t.typography?.headingFont ?? "", t.typography?.bodyFont ?? "", t.typography?.scale ?? ""],
+    s: [t.radius ?? "", t.spacing ?? "", t.buttonStyle ?? ""],
+  })
 }
 
 const RADIUS_OPTIONS: Radius[] = ["sm", "md", "lg", "xl"]
@@ -42,11 +63,56 @@ const PALETTE_LABEL: Record<string, string> = {
   border: "Borde",
 }
 
-export function TokensEditor({ tokens, palettes, onPatch }: Props) {
+export function TokensEditor({ tokens, palettes, onPatch, template, onApplyPreset }: Props) {
   const [section, setSection] = useState<"palette" | "type" | "shape">("palette")
+
+  // Recetas: "Original" (defaultTokens del template, siempre presente) + las
+  // curadas por el diseñador. Es la vía recomendada de personalización; los
+  // controles de abajo siguen siendo la edición libre.
+  const recipes: StylePreset[] =
+    template && onApplyPreset
+      ? [
+          { key: "__original", name: "Original", tokens: template.defaultTokens },
+          ...(template.stylePresets ?? []),
+        ]
+      : []
+  const currentSig = tokensSignature(tokens)
 
   return (
     <div style={S.wrap}>
+      {recipes.length > 0 && (
+        <div>
+          <div style={S.subTitle}>Recetas del tema</div>
+          <div style={S.recipeList}>
+            {recipes.map((r) => {
+              const active = tokensSignature(r.tokens) === currentSig
+              const pal = r.tokens.palette ?? {}
+              return (
+                <button
+                  key={r.key}
+                  type="button"
+                  onClick={() => !active && onApplyPreset?.(r)}
+                  style={{ ...S.recipe, ...(active ? S.recipeActive : null) }}
+                  title={r.description}
+                >
+                  <div style={S.recipeSwatches}>
+                    {(["primary", "accent", "bg", "text"] as const).map((k) => (
+                      <span key={k} style={{ ...S.swatch, background: pal[k] ?? "#ccc" }} />
+                    ))}
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={S.recipeName}>{r.name}</div>
+                    <div style={S.recipeFont}>{r.tokens.typography?.headingFont ?? "—"}</div>
+                  </div>
+                  {active && <span style={S.recipeCheck}>✓</span>}
+                </button>
+              )
+            })}
+          </div>
+          <div style={{ ...S.subTitle, marginTop: 18 }}>Personalizar</div>
+        </div>
+      )}
+
       <div style={S.tabs}>
         <button type="button" onClick={() => setSection("palette")} style={section === "palette" ? S.tabActive : S.tab}>
           Paleta
@@ -302,6 +368,33 @@ const S: Record<string, React.CSSProperties> = {
   },
   presetSwatches: { display: "flex", gap: 3 },
   swatch: { width: 18, height: 18, borderRadius: 4, border: "1px solid var(--line)" },
+  recipeList: { display: "flex", flexDirection: "column", gap: 8 },
+  recipe: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    padding: "9px 10px",
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "var(--line)",
+    borderRadius: 10,
+    background: "var(--bg-elev)",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    color: "var(--ink)",
+    textAlign: "left",
+    width: "100%",
+    minWidth: 0,
+  },
+  recipeActive: {
+    borderColor: "var(--brand)",
+    boxShadow: "0 0 0 1px var(--brand)",
+    cursor: "default",
+  },
+  recipeSwatches: { display: "flex", gap: 3, flexShrink: 0 },
+  recipeName: { fontSize: 12.5, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
+  recipeFont: { fontSize: 10.5, color: "var(--ink-3)", fontFamily: "var(--font-mono)" },
+  recipeCheck: { fontSize: 12, color: "var(--brand)", fontWeight: 700, flexShrink: 0 },
   presetName: { fontSize: 11, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
   // minWidth:0 en el ítem de la grilla (no solo en colorText, adentro):
   // el "ancho mínimo automático" de un grid item con `1fr` se calcula sobre

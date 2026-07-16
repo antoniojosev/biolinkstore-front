@@ -30,6 +30,8 @@ export {
   type SectionTree,
   type Spacing,
   type StoreThemeResponse,
+  type StylePreset,
+  type StylePresetSectionOverride,
   type SwitchTemplatePayload,
   type Template,
   type TemplateNiche,

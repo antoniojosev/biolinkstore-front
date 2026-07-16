@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { useTheme } from "@/lib/hooks/use-theme"
-import type { SectionDef, SectionNode } from "@/lib/page-builder-api"
+import type { SectionDef, SectionNode, StylePreset } from "@/lib/page-builder-api"
 import { EditorCanvas } from "./editor-canvas"
 import { SectionsPanel } from "./sections-panel"
 import { SectionInspector } from "./section-inspector"
@@ -86,6 +86,27 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
 
   function handlePropsChange(key: string, props: Record<string, unknown>) {
     t.replaceSections(sections.map((s) => (s.key === key ? { ...s, props } : s)))
+  }
+
+  // Aplica una receta del diseñador: tokens COMPLETOS (el deep-merge del hook
+  // equivale a replace porque van todos los campos) + overrides de sección
+  // que solo pisan visible y las props que la receta define — nunca el
+  // contenido que el vendedor escribió.
+  function handleApplyPreset(preset: StylePreset) {
+    t.patchTokens(preset.tokens)
+    if (preset.sectionOverrides?.length) {
+      t.replaceSections(
+        sections.map((s) => {
+          const ov = preset.sectionOverrides!.find((o) => o.key === s.key)
+          if (!ov) return s
+          return {
+            ...s,
+            ...(ov.visible !== undefined ? { visible: ov.visible } : {}),
+            props: ov.props ? { ...s.props, ...ov.props } : s.props,
+          }
+        }),
+      )
+    }
   }
 
   async function handlePublish() {
@@ -227,7 +248,7 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
         </BottomSheet>
 
         <BottomSheet open={mobileSheet === "design"} title="Diseño" onClose={() => setMobileSheet(null)}>
-          <TokensEditor tokens={draftTokens} palettes={t.palettes} onPatch={t.patchTokens} />
+          <TokensEditor tokens={draftTokens} palettes={t.palettes} onPatch={t.patchTokens} template={activeTemplate} onApplyPreset={handleApplyPreset} />
         </BottomSheet>
 
         {confirmingPublish && (
@@ -347,7 +368,7 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
           </div>
           <div style={S.inspectorBody}>
             {rightTab === "design" ? (
-              <TokensEditor tokens={draftTokens} palettes={t.palettes} onPatch={t.patchTokens} />
+              <TokensEditor tokens={draftTokens} palettes={t.palettes} onPatch={t.patchTokens} template={activeTemplate} onApplyPreset={handleApplyPreset} />
             ) : (
               <SectionInspector
                 def={selectedDef}
