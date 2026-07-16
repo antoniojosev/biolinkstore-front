@@ -14,7 +14,7 @@ interface Props {
   onClose: () => void
 }
 
-function mapPreview(data: TemplatePreviewData) {
+export function mapPreview(data: TemplatePreviewData) {
   const store: TemplateStore = {
     name: data.demoData.store.name,
     slug: data.demoData.store.slug,

@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { useTheme } from "@/lib/hooks/use-theme"
 import type { Plan, Template, TemplateNiche } from "@/lib/page-builder-api"
 import { ThemePreviewModal } from "./design/theme-preview-modal"
+import { TemplateThumbPreview } from "./design/template-thumb-preview"
 
 interface Props {
   onOpenEditor: () => void
@@ -109,7 +110,10 @@ export function ThemesBoard({ onOpenEditor }: Props) {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={tpl.previewImage} alt={tpl.name} style={S.thumbImg} />
                   ) : (
-                    <div style={S.thumbPlaceholder}>{tpl.name.slice(0, 2).toUpperCase()}</div>
+                    <TemplateThumbPreview
+                      templateKey={tpl.key}
+                      fallback={<div style={S.thumbPlaceholder}>{tpl.name.slice(0, 2).toUpperCase()}</div>}
+                    />
                   )}
                   {isActive && <div style={S.activeBadge}>Activo</div>}
                   {isGated && <div style={S.lockBadge}>{tpl.planRequired}</div>}
