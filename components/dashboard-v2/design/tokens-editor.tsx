@@ -69,11 +69,14 @@ export function TokensEditor({ tokens, palettes, onPatch, template, onApplyPrese
   // Recetas: "Original" (defaultTokens del template, siempre presente) + las
   // curadas por el diseñador. Es la vía recomendada de personalización; los
   // controles de abajo siguen siendo la edición libre.
+  // Guard de defaultTokens: activeTemplate llega primero del catálogo liviano
+  // (sin defaultTokens/stylePresets) y el detalle se mergea async — hasta que
+  // llega, no hay recetas que mostrar.
   const recipes: StylePreset[] =
-    template && onApplyPreset
+    template && onApplyPreset && template.defaultTokens
       ? [
           { key: "__original", name: "Original", tokens: template.defaultTokens },
-          ...(template.stylePresets ?? []),
+          ...(template.stylePresets ?? []).filter((p) => p && p.tokens),
         ]
       : []
   const currentSig = tokensSignature(tokens)
@@ -86,7 +89,7 @@ export function TokensEditor({ tokens, palettes, onPatch, template, onApplyPrese
           <div style={S.recipeList}>
             {recipes.map((r) => {
               const active = tokensSignature(r.tokens) === currentSig
-              const pal = r.tokens.palette ?? {}
+              const pal = r.tokens?.palette ?? {}
               return (
                 <button
                   key={r.key}
@@ -102,7 +105,7 @@ export function TokensEditor({ tokens, palettes, onPatch, template, onApplyPrese
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={S.recipeName}>{r.name}</div>
-                    <div style={S.recipeFont}>{r.tokens.typography?.headingFont ?? "—"}</div>
+                    <div style={S.recipeFont}>{r.tokens?.typography?.headingFont ?? "—"}</div>
                   </div>
                   {active && <span style={S.recipeCheck}>✓</span>}
                 </button>
