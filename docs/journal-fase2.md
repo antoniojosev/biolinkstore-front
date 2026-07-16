@@ -266,3 +266,33 @@ Cada eliminación se verificó primero con grep de importadores reales (no solo 
   6. poster — fondo radial + hojas SVG + título gradient-clip + script Allura
   7. atelier — hero cover borroso full-height + galería asimétrica 12col
   8. estate — header navy con avatar dorado + property cards con specs + barra guardados
+
+## 2026-07-16 (2) — Referencias legacy recuperadas + demo data real + contrato de overlays
+
+**Hallazgo estructural** (pedido de Antonio: "analiza uno a uno cada tema y corrígelo; el
+carrito/detalle actuales no son los originales"): cada tema legacy tenía su PROPIO
+`cart-drawer.tsx`, `product-card.tsx` y `product-detail.tsx` — el CartSheet/ProductSheet
+genéricos no son el diseño de ningún tema. Referencias completas inventariadas en
+`docs/legacy-theme-specs/README.md`; specs fieles de los 11 temas en ese mismo dir
+(fuentes: React legacy por rama, HTML aprobados en `igstore/landing-videos/`, seeds
+verticales de tiendas demo).
+
+**Demo data real**: los datasets del page-builder.seed ahora son las 4 tiendas demo
+curadas — Noire Boutique (ropa: vitrina/luxora/noir/rosier), Brooklyn Burger House
+(menu/poster, con roles ingredient-* para "arma tu…"), Andrea Torres Propiedades
+(inmuebles/estate, specs estructuradas role=spec/tag) y Daniel Mendoza
+(servicios/persona/atelier — atelier era del fotógrafo, no de moda). Fotos locales
+restauradas en `public/demo-assets/` (93 archivos). mapPreview materializa los ejes de
+atributos como variantes → el detalle del preview muestra Talla/Color como prod.
+
+**Contrato nuevo**: `THEME_REGISTRY` con slots `ProductSheet`/`CartSheet` por tema
+(fallback a genéricos) + `TemplateProduct.attributes/compareAtPrice/tagline/featured`.
+
+**Tokens corregidos por spec**: vitrina/luxora/servicios/persona/inmuebles → Inter;
+luxora muted #999/radius lg/botón sólido; inmuebles accent dorado #d4a04f (HTML manda);
+servicios paleta #2d2d2d (legacy byte-idéntico a persona).
+
+**En curso**: ports fieles lote 1 (perfil compartido persona+servicios, menu, poster)
+con sus cart/detail propios. Pendiente lote 2: vitrina, luxora, noir, rosier, atelier,
+inmuebles, estate. Decisión abierta para Antonio: niche del atelier (hoy FASHION, su
+tienda demo canónica es el fotógrafo).
