@@ -16,6 +16,7 @@ const NICHES: Array<{ id: TemplateNiche | "ALL"; label: string }> = [
   { id: "RESTAURANT", label: "Restaurante" },
   { id: "REAL_ESTATE", label: "Inmuebles" },
   { id: "SERVICES", label: "Servicios" },
+  { id: "PORTFOLIO", label: "Portafolio" },
   { id: "GENERAL", label: "General" },
 ]
 

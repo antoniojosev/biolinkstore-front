@@ -10,6 +10,7 @@ export type TemplateNiche =
   | 'REAL_ESTATE'
   | 'SERVICES'
   | 'GENERAL'
+  | 'PORTFOLIO'
 
 export type Radius = 'sm' | 'md' | 'lg' | 'xl'
 export type Spacing = 'compact' | 'normal' | 'comfortable'
