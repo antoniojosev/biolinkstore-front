@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { fetchTemplatePreview, type TemplatePreviewData } from "@/lib/page-builder-api"
-import type { TemplateProduct, TemplateCategory, TemplateStore } from "@/components/storefront-v2/template/template-renderer"
+import type { TemplateProduct, TemplateCategory, TemplateStore, TemplateVariant } from "@/components/storefront-v2/template/template-renderer"
 import { PreviewStorefront } from "@/components/storefront-v2/template/preview-storefront"
 import { useStoreCatalogPreview } from "@/lib/hooks/use-store-catalog-preview"
 import { DeviceToggle, type PreviewDevice } from "./device-toggle"
@@ -12,6 +12,26 @@ type DataSource = "demo" | "mine"
 interface Props {
   templateKey: string | null
   onClose: () => void
+}
+
+// Los productos demo traen ejes de atributos (Talla/Color…) igual que las
+// tiendas demo reales; acá se materializan como variantes (cartesiano
+// completo) para que el detalle del preview muestre los selectores y el flujo
+// funcione como en prod. Roles no-seleccionables (spec/tag/ingredient-*)
+// quedan fuera — los consumen los renderers por tema.
+function demoVariants(p: TemplatePreviewData["demoData"]["products"][number]): TemplateVariant[] | undefined {
+  const axes = (p.attributes ?? []).filter((a) => !a.role || a.role === "variant")
+  if (axes.length === 0) return undefined
+  let combos: Record<string, string>[] = [{}]
+  for (const axis of axes) {
+    combos = combos.flatMap((c) => axis.options.map((opt) => ({ ...c, [axis.name]: opt })))
+  }
+  return combos.map((combination, i) => ({
+    id: `${p.id}-v${i + 1}`,
+    combination,
+    priceAdjustment: 0,
+    isAvailable: true,
+  }))
 }
 
 export function mapPreview(data: TemplatePreviewData) {
@@ -38,6 +58,7 @@ export function mapPreview(data: TemplatePreviewData) {
     images: p.images,
     description: p.description,
     sku: p.sku,
+    variants: demoVariants(p),
   }))
 
   const categories: TemplateCategory[] = data.demoData.categories.map((c) => ({ id: c.id, name: c.name }))

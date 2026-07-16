@@ -16,14 +16,28 @@ export interface DemoStoreData {
   aboutShort?: string
 }
 
+export interface DemoAttributeData {
+  name: string
+  type: "text" | "color"
+  /** Sin role (o 'variant') = eje seleccionable · 'spec'/'tag' = ficha inmueble
+   *  · 'ingredient-included'/'ingredient-extra' = flujo "arma tu…" (poster). */
+  role?: string
+  options: string[]
+  optionsMeta?: Record<string, { hex?: string; priceDelta?: number }>
+}
+
 export interface DemoProductData {
   id: string
   name: string
   description?: string
   basePrice: number
+  compareAtPrice?: number
   images?: string[]
+  featured?: boolean
+  tagline?: string
   category?: string
   sku?: string
+  attributes?: DemoAttributeData[]
 }
 
 export interface DemoCategoryData {
