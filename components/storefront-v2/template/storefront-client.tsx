@@ -5,6 +5,7 @@ import { CartProvider, useCart } from "@/lib/cart-context"
 import { WhatsAppPaymentProvider } from "@/lib/payment-providers/whatsapp"
 import type { TemplateProduct, TemplateRendererProps } from "./template-renderer"
 import { ThemeRenderer } from "@/components/storefront-v2/themes/registry"
+import { resolveTokens } from "./tokens"
 import { CartSheet } from "./cart-sheet"
 
 type Props = Omit<TemplateRendererProps, "onOpenProduct" | "productHref" | "cartCount" | "onOpenCart">
@@ -34,8 +35,13 @@ function StorefrontInner(props: Props) {
     return p.slug ? `/${store.slug}/${p.slug}` : null
   }
 
+  // El CartSheet es un overlay fixed FUERA del root del renderer — sin este
+  // wrapper con las variables --bl-* del tema, el carrito renderizaba con
+  // los colores sin resolver (bug latente desde el split renderer/sheet).
+  const resolved = useMemo(() => resolveTokens(props.theme.tokens), [props.theme.tokens])
+
   return (
-    <>
+    <div style={resolved.cssVars as React.CSSProperties}>
       <ThemeRenderer
         {...props}
         productHref={productHref}
@@ -43,6 +49,6 @@ function StorefrontInner(props: Props) {
         onOpenCart={() => setIsOpen(true)}
       />
       <CartSheet store={store} paymentProvider={paymentProvider} />
-    </>
+    </div>
   )
 }

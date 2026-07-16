@@ -108,7 +108,8 @@ export function CartSheet({ store, paymentProvider }: { store: TemplateStore; pa
 }
 
 const S: Record<string, React.CSSProperties> = {
-  overlay: { position: "fixed", inset: 0, background: "rgba(10,15,31,0.5)", zIndex: 100, display: "flex", justifyContent: "flex-end" },
+  // z 400: por encima del modal de preview (300) — el carrito siempre es la capa superior
+  overlay: { position: "fixed", inset: 0, background: "rgba(10,15,31,0.5)", zIndex: 400, display: "flex", justifyContent: "flex-end" },
   sheet: { background: "var(--bl-background)", width: "100%", maxWidth: 420, height: "100%", overflowY: "auto", padding: 24, display: "flex", flexDirection: "column" },
   header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 },
   title: { fontFamily: "var(--bl-heading-font)", fontSize: 20, margin: 0, color: "var(--bl-text)" },

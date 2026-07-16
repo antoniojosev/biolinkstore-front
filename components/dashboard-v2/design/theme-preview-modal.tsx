@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { fetchTemplatePreview, type TemplatePreviewData } from "@/lib/page-builder-api"
 import type { TemplateProduct, TemplateCategory, TemplateStore } from "@/components/storefront-v2/template/template-renderer"
-import { ThemeRenderer } from "@/components/storefront-v2/themes/registry"
+import { PreviewStorefront } from "@/components/storefront-v2/template/preview-storefront"
 import { useStoreCatalogPreview } from "@/lib/hooks/use-store-catalog-preview"
 import { DeviceToggle, type PreviewDevice } from "./device-toggle"
 
@@ -23,6 +23,9 @@ export function mapPreview(data: TemplatePreviewData) {
     address: data.demoData.store.address,
     email: data.demoData.store.email,
     phone: data.demoData.store.phone,
+    // Checkout de muestra: el carrito del preview arma el pedido de WhatsApp
+    // contra el número demo, igual que el flujo real.
+    whatsappNumber: data.demoData.store.phone,
     currency: "USD",
   }
 
@@ -143,7 +146,7 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
           {error && <div style={S.state}>No se pudo cargar la vista previa.</div>}
           {shown && (
             <div style={device === "mobile" ? S.deviceFrameMobile : S.deviceFrameDesktop}>
-              <ThemeRenderer store={shown.store} products={shown.products} categories={shown.categories} theme={shown.theme} />
+              <PreviewStorefront store={shown.store} products={shown.products} categories={shown.categories} theme={shown.theme} />
             </div>
           )}
         </div>
