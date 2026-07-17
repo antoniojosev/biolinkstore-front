@@ -292,7 +292,11 @@ atributos como variantes → el detalle del preview muestra Talla/Color como pro
 luxora muted #999/radius lg/botón sólido; inmuebles accent dorado #d4a04f (HTML manda);
 servicios paleta #2d2d2d (legacy byte-idéntico a persona).
 
-**En curso**: ports fieles lote 1 (perfil compartido persona+servicios, menu, poster)
-con sus cart/detail propios. Pendiente lote 2: vitrina, luxora, noir, rosier, atelier,
-inmuebles, estate. Decisión abierta para Antonio: niche del atelier (hoy FASHION, su
-tienda demo canónica es el fotógrafo).
+**Ports completados (lotes 1 y 2, commits 3a45c26 + f0c04cb)**: los 11 temas tienen
+renderer custom fiel + ProductSheet/CartSheet propios en THEME_REGISTRY (atelier sin
+cart: "Reservar sesión" directo). vitrina/luxora comparten `themes/shared/catalog-shell`,
+persona/servicios comparten `themes/shared/profile-theme`. Build verde.
+Decisión abierta para Antonio: niche del atelier (hoy FASHION, su tienda demo canónica
+es el fotógrafo). Pendiente conocido: la tienda pública real sigue navegando a la página
+de producto genérica (`product-page-client.tsx`) — despacharla por tema es la extensión
+siguiente del registry; los sheets propios ya cubren previews/probador.
