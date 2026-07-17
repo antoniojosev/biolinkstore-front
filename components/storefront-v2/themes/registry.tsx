@@ -14,6 +14,13 @@ import { MenuRenderer } from "./menu"
 import { MenuProductSheet } from "./menu/product-sheet"
 import { MenuCartSheet } from "./menu/cart-sheet"
 import { PosterRenderer, PosterProductSheet, PosterCartSheet } from "./poster"
+import { EstateRenderer, EstateProductSheet, EstateCartSheet } from "./estate"
+import { AtelierRenderer, AtelierProductSheet } from "./atelier"
+import { InmueblesRenderer, InmueblesProductSheet, InmueblesCartSheet } from "./inmuebles"
+import { NoirRenderer, NoirProductSheet, NoirCartSheet } from "./noir"
+import { RosierRenderer, RosierProductSheet, RosierCartSheet } from "./rosier"
+import { VitrinaRenderer, VitrinaProductSheet, VitrinaCartSheet } from "./vitrina"
+import { LuxoraRenderer, LuxoraProductSheet, LuxoraCartSheet } from "./luxora"
 
 /**
  * Registro de renderers custom por tema (Fase E del framework de temas).
@@ -57,6 +64,15 @@ const THEME_REGISTRY: Record<string, ThemeEntry> = {
   servicios: { Renderer: ServiciosRenderer, ProductSheet: ServiciosProductSheet, CartSheet: ServiciosCartSheet },
   menu: { Renderer: MenuRenderer, ProductSheet: MenuProductSheet, CartSheet: MenuCartSheet },
   poster: { Renderer: PosterRenderer, ProductSheet: PosterProductSheet, CartSheet: PosterCartSheet },
+  estate: { Renderer: EstateRenderer, ProductSheet: EstateProductSheet, CartSheet: EstateCartSheet },
+  // atelier no registra CartSheet: el flujo es "Reservar sesión" directo por
+  // WhatsApp (sin carrito); el genérico queda de fallback inofensivo.
+  atelier: { Renderer: AtelierRenderer, ProductSheet: AtelierProductSheet },
+  inmuebles: { Renderer: InmueblesRenderer, ProductSheet: InmueblesProductSheet, CartSheet: InmueblesCartSheet },
+  noir: { Renderer: NoirRenderer, ProductSheet: NoirProductSheet, CartSheet: NoirCartSheet },
+  rosier: { Renderer: RosierRenderer, ProductSheet: RosierProductSheet, CartSheet: RosierCartSheet },
+  vitrina: { Renderer: VitrinaRenderer, ProductSheet: VitrinaProductSheet, CartSheet: VitrinaCartSheet },
+  luxora: { Renderer: LuxoraRenderer, ProductSheet: LuxoraProductSheet, CartSheet: LuxoraCartSheet },
 }
 
 /** Overlays propios del tema (o undefined → el caller usa los genéricos). */
