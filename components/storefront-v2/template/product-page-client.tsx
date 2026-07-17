@@ -7,6 +7,7 @@ import { trackEvent as trackLegacyEvent } from "@/lib/analytics"
 import { trackEvent as trackStoreEvent } from "@/lib/storefront-tracking"
 import { googleFontsHref } from "@/lib/google-fonts"
 import type { PublicStoreTheme } from "@/lib/page-builder-api"
+import { useRouter } from "next/navigation"
 import { resolveTokens } from "./tokens"
 import {
   NavBar,
@@ -15,6 +16,7 @@ import {
   type TemplateStore,
 } from "./template-renderer"
 import { CartSheet } from "./cart-sheet"
+import { getThemeOverlays } from "@/components/storefront-v2/themes/registry"
 
 interface ProductPageClientProps {
   store: TemplateStore
@@ -37,13 +39,70 @@ function formatPrice(amount: number, currency?: string | null): string {
 
 // La vista de detalle vive UNA vez acá (capa base del framework de temas) y
 // se estiliza con los tokens del tema — todos los temas la tienen
-// "obligatoria" gratis. Cuando exista Fase E (renderers por tema), un tema
-// custom podrá traer la suya propia.
+// "obligatoria" gratis. Los temas del registry con ProductSheet propio
+// despachan a su detalle diseñado (misma URL, mismo OG server-rendered);
+// esta capa base queda como fallback.
 export function ProductPageClient(props: ProductPageClientProps) {
+  const overlays = getThemeOverlays(props.theme.template)
   return (
     <CartProvider storeSlug={props.store.slug}>
-      <ProductPageInner {...props} />
+      {overlays.ProductSheet ? (
+        <ThemedProductPage {...props} ProductSheet={overlays.ProductSheet} ThemeCart={overlays.CartSheet} />
+      ) : (
+        <ProductPageInner {...props} />
+      )}
     </CartProvider>
+  )
+}
+
+/**
+ * Página de producto despachada al tema: renderiza el ProductSheet PROPIO
+ * (todos son takeovers de pantalla completa) sobre un fondo con los tokens
+ * del tema, más su carrito. "Volver"/cerrar navega a la tienda — el mismo
+ * comportamiento del legacy, pero conservando URL propia por producto.
+ */
+function ThemedProductPage({
+  store,
+  product,
+  theme,
+  ProductSheet,
+  ThemeCart,
+}: ProductPageClientProps & {
+  ProductSheet: NonNullable<ReturnType<typeof getThemeOverlays>["ProductSheet"]>
+  ThemeCart: ReturnType<typeof getThemeOverlays>["CartSheet"]
+}) {
+  const router = useRouter()
+  const resolved = resolveTokens(theme.tokens)
+
+  const paymentProvider = useMemo(
+    () => new WhatsAppPaymentProvider(store.whatsappNumber ?? "", store.currency ?? "USD"),
+    [store.whatsappNumber, store.currency],
+  )
+
+  useEffect(() => {
+    trackLegacyEvent(store.slug, "PRODUCT_VIEW", product.id)
+    trackStoreEvent(store.slug, "PRODUCT_VIEW", product.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.id])
+
+  const CartComp = ThemeCart ?? CartSheet
+
+  return (
+    <div
+      style={{
+        ...(resolved.cssVars as CSSProperties),
+        minHeight: "100dvh",
+        background: "var(--bl-background)",
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      <link
+        rel="stylesheet"
+        href={googleFontsHref([resolved.headingFontName, resolved.bodyFontName, resolved.monoFontName])}
+      />
+      <ProductSheet product={product} store={store} onClose={() => router.push(`/${store.slug}`)} />
+      <CartComp store={store} paymentProvider={paymentProvider} />
+    </div>
   )
 }
 

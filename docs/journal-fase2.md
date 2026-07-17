@@ -297,6 +297,7 @@ renderer custom fiel + ProductSheet/CartSheet propios en THEME_REGISTRY (atelier
 cart: "Reservar sesión" directo). vitrina/luxora comparten `themes/shared/catalog-shell`,
 persona/servicios comparten `themes/shared/profile-theme`. Build verde.
 Decisión abierta para Antonio: niche del atelier (hoy FASHION, su tienda demo canónica
-es el fotógrafo). Pendiente conocido: la tienda pública real sigue navegando a la página
-de producto genérica (`product-page-client.tsx`) — despacharla por tema es la extensión
-siguiente del registry; los sheets propios ya cubren previews/probador.
+es el fotógrafo). La página de producto pública también despacha
+por tema (2026-07-17): `ProductPageClient` renderiza el ProductSheet propio del tema
+(todos son takeovers) + su carrito, conservando URL propia y OG server-rendered;
+"Volver" navega a la tienda. La capa base queda de fallback para temas sin sheet.
