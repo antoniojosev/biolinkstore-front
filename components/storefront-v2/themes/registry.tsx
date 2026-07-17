@@ -8,7 +8,12 @@ import {
   type TemplateStore,
 } from "@/components/storefront-v2/template/template-renderer"
 import type { PaymentProvider } from "@/lib/payment-providers/types"
-import { PersonaRenderer } from "./persona"
+import { PersonaRenderer, PersonaProductSheet, PersonaCartSheet } from "./persona"
+import { ServiciosRenderer, ServiciosProductSheet, ServiciosCartSheet } from "./servicios"
+import { MenuRenderer } from "./menu"
+import { MenuProductSheet } from "./menu/product-sheet"
+import { MenuCartSheet } from "./menu/cart-sheet"
+import { PosterRenderer, PosterProductSheet, PosterCartSheet } from "./poster"
 
 /**
  * Registro de renderers custom por tema (Fase E del framework de temas).
@@ -48,7 +53,10 @@ interface ThemeEntry {
 }
 
 const THEME_REGISTRY: Record<string, ThemeEntry> = {
-  persona: { Renderer: PersonaRenderer },
+  persona: { Renderer: PersonaRenderer, ProductSheet: PersonaProductSheet, CartSheet: PersonaCartSheet },
+  servicios: { Renderer: ServiciosRenderer, ProductSheet: ServiciosProductSheet, CartSheet: ServiciosCartSheet },
+  menu: { Renderer: MenuRenderer, ProductSheet: MenuProductSheet, CartSheet: MenuCartSheet },
+  poster: { Renderer: PosterRenderer, ProductSheet: PosterProductSheet, CartSheet: PosterCartSheet },
 }
 
 /** Overlays propios del tema (o undefined → el caller usa los genéricos). */
