@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
+import { ApiError } from "@/lib/http/types"
 import { InstagramImportHttpRepository, type InstagramImportStatusResponse } from "@/lib/instagram-import-api"
 
 // Cadencia adaptativa: rápido solo mientras hay un import corriendo (es lo
@@ -21,13 +22,23 @@ export function useInstagramImportStatus() {
   const [isLoading, setIsLoading] = useState(true)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const hasLoadedRef = useRef(false)
+  // 401 = sesión muerta: el HttpClient ya disparó onLogout; este loop de
+  // fondo se apaga para siempre en vez de reventar como error sin catch.
+  const stoppedRef = useRef(false)
 
   const poll = useCallback(async (): Promise<InstagramImportStatusResponse | null> => {
-    if (!storeId) return null
+    if (!storeId || stoppedRef.current) return null
     try {
       const latest = await repo.getLatest(storeId)
       setStatus(latest)
       return latest
+    } catch (err) {
+      if (err instanceof ApiError && err.isUnauthorized) {
+        stoppedRef.current = true
+      }
+      // Error transitorio (red, 5xx): se conserva el último status y el
+      // próximo tick reintenta solo.
+      return null
     } finally {
       hasLoadedRef.current = true
       setIsLoading(false)
@@ -48,7 +59,7 @@ export function useInstagramImportStatus() {
     async function tick() {
       if (cancelled) return
       await poll()
-      if (cancelled) return
+      if (cancelled || stoppedRef.current) return
       timerRef.current = setTimeout(tick, interval)
     }
     void tick()
