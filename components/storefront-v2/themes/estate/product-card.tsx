@@ -169,10 +169,23 @@ export function EstatePropertyCard({
     )
   }
   if (onOpen) {
+    // Wrapper div (no <button>): la card trae botones internos y un boton no
+    // puede anidar botones — rompia hidratacion en el canvas del editor.
     return (
-      <button type="button" onClick={() => onOpen(product)} style={S.linkBtn}>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => onOpen(product)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault()
+            onOpen(product)
+          }
+        }}
+        style={{ ...S.linkBtn, cursor: "pointer" }}
+      >
         {card}
-      </button>
+      </div>
     )
   }
   return card

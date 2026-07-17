@@ -477,10 +477,23 @@ function ServiceCard({
       </a>
     )
   }
+  // Wrapper div (no <button>): el body contiene el boton Agendar y un boton
+  // no puede anidar botones — rompia hidratacion en el canvas del editor.
   return (
-    <button type="button" onClick={() => onOpen?.(product)} style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", padding: 0, font: "inherit", color: "inherit", cursor: onOpen ? "pointer" : "default" }}>
+    <div
+      role={onOpen ? "button" : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+      onClick={() => onOpen?.(product)}
+      onKeyDown={(e) => {
+        if (onOpen && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault()
+          onOpen(product)
+        }
+      }}
+      style={{ width: "100%", cursor: onOpen ? "pointer" : "default" }}
+    >
       {body}
-    </button>
+    </div>
   )
 }
 

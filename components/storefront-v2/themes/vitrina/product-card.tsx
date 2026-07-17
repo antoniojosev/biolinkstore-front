@@ -140,14 +140,23 @@ export function VitrinaProductCard({
       </a>
     )
   }
+  // Wrapper div (no <button>): la card contiene botones internos (quick-add,
+  // share) y un boton no puede anidar botones — rompia hidratacion en el canvas.
   return (
-    <button
-      type="button"
+    <div
+      role={onOpen ? "button" : undefined}
+      tabIndex={onOpen ? 0 : undefined}
       onClick={() => onOpen?.(product)}
-      style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", padding: 0, font: "inherit", color: "inherit", cursor: onOpen ? "pointer" : "default" }}
+      onKeyDown={(e) => {
+        if (onOpen && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault()
+          onOpen(product)
+        }
+      }}
+      style={{ width: "100%", cursor: onOpen ? "pointer" : "default" }}
     >
       {card}
-    </button>
+    </div>
   )
 }
 

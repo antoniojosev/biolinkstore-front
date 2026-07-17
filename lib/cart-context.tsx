@@ -122,3 +122,12 @@ export function useCart() {
   if (!ctx) throw new Error('useCart must be used within CartProvider')
   return ctx
 }
+
+/**
+ * Variante opcional para renderers de tema que también se montan SIN
+ * CartProvider (canvas del editor, thumbs del gallery). Devuelve null en esos
+ * contextos en vez de tirar — el tema degrada a estado vacío/no interactivo.
+ */
+export function useCartOptional(): CartContextValue | null {
+  return useContext(CartContext)
+}
