@@ -94,6 +94,9 @@ const S: Record<string, React.CSSProperties> = {
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
     overflow: "hidden",
+    // containing block de los position:fixed del tema (cart bars, sheets) —
+    // sin esto se anclan al viewport y flotan sobre el chrome del dashboard.
+    contain: "paint",
   },
   // Ancho fijo de iPhone — por debajo del breakpoint, el layout apilado se
   // dispara de verdad (container query, no viewport).
@@ -107,9 +110,10 @@ const S: Record<string, React.CSSProperties> = {
     borderWidth: 8,
     borderStyle: "solid",
     borderColor: "#111",
+    contain: "paint",
   },
   // Ancho completo, sin marco — el viewport real del teléfono ya es angosto,
   // así que el container query del renderer apila el layout solo.
-  frameBare: { width: "100%" },
+  frameBare: { width: "100%", contain: "paint" },
   muted: { margin: "auto", fontSize: 13, color: "var(--ink-3)" },
 }

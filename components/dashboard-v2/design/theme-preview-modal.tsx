@@ -264,7 +264,11 @@ const S: Record<string, React.CSSProperties> = {
     boxShadow: "0 1px 2px rgba(0,0,0,0.08)",
   },
   closeBtn: { background: "var(--bg-2)", border: "none", borderRadius: 8, width: 30, height: 30, cursor: "pointer", color: "var(--ink-2)", fontSize: 13 },
-  body: { overflowY: "auto", flex: 1 },
+  // contain:paint hace del cuerpo el containing block de los position:fixed de
+  // los temas (cart bars, bottom-navs, sheets de detalle/carrito) — sin esto
+  // se anclan al viewport del browser y se salen del modal. En modo móvil el
+  // marco del teléfono (contain:paint propio, más interno) sigue mandando.
+  body: { overflowY: "auto", flex: 1, contain: "paint" },
   notice: {
     padding: "8px 18px",
     fontSize: 12,
