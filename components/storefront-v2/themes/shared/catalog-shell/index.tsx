@@ -108,6 +108,15 @@ export interface CatalogSkin {
   renderBottomBar(ctx: CatalogCtx): ReactNode
   /** Franja de destacados (luxora); sin definir → SectionRenderer base. */
   renderFeatured?(node: SectionNode, ctx: CatalogCtx): ReactNode
+  /**
+   * Footer temático compacto (redes + tagline + marca). El legacy de estos
+   * temas NO tenía footer en móvil (las redes vivían en el sidebar), así que
+   * las secciones socials/footer del árbol se funden acá en un solo bloque
+   * en el lenguaje del tema en vez de dos bloques genéricos. `kind` distingue
+   * qué sección disparó el render para respetar visibilidad por sección.
+   * Sin definir → SectionRenderer base.
+   */
+  renderFooter?(ctx: CatalogCtx, footerNode?: SectionNode, socialsNode?: SectionNode): ReactNode
 }
 
 // ── helpers de props de sección (mismo contrato que el renderer base) ────────
@@ -315,24 +324,43 @@ export function CatalogShell({
           </div>
 
           {/* Secciones en orden de árbol: grid propia, featured del skin,
-              hero/categories ya colocadas, resto al catálogo base. */}
-          {sections.map((node) => {
-            switch (node.type) {
-              case "hero":
-              case "categories":
-                return null
-              case "product_grid":
-                return <Fragment key={node.key}>{grid}</Fragment>
-              case "featured_products":
-                return skin.renderFeatured ? (
-                  <Fragment key={node.key}>{editorWrap(node, skin.renderFeatured(node, ctx))}</Fragment>
-                ) : (
-                  <Fragment key={node.key}>{delegate(node)}</Fragment>
-                )
-              default:
-                return <Fragment key={node.key}>{delegate(node)}</Fragment>
-            }
-          })}
+              hero/categories ya colocadas, socials+footer fundidas en el
+              footer del tema, resto al catálogo base. */}
+          {(() => {
+            const socialsNode = sections.find((n) => n.type === "socials" && n.visible !== false)
+            const footerNode = sections.find((n) => n.type === "footer" && n.visible !== false)
+            // El footer del tema se dibuja una sola vez, en la posición de la
+            // primera de las dos secciones (socials/footer) que aparezca.
+            const footerAnchorKey =
+              skin.renderFooter && (socialsNode || footerNode)
+                ? sections.find((n) => n.type === "socials" || n.type === "footer")?.key
+                : undefined
+
+            return sections.map((node) => {
+              switch (node.type) {
+                case "hero":
+                case "categories":
+                  return null
+                case "product_grid":
+                  return <Fragment key={node.key}>{grid}</Fragment>
+                case "featured_products":
+                  return skin.renderFeatured ? (
+                    <Fragment key={node.key}>{editorWrap(node, skin.renderFeatured(node, ctx))}</Fragment>
+                  ) : (
+                    <Fragment key={node.key}>{delegate(node)}</Fragment>
+                  )
+                case "socials":
+                case "footer":
+                  if (!skin.renderFooter) return <Fragment key={node.key}>{delegate(node)}</Fragment>
+                  // Solo el ancla dibuja; la otra sección se absorbe.
+                  return node.key === footerAnchorKey ? (
+                    <Fragment key={node.key}>{skin.renderFooter(ctx, footerNode, socialsNode)}</Fragment>
+                  ) : null
+                default:
+                  return <Fragment key={node.key}>{delegate(node)}</Fragment>
+              }
+            })
+          })()}
         </div>
       </div>
 
@@ -369,7 +397,11 @@ function shellCss(p: string): string {
 .${p}-pills { display: flex; overflow-x: auto; scrollbar-width: none; }
 .${p}-pills::-webkit-scrollbar { display: none; }
 .${p}-thumbs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+/* Padding inferior para que el footer no quede tapado por el cart bar fijo
+   (solo existe en móvil); en desktop el carrito vive en el sidebar. */
+.${p}-footer { padding-bottom: 108px; }
 @container ${p}-root (min-width: 1024px) {
+  .${p}-footer { padding-bottom: 40px; }
   .${p}-frame { display: flex; max-width: 1280px; margin: 0 auto; }
   .${p}-sidebar {
     display: flex; flex-direction: column; flex-shrink: 0;

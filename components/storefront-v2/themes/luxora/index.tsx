@@ -399,6 +399,46 @@ const luxoraSkin: CatalogSkin = {
       </section>
     )
   },
+
+  // Footer temático: el legacy no tenía footer (redes en el sidebar), así que
+  // socials + footer del árbol se funden en un cierre minimal monocromo.
+  renderFooter(ctx, footerNode, socialsNode) {
+    const socials = ctx.store.socials ?? []
+    const tagline = sProp(footerNode, "tagline") || ctx.store.bio || ""
+    const socialsTitle = sProp(socialsNode, "title")
+    return (
+      <footer className="bl-luxora-footer" style={{ paddingTop: 32, paddingLeft: 20, paddingRight: 20, textAlign: "center", background: L.bg }}>
+        <div style={{ height: 1, background: L.border, margin: "0 auto 24px", maxWidth: 320 }} />
+        {socials.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginBottom: tagline ? 18 : 8 }}>
+            {socialsTitle && (
+              <p style={{ width: "100%", margin: "0 0 6px", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: L.muted }}>
+                {socialsTitle}
+              </p>
+            )}
+            {socials.map((sn, i) => (
+              <a
+                key={i}
+                href={sn.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bl-luxora-textlink"
+                style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: L.ink, textDecoration: "none", padding: "6px 10px" }}
+              >
+                {sn.platform} ↗
+              </a>
+            ))}
+          </div>
+        )}
+        {tagline && (
+          <p style={{ margin: "0 auto 18px", maxWidth: 360, fontSize: 13, lineHeight: 1.6, color: L.muted }}>{tagline}</p>
+        )}
+        <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.06em", color: L.muted2 }}>
+          Creado con <span style={{ fontWeight: 800, color: L.ink }}>ByLink</span>
+        </p>
+      </footer>
+    )
+  },
 }
 
 const S: Record<string, CSSProperties> = {

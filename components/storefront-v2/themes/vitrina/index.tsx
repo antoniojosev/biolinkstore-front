@@ -306,6 +306,45 @@ const vitrinaSkin: CatalogSkin = {
       </button>
     )
   },
+
+  // Footer temático: socials + footer del árbol fundidas en un cierre claro
+  // (el legacy tenía las redes en el sidebar; en móvil no había footer).
+  renderFooter(ctx, footerNode, socialsNode) {
+    const socials = ctx.store.socials ?? []
+    const tagline = sProp(footerNode, "tagline") || ctx.store.bio || ""
+    const socialsTitle = sProp(socialsNode, "title")
+    return (
+      <footer className="bl-vitrina-footer" style={{ paddingTop: 32, paddingLeft: 20, paddingRight: 20, textAlign: "center", background: V.bg }}>
+        <div style={{ height: 1, background: V.border, margin: "0 auto 24px", maxWidth: 320 }} />
+        {socials.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginBottom: tagline ? 18 : 8 }}>
+            {socialsTitle && (
+              <p style={{ width: "100%", margin: "0 0 6px", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: V.mutedFg }}>
+                {socialsTitle}
+              </p>
+            )}
+            {socials.map((sn, i) => (
+              <a
+                key={i}
+                href={sn.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.03em", textTransform: "capitalize", color: V.primary, textDecoration: "none", padding: "8px 14px", border: `1px solid ${mix(V.border, 60)}`, borderRadius: 999, background: V.card }}
+              >
+                {sn.platform} ↗
+              </a>
+            ))}
+          </div>
+        )}
+        {tagline && (
+          <p style={{ margin: "0 auto 18px", maxWidth: 360, fontSize: 13, lineHeight: 1.6, color: V.mutedFg }}>{tagline}</p>
+        )}
+        <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.04em", color: mix(V.mutedFg, 70) }}>
+          Creado con <span style={{ fontWeight: 800, color: V.primary }}>ByLink</span>
+        </p>
+      </footer>
+    )
+  },
 }
 
 const S: Record<string, CSSProperties> = {
