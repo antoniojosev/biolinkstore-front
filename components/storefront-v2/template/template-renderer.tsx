@@ -1608,12 +1608,23 @@ function MapSection({ section, store }: SectionProps) {
 
 function FooterSection({ section, store }: SectionProps) {
   const tagline = s(section, "tagline", store.bio ?? "")
+  // Marca de plataforma (requisito del plan free); se oculta con la prop
+  // showBranding=false, igual que en los footers custom por tema.
+  const showBranding = section?.props?.showBranding !== false
   return (
     <SectionShell background="var(--bl-surface)" pad={false}>
-      <div style={{ padding: "36px 28px", textAlign: "center" }}>
+      <div style={{ padding: "36px 28px", textAlign: "center", display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
         {tagline && (
-          <p style={{ margin: 0, color: "var(--bl-text-muted)", fontSize: 14, maxWidth: 480, marginInline: "auto" }}>
+          <p style={{ margin: 0, color: "var(--bl-text-muted)", fontSize: 14, maxWidth: 480 }}>
             {tagline}
+          </p>
+        )}
+        {showBranding && (
+          <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.04em", color: "var(--bl-text-muted)" }}>
+            Creado con{" "}
+            <span translate="no" style={{ fontWeight: 800, color: "var(--bl-text)" }}>
+              ByLink
+            </span>
           </p>
         )}
       </div>
