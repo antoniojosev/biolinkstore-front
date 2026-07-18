@@ -285,5 +285,8 @@ const S: Record<string, React.CSSProperties> = {
     borderWidth: 8,
     borderStyle: "solid",
     borderColor: "#111",
+    // Contiene los position:fixed del tema (bottom-nav, barra de pedido,
+    // sheets) al marco del teléfono en vez del viewport del browser.
+    contain: "paint",
   },
 }

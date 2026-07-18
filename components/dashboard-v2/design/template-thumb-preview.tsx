@@ -84,6 +84,10 @@ const S: Record<string, React.CSSProperties> = {
     position: "absolute",
     inset: 0,
     overflow: "hidden",
+    // clip-path (además de overflow) porque los temas traen elementos
+    // position:fixed compositados que pintan por fuera del clip redondeado
+    // del marco de teléfono; el radio replica el de thumbScreen.
+    clipPath: "inset(0 round 24px)",
     // La card entera es clickeable (abre el modal); el mini-render es puro decorado.
     pointerEvents: "none",
   },
@@ -96,5 +100,9 @@ const S: Record<string, React.CSSProperties> = {
   stage: {
     transformOrigin: "top left",
     background: "#fff",
+    // Contiene el paint (y el containing block de los fixed) al stage: las
+    // bottom-navs/barras de carrito fixed de los temas quedan dentro del
+    // teléfono en vez de escaparse de la carátula.
+    contain: "paint",
   },
 }
