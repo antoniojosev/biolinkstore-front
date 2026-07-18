@@ -160,7 +160,11 @@ export const ROSIER_STYLES = `
   .bl-rosier-marquee { animation: none !important; }
 }
 
-.bl-rosier-root { padding-bottom: 68px; }
+/* Espaciador del bottom-nav móvil: va DENTRO del footer (descendiente, por
+   eso el container query sí lo resetea) y en color oscuro — antes vivía en
+   .bl-rosier-root, pero un elemento no puede consultarse a sí mismo como
+   container, así que el reset a 0 nunca aplicaba y dejaba una banda vacía. */
+.bl-rosier-footer { padding-bottom: 108px; }
 .bl-rosier-navlinks { display: none; }
 .bl-rosier-hero { display: grid; grid-template-rows: minmax(420px, 58dvh) minmax(340px, 48dvh); }
 .bl-rosier-products { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 14px; row-gap: 20px; }
@@ -174,7 +178,7 @@ export const ROSIER_STYLES = `
 .bl-rosier-section { padding: 56px 20px; }
 
 @container bl-rosier (min-width: 760px) {
-  .bl-rosier-root { padding-bottom: 0 !important; }
+  .bl-rosier-footer { padding-bottom: 40px; }
   .bl-rosier-bottomnav { display: none !important; }
   .bl-rosier-navlinks { display: flex; }
   .bl-rosier-hero { grid-template-rows: none; grid-template-columns: 1fr 1fr; min-height: 82dvh; }

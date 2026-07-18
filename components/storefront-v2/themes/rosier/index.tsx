@@ -491,7 +491,7 @@ export function RosierRenderer({
   function renderFooter(node: SectionNode) {
     return editorWrap(
       node,
-      <footer style={S.footer}>
+      <footer className="bl-rosier-footer" style={S.footer}>
         <div className="bl-rosier-footer-grid" style={{ maxWidth: 1440, margin: "0 auto", marginBottom: 40 }}>
           <div>
             <div style={{ marginBottom: 16 }}>{brand(22, "#fff", RS.rose)}</div>
@@ -1038,7 +1038,10 @@ const S: Record<string, CSSProperties> = {
   // Footer
   footer: {
     background: RS.ink, color: whiteA(75),
-    padding: "64px 24px 40px",
+    // padding-bottom lo controla .bl-rosier-footer (espaciador del bottom-nav
+    // móvil, reseteado por container query en desktop); no se fija acá para
+    // que la clase CSS gane sin necesitar !important.
+    paddingTop: 64, paddingLeft: 24, paddingRight: 24,
   },
   footerBio: { fontSize: 13, lineHeight: 1.7, maxWidth: 320, margin: "0 0 20px" },
   footerLink: {
