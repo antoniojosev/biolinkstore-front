@@ -377,28 +377,9 @@ const luxoraSkin: CatalogSkin = {
     )
   },
 
-  // Franja "destacados" (spec §9): el legacy no la tenía pero el seed la
-  // incluye — se dibuja con el mismo lenguaje de card, en scroll horizontal.
-  renderFeatured(node: SectionNode, ctx: CatalogCtx) {
-    const idItems = (node.props?.productIds as { id?: string }[] | undefined) ?? []
-    const ids = idItems.map((it) => it?.id).filter((id): id is string => Boolean(id))
-    let subset: TemplateProduct[] =
-      ids.length > 0 ? ctx.products.filter((p) => ids.includes(p.id)) : ctx.products.filter((p) => p.featured)
-    if (subset.length === 0) subset = ctx.products.slice(0, 4)
-    const title = sProp(node, "title") || "Destacados"
-    return (
-      <section className="bl-luxora-featured" style={{ padding: "20px 20px 0" }}>
-        <p style={{ margin: "0 0 12px", fontSize: 18, fontWeight: 900, color: L.ink, lineHeight: 1 }}>{title}</p>
-        <div className="bl-luxora-pills" style={{ gap: 16, paddingBottom: 4 }}>
-          {subset.map((p) => (
-            <div key={p.id} style={{ minWidth: 180, maxWidth: 220, flexShrink: 0 }}>
-              {luxoraSkin.renderCard(p, ctx)}
-            </div>
-          ))}
-        </div>
-      </section>
-    )
-  },
+  // Sin renderFeatured: el legacy de luxora no tenía sección de destacados
+  // (su único scroll horizontal eran las pills de categoría), así que se quitó
+  // del árbol del seed — el grid es la única lista de productos.
 
   // Footer temático: el legacy no tenía footer (redes en el sidebar), así que
   // socials + footer del árbol se funden en un cierre minimal monocromo.
