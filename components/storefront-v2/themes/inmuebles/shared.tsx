@@ -241,13 +241,13 @@ export const INM_STYLES = `
   .bl-inm-banner-long { display: inline; }
   .bl-inm-banner-short { display: none; }
   .bl-inm-sm { display: inline; }
-  .bl-inm-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 32px !important; }
+  .bl-inm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 32px !important; }
   .bl-inm-gridhead { flex-direction: row !important; align-items: flex-end !important; justify-content: space-between !important; }
 }
 .bl-inm-nav-links { display: none; }
 @container bl-inmuebles (min-width: 1024px) {
   .bl-inm-nav-links { display: flex !important; }
-  .bl-inm-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  .bl-inm-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }
 @container bl-inmuebles (min-width: 960px) {
   .bl-inm-about-grid { grid-template-columns: 1.1fr 1fr !important; }
@@ -261,7 +261,7 @@ export const INM_STYLES = `
 /* ── Detalle propio (container bl-inm-sheet) ── */
 .bl-inm-pd-savedbtn { display: none; }
 @container bl-inm-sheet (min-width: 640px) {
-  .bl-inm-pd-specs { grid-template-columns: repeat(4, 1fr) !important; }
+  .bl-inm-pd-specs { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
   .bl-inm-tags-grid { grid-template-columns: 1fr 1fr !important; }
   .bl-inm-sm { display: inline; }
   .bl-inm-banner-long { display: inline; }

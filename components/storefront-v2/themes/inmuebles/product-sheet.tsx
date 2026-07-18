@@ -638,7 +638,7 @@ const S: Record<string, CSSProperties> = {
   },
   specStrip: {
     listStyle: "none", margin: "0 0 36px", padding: "20px 0",
-    display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 20,
+    display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 20,
     borderTop: `1px solid ${INM.border}`, borderBottom: `1px solid ${INM.border}`,
   },
   specCell: { display: "flex", flexDirection: "column", gap: 4 },

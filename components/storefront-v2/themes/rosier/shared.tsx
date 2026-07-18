@@ -163,7 +163,7 @@ export const ROSIER_STYLES = `
 .bl-rosier-root { padding-bottom: 68px; }
 .bl-rosier-navlinks { display: none; }
 .bl-rosier-hero { display: grid; grid-template-rows: minmax(420px, 58dvh) minmax(340px, 48dvh); }
-.bl-rosier-products { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 14px; row-gap: 20px; }
+.bl-rosier-products { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 14px; row-gap: 20px; }
 .bl-rosier-cats { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .bl-rosier-cats::-webkit-scrollbar { display: none; }
 .bl-rosier-cat { flex-shrink: 0; width: 150px; scroll-snap-align: start; }
@@ -179,16 +179,16 @@ export const ROSIER_STYLES = `
   .bl-rosier-navlinks { display: flex; }
   .bl-rosier-hero { grid-template-rows: none; grid-template-columns: 1fr 1fr; min-height: 82dvh; }
   .bl-rosier-heroblock { padding: 96px 64px !important; }
-  .bl-rosier-products { grid-template-columns: repeat(3, 1fr); gap: 20px 20px; row-gap: 32px; }
-  .bl-rosier-cats { display: grid; grid-template-columns: repeat(6, 1fr); overflow: visible; }
+  .bl-rosier-products { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 20px; row-gap: 32px; }
+  .bl-rosier-cats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); overflow: visible; }
   .bl-rosier-cat { width: auto; }
-  .bl-rosier-testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; overflow: visible; }
+  .bl-rosier-testimonials { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; overflow: visible; }
   .bl-rosier-testimonial { width: auto; }
   .bl-rosier-footer-grid { grid-template-columns: 1.6fr 1fr 1fr; gap: 40px; }
   .bl-rosier-section { padding: 88px 56px; }
 }
 @container bl-rosier (min-width: 1280px) {
-  .bl-rosier-products { grid-template-columns: repeat(4, 1fr); gap: 24px 24px; row-gap: 40px; }
+  .bl-rosier-products { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px 24px; row-gap: 40px; }
 }
 
 .bl-rosier-imghover img { transition: transform .6s ${RS.ease}; }

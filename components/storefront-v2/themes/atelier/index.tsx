@@ -622,7 +622,7 @@ const S: Record<string, CSSProperties> = {
   heroEm: { fontStyle: "italic", fontWeight: 400, color: "var(--bl-secondary)" },
   pillars: {
     listStyle: "none", margin: "40px 0 0", maxWidth: 760,
-    display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14,
+    display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 14,
     borderTop: `1px solid ${LINE}`, paddingTop: 20, paddingLeft: 0,
   },
   pillar: { fontSize: 11, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--bl-secondary)", fontWeight: 500 },
@@ -703,7 +703,7 @@ const S: Record<string, CSSProperties> = {
   gallerySection: { maxWidth: 1400, margin: "0 auto", padding: "80px 0 0", scrollMarginTop: 80 },
   galleryGrid: {
     listStyle: "none", margin: 0,
-    display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, padding: "0 8px",
+    display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, padding: "0 8px",
   },
   galleryCell: { position: "relative", overflow: "hidden", background: PLACEHOLDER, gridColumn: "span 1", aspectRatio: "4/5" },
   galleryImg: { width: "100%", height: "100%", objectFit: "cover", display: "block" },

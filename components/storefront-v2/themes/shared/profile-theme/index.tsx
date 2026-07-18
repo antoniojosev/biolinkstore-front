@@ -657,7 +657,7 @@ const S: Record<string, CSSProperties> = {
   // max-w-lg (512px) como el resto — el portfolio legacy NO es más ancho
   portfolioGrid: {
     maxWidth: 512, margin: "0 auto",
-    display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2,
+    display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 2,
     paddingBottom: 96,
   },
   portfolioCell: { aspectRatio: "1 / 1", overflow: "hidden", background: "var(--bl-surface)" },

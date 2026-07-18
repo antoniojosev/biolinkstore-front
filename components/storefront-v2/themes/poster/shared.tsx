@@ -189,7 +189,7 @@ export const POSTER_STYLES = `
 /* ── Grid de posters: 1 → 2 (640) → 3 (1024) → 4 (1280) del CONTENEDOR ── */
 @container bl-poster (min-width: 640px) {
   .bl-poster-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 18px !important;
     padding-left: 20px !important;
     padding-right: 20px !important;
@@ -203,10 +203,10 @@ export const POSTER_STYLES = `
   }
 }
 @container bl-poster (min-width: 1024px) {
-  .bl-poster-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  .bl-poster-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }
 @container bl-poster (min-width: 1280px) {
-  .bl-poster-grid { grid-template-columns: repeat(4, 1fr) !important; }
+  .bl-poster-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
 }
 
 /* ── Detalle "Arma tu…" (contenedor propio del sheet) ── */

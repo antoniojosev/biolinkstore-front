@@ -47,6 +47,9 @@ export function mapPreview(data: TemplatePreviewData) {
     // contra el número demo, igual que el flujo real.
     whatsappNumber: data.demoData.store.phone,
     currency: "USD",
+    // Sin esto, las secciones socials/footer de los temas renderizaban
+    // vacías (solo padding + fondo) — el "bloque muerto" al final del preview.
+    socials: data.demoData.store.socials,
   }
 
   const products: TemplateProduct[] = data.demoData.products.map((p) => ({

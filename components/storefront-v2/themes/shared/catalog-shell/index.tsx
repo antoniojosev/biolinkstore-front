@@ -365,7 +365,7 @@ function shellCss(p: string): string {
 .${p}-sidebar { display: none; }
 .${p}-desktop-only { display: none !important; }
 .${p}-main { flex: 1; min-width: 0; max-width: 512px; margin: 0 auto; width: 100%; }
-.${p}-grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+.${p}-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .${p}-pills { display: flex; overflow-x: auto; scrollbar-width: none; }
 .${p}-pills::-webkit-scrollbar { display: none; }
 .${p}-thumbs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
@@ -379,11 +379,11 @@ function shellCss(p: string): string {
   .${p}-desktop-only { display: flex !important; }
   .${p}-mobile-only { display: none !important; }
   .${p}-main { max-width: none; margin: 0; }
-  .${p}-grid[data-cols="3"], .${p}-grid[data-cols="4"] { grid-template-columns: repeat(3, 1fr); }
+  .${p}-grid[data-cols="3"], .${p}-grid[data-cols="4"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @container ${p}-root (min-width: 1280px) {
   .${p}-sidebar { width: 320px; }
-  .${p}-grid[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
+  .${p}-grid[data-cols="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 `
 }

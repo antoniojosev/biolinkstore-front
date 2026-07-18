@@ -495,7 +495,7 @@ function bool(section: SectionNode | undefined, key: string, fallback = false): 
 // (sm: del legacy), midiendo el contenedor bl-menu (nunca el viewport).
 const MENU_STYLES = `
 @container bl-menu (min-width: 640px) {
-  .bl-menu-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .bl-menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
   .bl-menu-thumb { width: 112px !important; height: 112px !important; }
   .bl-menu-pad { padding-left: 24px !important; padding-right: 24px !important; }
 }

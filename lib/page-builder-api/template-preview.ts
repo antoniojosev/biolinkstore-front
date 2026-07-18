@@ -14,6 +14,7 @@ export interface DemoStoreData {
   address?: string
   email?: string
   aboutShort?: string
+  socials?: Array<{ platform: string; url: string }>
 }
 
 export interface DemoAttributeData {

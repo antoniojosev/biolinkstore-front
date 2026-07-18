@@ -1147,7 +1147,7 @@ const S: Record<string, CSSProperties> = {
   },
   aboutBody: { margin: "0 0 14px", fontSize: 15, lineHeight: 1.7, color: INM.body, textWrap: "pretty" },
   stats: {
-    display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20,
+    display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 20,
     marginTop: 36, borderTop: `1px solid ${INM.border}`, paddingTop: 28,
   },
   statValue: {

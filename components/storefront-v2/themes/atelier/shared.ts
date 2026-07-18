@@ -166,15 +166,15 @@ export const ATELIER_STYLES = `
 
 /* ── Breakpoints del CONTENEDOR ── */
 @container bl-atelier (min-width: 640px) {
-  .bl-at-pillars { grid-template-columns: repeat(4, 1fr) !important; }
+  .bl-at-pillars { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
   .bl-at-heroaside { display: block !important; }
 }
 @container bl-atelier (min-width: 768px) {
   .bl-at-navlinks { display: flex !important; }
   .bl-at-featured { display: flex !important; }
-  .bl-at-services { grid-template-columns: repeat(2, 1fr) !important; column-gap: 40px !important; row-gap: 60px !important; }
+  .bl-at-services { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; column-gap: 40px !important; row-gap: 60px !important; }
   .bl-at-service-img { aspect-ratio: 5 / 4 !important; }
-  .bl-at-gallery { grid-template-columns: repeat(12, 1fr) !important; gap: 14px !important; padding-left: 14px !important; padding-right: 14px !important; }
+  .bl-at-gallery { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; gap: 14px !important; padding-left: 14px !important; padding-right: 14px !important; }
   .bl-at-gallery > li { grid-column: var(--at-span) !important; aspect-ratio: var(--at-aspect) !important; }
 }
 `

@@ -405,7 +405,7 @@ const S: Record<string, CSSProperties> = {
   compare: { marginLeft: 12, fontSize: 16, color: GRAY.g400, textDecoration: "line-through" },
   title: { margin: 0, fontSize: 20, fontWeight: 700, lineHeight: 1.25, color: GRAY.strong, fontFamily: ESTATE.heading },
   category: { margin: "4px 0 0", display: "flex", alignItems: "center", gap: 4, fontSize: 14, color: GRAY.g500 },
-  specsGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 },
+  specsGrid: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 },
   specCell: {
     display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
     background: ESTATE.surface, borderRadius: RADIUS.xl, padding: 12,

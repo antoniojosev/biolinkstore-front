@@ -1066,7 +1066,7 @@ const S: Record<string, CSSProperties> = {
   // Bottom-nav
   bottomNav: {
     position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40,
-    display: "grid", gridTemplateColumns: "repeat(4, 1fr)", height: 64,
+    display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", height: 64,
     background: RS.glass96,
     backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
     borderTop: `1px solid ${RS.line}`,

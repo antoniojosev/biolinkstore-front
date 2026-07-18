@@ -191,11 +191,11 @@ export const ESTATE_STYLES = `
 
 /* ── Grid de propiedades: 1 col → 2 (≥640 del CONTENEDOR, legacy sm:) ── */
 @container bl-estate (min-width: 640px) {
-  .bl-estate-grid:not(.is-list) { grid-template-columns: repeat(2, 1fr) !important; }
+  .bl-estate-grid:not(.is-list) { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
   .bl-estate-pad { padding-left: 24px !important; padding-right: 24px !important; }
 }
 /* Variante grid-3 del schema (layout del editor) */
 @container bl-estate (min-width: 960px) {
-  .bl-estate-grid.is-3 { grid-template-columns: repeat(3, 1fr) !important; }
+  .bl-estate-grid.is-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }
 `

@@ -1267,6 +1267,9 @@ function SocialsSection({ section, store }: SectionProps) {
     store.socials && store.socials.length > 0
       ? store.socials
       : arr<{ platform?: string; url?: string }>(section, "items")
+  // Sin redes no hay nada que mostrar: colapsar en vez de dejar un bloque
+  // vacío con padding y fondo (el "espacio muerto" al final de los previews).
+  if (items.length === 0) return null
   return (
     <SectionShell background="var(--bl-surface)">
       {title && (
