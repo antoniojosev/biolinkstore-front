@@ -169,14 +169,20 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
             subtítulos) no se muestran acá — cada tema trae los suyos.
           </div>
         )}
+        {/* body = containing block NO scrolleable (contain:paint); el scroll
+            vive en bodyScroll. Así los position:fixed del tema (sheets,
+            cart bars, bottom-navs) se anclan al viewport del modal y quedan
+            fijos, en vez de scrollear con el contenido. */}
         <div style={S.body}>
-          {loading && <div style={S.state}>Cargando preview…</div>}
-          {error && <div style={S.state}>No se pudo cargar la vista previa.</div>}
-          {shown && (
-            <div style={device === "mobile" ? S.deviceFrameMobile : S.deviceFrameDesktop}>
-              <PreviewStorefront store={shown.store} products={shown.products} categories={shown.categories} theme={shown.theme} />
-            </div>
-          )}
+          <div style={S.bodyScroll}>
+            {loading && <div style={S.state}>Cargando preview…</div>}
+            {error && <div style={S.state}>No se pudo cargar la vista previa.</div>}
+            {shown && (
+              <div style={device === "mobile" ? S.deviceFrameMobile : S.deviceFrameDesktop}>
+                <PreviewStorefront store={shown.store} products={shown.products} categories={shown.categories} theme={shown.theme} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -264,11 +270,11 @@ const S: Record<string, React.CSSProperties> = {
     boxShadow: "0 1px 2px rgba(0,0,0,0.08)",
   },
   closeBtn: { background: "var(--bg-2)", border: "none", borderRadius: 8, width: 30, height: 30, cursor: "pointer", color: "var(--ink-2)", fontSize: 13 },
-  // contain:paint hace del cuerpo el containing block de los position:fixed de
-  // los temas (cart bars, bottom-navs, sheets de detalle/carrito) — sin esto
-  // se anclan al viewport del browser y se salen del modal. En modo móvil el
-  // marco del teléfono (contain:paint propio, más interno) sigue mandando.
-  body: { overflowY: "auto", flex: 1, contain: "paint" },
+  // NO scrollea (el scroll es de bodyScroll): contain:paint lo vuelve el
+  // containing block de los position:fixed del tema sin arrastrarlos con el
+  // scroll. overflow:hidden recorta lo fijo a los bordes del modal.
+  body: { flex: 1, position: "relative", overflow: "hidden", contain: "paint", minHeight: 0 },
+  bodyScroll: { height: "100%", overflowY: "auto" },
   notice: {
     padding: "8px 18px",
     fontSize: 12,
@@ -292,8 +298,5 @@ const S: Record<string, React.CSSProperties> = {
     borderWidth: 8,
     borderStyle: "solid",
     borderColor: "#111",
-    // Contiene los position:fixed del tema (bottom-nav, barra de pedido,
-    // sheets) al marco del teléfono en vez del viewport del browser.
-    contain: "paint",
   },
 }
