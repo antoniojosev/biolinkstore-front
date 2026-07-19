@@ -16,8 +16,9 @@ const SHEET_STYLES = `
 @keyframes cmsBackdrop { from { opacity: 0; } to { opacity: 1; } }
 @keyframes cmsSlideR { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @keyframes cmsSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.cms-backdrop { position: fixed; inset: 0; z-index: 80; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); animation: cmsBackdrop .2s ease; }
-.cms-sheet { position: fixed; top: 0; right: 0; bottom: 0; width: 460px; max-width: 100vw; background: var(--bg-elev); z-index: 81; border-left: 1px solid var(--line); box-shadow: -16px 0 40px -12px rgba(15,23,42,0.18); display: flex; flex-direction: column; animation: cmsSlideR .28s cubic-bezier(.2,.7,.3,1); }
+/* Sobre el top-dock del panel (z-index 100) para no quedar debajo del nav. */
+.cms-backdrop { position: fixed; inset: 0; z-index: 200; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); animation: cmsBackdrop .2s ease; }
+.cms-sheet { position: fixed; top: 0; right: 0; bottom: 0; width: 460px; max-width: 100vw; background: var(--bg-elev); z-index: 201; border-left: 1px solid var(--line); box-shadow: -16px 0 40px -12px rgba(15,23,42,0.18); display: flex; flex-direction: column; animation: cmsSlideR .28s cubic-bezier(.2,.7,.3,1); }
 @media (max-width: 640px) { .cms-sheet { top: auto; left: 0; width: 100%; max-height: 92vh; border-left: none; border-top-left-radius: 18px; border-top-right-radius: 18px; animation: cmsSlideUp .28s cubic-bezier(.2,.7,.3,1); } }
 .cms-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line); }
 .cms-row:last-child { border-bottom: none; }

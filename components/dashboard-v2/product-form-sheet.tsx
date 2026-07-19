@@ -71,8 +71,10 @@ const SHEET_STYLES = `
 @keyframes pfsBackdrop { from { opacity: 0; } to { opacity: 1; } }
 @keyframes pfsSlideR { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @keyframes pfsSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.pfs-backdrop { position: fixed; inset: 0; z-index: 80; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); animation: pfsBackdrop .2s ease; }
-.pfs-sheet { position: fixed; top: 0; right: 0; bottom: 0; width: 460px; max-width: 100vw; background: var(--bg-elev); z-index: 81; border-left: 1px solid var(--line); box-shadow: -16px 0 40px -12px rgba(15,23,42,0.18); display: flex; flex-direction: column; animation: pfsSlideR .28s cubic-bezier(.2,.7,.3,1); }
+/* z-index por encima del top-dock del panel (z-index 100) para que el sheet
+   y su backdrop cubran el nav en vez de quedar debajo. */
+.pfs-backdrop { position: fixed; inset: 0; z-index: 200; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); animation: pfsBackdrop .2s ease; }
+.pfs-sheet { position: fixed; top: 0; right: 0; bottom: 0; width: 460px; max-width: 100vw; background: var(--bg-elev); z-index: 201; border-left: 1px solid var(--line); box-shadow: -16px 0 40px -12px rgba(15,23,42,0.18); display: flex; flex-direction: column; animation: pfsSlideR .28s cubic-bezier(.2,.7,.3,1); }
 @media (max-width: 640px) { .pfs-sheet { top: auto; left: 0; width: 100%; max-height: 92vh; border-left: none; border-top-left-radius: 18px; border-top-right-radius: 18px; animation: pfsSlideUp .28s cubic-bezier(.2,.7,.3,1); } }
 `
 
