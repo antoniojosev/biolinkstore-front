@@ -4,8 +4,11 @@ import { useEffect, useState } from "react"
 import { fetchTemplatePreview, type TemplatePreviewData } from "@/lib/page-builder-api"
 import type { TemplateProduct, TemplateCategory, TemplateStore, TemplateVariant } from "@/components/storefront-v2/template/template-renderer"
 import { PreviewStorefront } from "@/components/storefront-v2/template/preview-storefront"
+import { resolveTokens } from "@/components/storefront-v2/template/tokens"
+import { googleFontsHref } from "@/lib/google-fonts"
 import { useStoreCatalogPreview } from "@/lib/hooks/use-store-catalog-preview"
 import { DeviceToggle, type PreviewDevice } from "./device-toggle"
+import { IframePreview } from "./iframe-preview"
 
 type DataSource = "demo" | "mine"
 
@@ -116,74 +119,113 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
       ? { store: real.store, products: real.products, categories: real.categories, theme: demoMapped.theme }
       : demoMapped
 
+  // Fuentes del tema para inyectar en el <head> del iframe (el hoisting de
+  // <link precedence> de React 19 no llega al documento del iframe).
+  const fontHref = shown
+    ? (() => {
+        const r = resolveTokens(shown.theme.tokens)
+        return googleFontsHref([r.headingFontName, r.bodyFontName, r.monoFontName])
+      })()
+    : undefined
+
+  const iframe =
+    shown && !loading && !error ? (
+      <IframePreview
+        key={`${templateKey}-${source}`}
+        fontHref={fontHref}
+        title={data ? `Vista previa — ${data.name}` : "Vista previa"}
+        style={S.iframe}
+      >
+        <PreviewStorefront store={shown.store} products={shown.products} categories={shown.categories} theme={shown.theme} />
+      </IframePreview>
+    ) : null
+
   return (
     <div style={fullscreen ? S.overlayFull : S.overlay} onClick={fullscreen ? undefined : onClose}>
       <div style={fullscreen ? S.modalFull : S.modal} onClick={(e) => e.stopPropagation()}>
-        <div style={S.head}>
-          <div style={S.headTitle}>{data ? `Vista previa — ${data.name}` : "Vista previa"}</div>
-          <div style={S.headRight}>
-            <div style={S.sourceToggle} role="group" aria-label="Datos de ejemplo o de mi tienda">
+        {/* Header solo en modo ventana; en fullscreen es una pantalla completa
+            de ejemplo de verdad, con controles flotantes mínimos. */}
+        {!fullscreen && (
+          <div style={S.head}>
+            <div style={S.headTitle}>{data ? `Vista previa — ${data.name}` : "Vista previa"}</div>
+            <div style={S.headRight}>
+              <div style={S.sourceToggle} role="group" aria-label="Datos de ejemplo o de mi tienda">
+                <button
+                  type="button"
+                  onClick={() => setSource("demo")}
+                  style={{ ...S.sourceBtn, ...(source === "demo" ? S.sourceBtnActive : null) }}
+                >
+                  Ejemplo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => real.hasProducts && setSource("mine")}
+                  disabled={!real.hasProducts}
+                  title={real.hasProducts ? undefined : "Cargá productos para probarte el tema con tu catálogo"}
+                  style={{
+                    ...S.sourceBtn,
+                    ...(source === "mine" ? S.sourceBtnActive : null),
+                    opacity: real.hasProducts ? 1 : 0.45,
+                    cursor: real.hasProducts ? "pointer" : "not-allowed",
+                  }}
+                >
+                  Mi tienda
+                </button>
+              </div>
+              <DeviceToggle device={device} onChange={setDevice} />
               <button
                 type="button"
-                onClick={() => setSource("demo")}
-                style={{ ...S.sourceBtn, ...(source === "demo" ? S.sourceBtnActive : null) }}
+                onClick={() => setFullscreen(true)}
+                style={S.closeBtn}
+                aria-label="Ver en pantalla completa"
+                title="Ver en pantalla completa"
               >
-                Ejemplo
+                ⛶
               </button>
-              <button
-                type="button"
-                onClick={() => real.hasProducts && setSource("mine")}
-                disabled={!real.hasProducts}
-                title={real.hasProducts ? undefined : "Cargá productos para probarte el tema con tu catálogo"}
-                style={{
-                  ...S.sourceBtn,
-                  ...(source === "mine" ? S.sourceBtnActive : null),
-                  opacity: real.hasProducts ? 1 : 0.45,
-                  cursor: real.hasProducts ? "pointer" : "not-allowed",
-                }}
-              >
-                Mi tienda
+              <button type="button" onClick={onClose} style={S.closeBtn} aria-label="Cerrar">
+                ✕
               </button>
             </div>
-            <DeviceToggle device={device} onChange={setDevice} />
-            <button
-              type="button"
-              onClick={() => setFullscreen((v) => !v)}
-              style={S.closeBtn}
-              aria-label={fullscreen ? "Salir de pantalla completa" : "Ver en pantalla completa"}
-              title={fullscreen ? "Salir de pantalla completa" : "Ver en pantalla completa"}
-            >
-              {fullscreen ? "⤡" : "⛶"}
-            </button>
-            <button type="button" onClick={onClose} style={S.closeBtn} aria-label="Cerrar">
-              ✕
-            </button>
           </div>
-        </div>
-        {source === "mine" && shown === demoMapped && demoMapped && (
+        )}
+        {!fullscreen && source === "mine" && shown === demoMapped && demoMapped && (
           <div style={S.notice}>Mostrando datos de ejemplo — tu tienda todavía no tiene productos cargados.</div>
         )}
-        {source === "mine" && shown !== demoMapped && (
+        {!fullscreen && source === "mine" && shown !== demoMapped && (
           <div style={S.notice}>
             Tu tienda y catálogo real con la estética de este tema. Los textos que editaste en tu tema actual (títulos,
             subtítulos) no se muestran acá — cada tema trae los suyos.
           </div>
         )}
-        {/* body = containing block NO scrolleable (contain:paint); el scroll
-            vive en bodyScroll. Así los position:fixed del tema (sheets,
-            cart bars, bottom-navs) se anclan al viewport del modal y quedan
-            fijos, en vez de scrollear con el contenido. */}
+
+        {/* El iframe es un viewport real y aislado: los position:fixed del tema
+            se fijan a él y el scroll es nativo — sin hacks de containment. */}
         <div style={S.body}>
-          <div style={S.bodyScroll}>
-            {loading && <div style={S.state}>Cargando preview…</div>}
-            {error && <div style={S.state}>No se pudo cargar la vista previa.</div>}
-            {shown && (
-              <div style={device === "mobile" ? S.deviceFrameMobile : S.deviceFrameDesktop}>
-                <PreviewStorefront store={shown.store} products={shown.products} categories={shown.categories} theme={shown.theme} />
-              </div>
-            )}
-          </div>
+          {loading && <div style={S.state}>Cargando preview…</div>}
+          {error && <div style={S.state}>No se pudo cargar la vista previa.</div>}
+          {/* Wrapper estable: cambiar mobile/desktop solo re-estila (no remonta
+              el iframe → sin recarga), el key del iframe solo cambia por tema. */}
+          {iframe && <div style={device === "mobile" && !fullscreen ? S.phoneBezel : S.fillWrap}>{iframe}</div>}
         </div>
+
+        {/* Controles flotantes de fullscreen (edge-to-edge, sin header). */}
+        {fullscreen && (
+          <div style={S.fsControls}>
+            <DeviceToggle device={device} onChange={setDevice} />
+            <button
+              type="button"
+              onClick={() => setFullscreen(false)}
+              style={S.fsBtn}
+              aria-label="Salir de pantalla completa"
+              title="Salir de pantalla completa"
+            >
+              ⤡
+            </button>
+            <button type="button" onClick={onClose} style={S.fsBtn} aria-label="Cerrar">
+              ✕
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -222,6 +264,7 @@ const S: Record<string, React.CSSProperties> = {
     padding: 0,
   },
   modalFull: {
+    position: "relative", // ancla los controles flotantes de fullscreen
     background: "#fff",
     borderRadius: 0,
     width: "100%",
@@ -270,11 +313,25 @@ const S: Record<string, React.CSSProperties> = {
     boxShadow: "0 1px 2px rgba(0,0,0,0.08)",
   },
   closeBtn: { background: "var(--bg-2)", border: "none", borderRadius: 8, width: 30, height: 30, cursor: "pointer", color: "var(--ink-2)", fontSize: 13 },
-  // NO scrollea (el scroll es de bodyScroll): contain:paint lo vuelve el
-  // containing block de los position:fixed del tema sin arrastrarlos con el
-  // scroll. overflow:hidden recorta lo fijo a los bordes del modal.
-  body: { flex: 1, position: "relative", overflow: "hidden", contain: "paint", minHeight: 0 },
-  bodyScroll: { height: "100%", overflowY: "auto" },
+  // Contenedor del iframe: centra el bezel en móvil-ventana; llena en el resto.
+  body: { flex: 1, minHeight: 0, display: "flex", justifyContent: "center", alignItems: "stretch", background: "var(--bg-2)", overflow: "hidden" },
+  // El iframe llena su contenedor — el scroll y los fixed son internos y reales.
+  iframe: { width: "100%", height: "100%", display: "block", background: "#fff" },
+  // Wrapper que llena (desktop/fullscreen); el iframe adentro ocupa todo.
+  fillWrap: { flex: 1, minWidth: 0, display: "flex" },
+  // Marco de teléfono para móvil-ventana; el iframe (390 virtual) dispara el
+  // container query móvil de los temas.
+  phoneBezel: {
+    width: 390,
+    maxWidth: "100%",
+    margin: "16px auto",
+    background: "#111",
+    borderRadius: 28,
+    padding: 8,
+    boxShadow: "0 8px 30px rgba(0,0,0,0.25)",
+    overflow: "hidden",
+    display: "flex",
+  },
   notice: {
     padding: "8px 18px",
     fontSize: 12,
@@ -283,20 +340,30 @@ const S: Record<string, React.CSSProperties> = {
     borderBottom: "1px solid var(--line)",
     flexShrink: 0,
   },
-  state: { padding: 60, textAlign: "center", color: "var(--ink-3)", fontSize: 13 },
-  // Desktop: sin cap propio (el modal mismo, maxWidth 1100, ya supera el
-  // breakpoint móvil del renderer). Móvil: marco fijo de iPhone, por debajo
-  // del breakpoint — dispara el container query de verdad.
-  deviceFrameDesktop: {},
-  deviceFrameMobile: {
-    width: 390,
-    margin: "20px auto",
-    background: "#fff",
-    borderRadius: 24,
-    boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
-    overflow: "hidden",
-    borderWidth: 8,
-    borderStyle: "solid",
-    borderColor: "#111",
+  state: { margin: "auto", padding: 60, textAlign: "center", color: "var(--ink-3)", fontSize: 13 },
+  // Controles flotantes del modo fullscreen (sin header).
+  fsControls: {
+    position: "absolute",
+    top: 14,
+    right: 14,
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    padding: 6,
+    background: "rgba(20,20,22,0.55)",
+    backdropFilter: "blur(8px)",
+    WebkitBackdropFilter: "blur(8px)",
+    borderRadius: 12,
+    zIndex: 10,
+  },
+  fsBtn: {
+    background: "rgba(255,255,255,0.15)",
+    border: "none",
+    borderRadius: 8,
+    width: 34,
+    height: 34,
+    cursor: "pointer",
+    color: "#fff",
+    fontSize: 14,
   },
 }
