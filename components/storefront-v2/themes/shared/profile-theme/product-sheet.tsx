@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react"
 import { ArrowLeft, ChevronDown, ChevronUp, MessageCircle } from "lucide-react"
 import type { ThemeProductSheetProps } from "@/components/storefront-v2/themes/registry"
+import { colorImagesForSelection } from "@/components/storefront-v2/template/template-renderer"
 import { bookService, profilePriceFmt, useProfileWhatsAppProvider } from "./index"
 
 /**
@@ -33,7 +34,11 @@ export function ProfileProductSheet({ product, store, onClose }: ThemeProductShe
 
   if (!product) return null
 
-  const images = product.images?.length ? product.images : product.image ? [product.image] : []
+  // Fotos por color: cableado defensivo (persona/servicios no maneja color →
+  // colorImgs null → galería base).
+  const baseImages = product.images?.length ? product.images : product.image ? [product.image] : []
+  const colorImgs = colorImagesForSelection(product, {})
+  const images = colorImgs ?? baseImages
   const specs = (product.attributes ?? []).filter((a) => a.role === "spec")
   const tags = (product.attributes ?? []).filter((a) => a.role === "tag").flatMap((a) => a.options)
 

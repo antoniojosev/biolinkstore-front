@@ -8,6 +8,7 @@
 // modal de preview (300).
 
 import { useMemo, useState } from "react"
+import { colorImagesForSelection } from "./template-renderer"
 import type { TemplateProduct, TemplateStore } from "./template-renderer"
 import { useCart } from "@/lib/cart-context"
 
@@ -60,7 +61,10 @@ export function PreviewProductSheet({
   if (!product) return null
 
   const finalPrice = product.price + (matchedVariant?.priceAdjustment ?? 0)
-  const image = matchedVariant?.image || product.images?.[0] || product.image
+  // Fotos por color: si el color elegido tiene imágenes propias, mostrar la
+  // primera; si no aplica, cae a la variante / galería base.
+  const colorImgs = colorImagesForSelection(product, selected)
+  const image = colorImgs?.[0] || matchedVariant?.image || product.images?.[0] || product.image
   const outOfStock = needsSelection ? matchedVariant?.isAvailable === false : (product.stock != null && product.stock <= 0)
   const canAdd = (!needsSelection || fullySelected) && !outOfStock
 

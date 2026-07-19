@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react"
 import { ArrowLeft, Check, ChevronRight, Minus, Plus, Share2, ShoppingBag } from "lucide-react"
 import type { ThemeProductSheetProps } from "../registry"
+import { colorImagesForSelection } from "@/components/storefront-v2/template/template-renderer"
 import type {
   TemplateAttribute,
   TemplateProduct,
@@ -64,8 +65,17 @@ function NoirDetail({
     return () => window.removeEventListener("keydown", onKey)
   }, [onClose])
 
-  const images = product.images?.length ? product.images : [product.image ?? "/placeholder.svg"]
+  // Fotos por color: si el color elegido tiene imágenes propias, la galería usa
+  // esas; si no, cae a la galería base.
+  const baseImages = product.images?.length ? product.images : [product.image ?? "/placeholder.svg"]
+  const colorImgs = colorImagesForSelection(product, selectedOptions)
+  const images = colorImgs ?? baseImages
   const inStock = noirInStock(product)
+
+  useEffect(() => {
+    setSelectedImage(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colorImgs?.join("|")])
 
   // Ejes seleccionables: attrs sin role o role variant (contrato v2).
   const variantAttrs = (product.attributes ?? []).filter((a) => !a.role || a.role === "variant")

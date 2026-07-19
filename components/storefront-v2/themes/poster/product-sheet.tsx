@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react"
 import { ArrowLeft, Check, Minus, Plus, ShoppingCart, Star } from "lucide-react"
 import type { ThemeProductSheetProps } from "../registry"
+import { colorImagesForSelection } from "@/components/storefront-v2/template/template-renderer"
 import type { TemplateProduct, TemplateStore } from "@/components/storefront-v2/template/template-renderer"
 import { useCartOptional } from "@/lib/cart-context"
 import {
@@ -83,7 +84,14 @@ function PosterDetail({
   const unitPrice = product.price + (selectedVariant?.priceAdjustment ?? 0) + extrasTotal
   const totalPrice = unitPrice * quantity
 
-  const hero = product.images?.[0] ?? product.image ?? "/placeholder.svg"
+  // Fotos por color: cableado defensivo. Si algún atributo color con imágenes
+  // aplica al tamaño elegido usa su primera foto; si no (caso típico del menú),
+  // colorImgs es null y usa la galería base.
+  const colorImgs = colorImagesForSelection(
+    product,
+    sizeAttr && selectedSize ? { [sizeAttr.name]: selectedSize } : {},
+  )
+  const hero = colorImgs?.[0] ?? product.images?.[0] ?? product.image ?? "/placeholder.svg"
   const echo = echoFrom(product.name)
 
   const toggleIncluded = (opt: string) =>

@@ -17,6 +17,7 @@ import {
   Ruler,
 } from "lucide-react"
 import type { ThemeProductSheetProps } from "../registry"
+import { colorImagesForSelection } from "@/components/storefront-v2/template/template-renderer"
 import type { TemplateProduct, TemplateStore } from "@/components/storefront-v2/template/template-renderer"
 import { useCartOptional } from "@/lib/cart-context"
 import { trackEvent } from "@/lib/analytics"
@@ -73,8 +74,17 @@ function EstateDetail({
     return () => window.removeEventListener("keydown", onKey)
   }, [onClose])
 
-  const images = product.images && product.images.length > 0 ? product.images : [product.image ?? "/placeholder.svg"]
+  // Fotos por color: cableado defensivo (inmobiliaria no maneja color →
+  // colorImgs null → galería base).
+  const baseImages = product.images && product.images.length > 0 ? product.images : [product.image ?? "/placeholder.svg"]
+  const colorImgs = colorImagesForSelection(product, {})
+  const images = colorImgs ?? baseImages
   const image = images[0] ?? "/placeholder.svg"
+
+  useEffect(() => {
+    setSelectedImage(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colorImgs?.join("|")])
   const stocked = inStock(product)
   const specs = specsOf(product)
   const tags = tagsOf(product)

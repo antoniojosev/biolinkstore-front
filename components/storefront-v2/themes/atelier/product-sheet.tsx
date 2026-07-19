@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react"
 import { ArrowLeft, ChevronDown, ChevronUp, Minus, Plus, Share2, ShoppingCart } from "lucide-react"
 import type { ThemeProductSheetProps } from "@/components/storefront-v2/themes/registry"
+import { colorImagesForSelection } from "@/components/storefront-v2/template/template-renderer"
 import type { TemplateProduct, TemplateStore } from "@/components/storefront-v2/template/template-renderer"
 import { trackEvent } from "@/lib/analytics"
 import { WhatsAppPaymentProvider } from "@/lib/payment-providers/whatsapp"
@@ -53,8 +54,17 @@ function AtelierDetail({
     return () => window.removeEventListener("keydown", onKey)
   }, [onClose])
 
-  const images = product.images?.length ? product.images : product.image ? [product.image] : []
+  // Fotos por color: cableado defensivo (este tema de reserva no expone
+  // selección de color, así que colorImgs es null y usa la galería base).
+  const baseImages = product.images?.length ? product.images : product.image ? [product.image] : []
+  const colorImgs = colorImagesForSelection(product, {})
+  const images = colorImgs ?? baseImages
   const total = product.price * quantity
+
+  useEffect(() => {
+    setSelectedImage(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colorImgs?.join("|")])
 
   /** Reserva directa: checkout de 1 item con la qty del stepper (spec §4/§5). */
   async function handleReserve() {

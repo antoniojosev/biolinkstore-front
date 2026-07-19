@@ -10,6 +10,7 @@ import type { PublicStoreTheme } from "@/lib/page-builder-api"
 import { useRouter } from "next/navigation"
 import { resolveTokens } from "./tokens"
 import {
+  colorImagesForSelection,
   NavBar,
   type PublicRate,
   type TemplateProduct,
@@ -158,8 +159,17 @@ function ProductPageInner({ store, product, otherProducts, theme, rate }: Produc
   }, [product, selected, fullySelected])
 
   const finalPrice = product.price + (matchedVariant?.priceAdjustment ?? 0)
-  const gallery = product.images?.length ? product.images : product.image ? [product.image] : []
+  // Fotos por color: si el color elegido tiene imágenes propias, la galería usa
+  // esas; si no aplica, cae a la galería base del producto.
+  const colorImgs = colorImagesForSelection(product, selected)
+  const gallery = colorImgs ?? (product.images?.length ? product.images : product.image ? [product.image] : [])
   const mainImage = matchedVariant?.image || gallery[activeImage] || gallery[0]
+
+  // Al cambiar las fotos por color, volver al primer thumbnail.
+  useEffect(() => {
+    setActiveImage(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colorImgs?.join("|")])
   const outOfStock = needsSelection
     ? matchedVariant?.isAvailable === false
     : product.stock != null && product.stock <= 0

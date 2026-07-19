@@ -17,6 +17,7 @@ import {
   Truck,
 } from "lucide-react"
 import type { ThemeProductSheetProps } from "../registry"
+import { colorImagesForSelection } from "@/components/storefront-v2/template/template-renderer"
 import type {
   TemplateAttribute,
   TemplateProduct,
@@ -76,8 +77,17 @@ function RosierDetail({
     return () => window.removeEventListener("keydown", onKey)
   }, [onClose])
 
-  const images = product.images?.length ? product.images : [product.image ?? "/placeholder.svg"]
+  // Fotos por color: si el color elegido tiene imágenes propias, la galería usa
+  // esas; si no, cae a la galería base.
+  const baseImages = product.images?.length ? product.images : [product.image ?? "/placeholder.svg"]
+  const colorImgs = colorImagesForSelection(product, selectedOptions)
+  const images = colorImgs ?? baseImages
   const inStock = rosierInStock(product)
+
+  useEffect(() => {
+    setSelectedImage(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colorImgs?.join("|")])
   const rating = ratingFor(product.id)
   const { head: titleHead, em: titleEm } = splitTitle(product.name)
 

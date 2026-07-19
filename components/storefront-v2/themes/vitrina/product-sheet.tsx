@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react"
 import { ArrowLeft, Check, ChevronDown, ChevronUp, Minus, Plus, Share2, ShoppingBag } from "lucide-react"
 import type { ThemeProductSheetProps } from "../registry"
+import { colorImagesForSelection } from "@/components/storefront-v2/template/template-renderer"
 import type { TemplateProduct, TemplateStore } from "@/components/storefront-v2/template/template-renderer"
 import { useCartOptional } from "@/lib/cart-context"
 import { catalogFmt, ColorSwatch, mix, useShare } from "../shared/catalog-shell/support"
@@ -48,6 +49,16 @@ function VitrinaDetail({
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   }, [onClose])
+
+  // Fotos por color: si el color elegido tiene imágenes propias, la galería usa
+  // esas; si no, cae a la galería base del hook. Índice clamp + reset a 0.
+  const colorImgs = colorImagesForSelection(product, sel.selectedOptions)
+  const images = colorImgs ?? sel.images
+  const selectedImage = Math.min(sel.selectedImage, images.length - 1)
+  useEffect(() => {
+    sel.setSelectedImage(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colorImgs?.join("|")])
 
   const discount =
     product.compareAtPrice && product.compareAtPrice > sel.finalPrice
@@ -208,20 +219,20 @@ function VitrinaDetail({
   )
 
   const thumbs = (size: number) =>
-    sel.images.length > 1 && (
+    images.length > 1 && (
       <div className="bl-vitrina-thumbs">
-        {sel.images.map((img, idx) => (
+        {images.map((img, idx) => (
           <button
             key={idx}
             type="button"
             className="bl-vitrina-thumb"
-            data-active={idx === sel.selectedImage}
+            data-active={idx === selectedImage}
             onClick={() => sel.setSelectedImage(idx)}
             style={{
               flexShrink: 0, width: size, height: size, borderRadius: VRX.lg, overflow: "hidden",
               padding: 0, cursor: "pointer", background: V.muted,
-              border: idx === sel.selectedImage ? `2px solid ${V.primary}` : "2px solid transparent",
-              opacity: idx === sel.selectedImage ? 1 : 0.6,
+              border: idx === selectedImage ? `2px solid ${V.primary}` : "2px solid transparent",
+              opacity: idx === selectedImage ? 1 : 0.6,
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -274,7 +285,7 @@ function VitrinaDetail({
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ position: "relative", borderRadius: VRX.xl2, overflow: "hidden", background: V.muted, aspectRatio: "1 / 1" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={sel.images[sel.selectedImage]} alt={product.name} style={S.mainImg} />
+              <img src={images[selectedImage]} alt={product.name} style={S.mainImg} />
               {soldOutOverlay}
               {badges}
             </div>
@@ -312,13 +323,13 @@ function VitrinaDetail({
         <div style={{ padding: "8px 16px 0" }}>
           <div style={{ position: "relative", aspectRatio: "4 / 5", overflow: "hidden", background: V.muted, borderRadius: VRX.xl2 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={sel.images[sel.selectedImage]} alt={product.name} style={S.mainImg} />
+            <img src={images[selectedImage]} alt={product.name} style={S.mainImg} />
             {soldOutOverlay}
             {badges}
           </div>
         </div>
 
-        {sel.images.length > 1 && <div style={{ padding: "12px 16px" }}>{thumbs(56)}</div>}
+        {images.length > 1 && <div style={{ padding: "12px 16px" }}>{thumbs(56)}</div>}
 
         <div style={{ background: V.card, padding: "20px 20px 144px", display: "flex", flexDirection: "column", gap: 20 }}>
           <div>

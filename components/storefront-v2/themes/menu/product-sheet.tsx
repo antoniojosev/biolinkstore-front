@@ -8,7 +8,7 @@
 // selectores de variante por attributes, cantidad, descripción colapsable y
 // CTA con precio total). Colores por tokens --bl-* (paleta legacy ya en seed).
 
-import { useMemo, useState, type CSSProperties } from "react"
+import { useEffect, useMemo, useState, type CSSProperties } from "react"
 import {
   ArrowLeft,
   Check,
@@ -19,6 +19,7 @@ import {
   ShoppingBag,
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
+import { colorImagesForSelection } from "@/components/storefront-v2/template/template-renderer"
 import type {
   TemplateProduct,
   TemplateVariant,
@@ -51,8 +52,17 @@ function MenuProductSheetInner({
 
   const fmt = (n: number) => fmtMenuPrice(n, currency)
 
-  const images = product.images?.length ? product.images : [product.image ?? "/placeholder.svg"]
+  // Fotos por color: si el color elegido tiene imágenes propias, la galería usa
+  // esas; si no, cae a la galería base.
+  const baseImages = product.images?.length ? product.images : [product.image ?? "/placeholder.svg"]
+  const colorImgs = colorImagesForSelection(product, selectedOptions)
+  const images = colorImgs ?? baseImages
   const variants: TemplateVariant[] = product.variants ?? []
+
+  useEffect(() => {
+    setSelectedImage(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colorImgs?.join("|")])
   const inStock = productInStock(product)
 
   // Ejes seleccionables: attributes con role 'variant' (o sin role — mismo

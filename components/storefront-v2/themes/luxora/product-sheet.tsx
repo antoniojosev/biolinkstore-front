@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react"
 import { ArrowLeft, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Minus, Plus, Share2, ShoppingBag } from "lucide-react"
 import type { ThemeProductSheetProps } from "../registry"
+import { colorImagesForSelection } from "@/components/storefront-v2/template/template-renderer"
 import type { TemplateProduct, TemplateStore } from "@/components/storefront-v2/template/template-renderer"
 import { useCartOptional } from "@/lib/cart-context"
 import { catalogFmt, ColorSwatch, mix, useShare } from "../shared/catalog-shell/support"
@@ -49,6 +50,16 @@ function LuxoraDetail({
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   }, [onClose])
+
+  // Fotos por color: si el color elegido tiene imágenes propias, la galería usa
+  // esas; si no, cae a la galería base del hook. Índice clamp + reset a 0.
+  const colorImgs = colorImagesForSelection(product, sel.selectedOptions)
+  const images = colorImgs ?? sel.images
+  const selectedImage = Math.min(sel.selectedImage, images.length - 1)
+  useEffect(() => {
+    sel.setSelectedImage(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colorImgs?.join("|")])
 
   // Spec §4.2: isOnSale = comparePrice > finalPrice; badge fijo "SALE" sin %.
   const isOnSale = product.compareAtPrice != null && product.compareAtPrice > sel.finalPrice
@@ -207,20 +218,20 @@ function LuxoraDetail({
     </div>
   )
 
-  const thumbs = sel.images.length > 1 && (
+  const thumbs = images.length > 1 && (
     <div className="bl-luxora-thumbs" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
-      {sel.images.map((img, idx) => (
+      {images.map((img, idx) => (
         <button
           key={idx}
           type="button"
           className="bl-luxora-thumb"
-          data-active={idx === sel.selectedImage}
+          data-active={idx === selectedImage}
           onClick={() => sel.setSelectedImage(idx)}
           style={{
             flexShrink: 0, width: 64, height: 64, borderRadius: LRX.xl, overflow: "hidden",
             padding: 0, cursor: "pointer", background: L.imageBg,
-            border: idx === sel.selectedImage ? `2px solid ${L.ink}` : "2px solid transparent",
-            opacity: idx === sel.selectedImage ? 1 : 0.5,
+            border: idx === selectedImage ? `2px solid ${L.ink}` : "2px solid transparent",
+            opacity: idx === selectedImage ? 1 : 0.5,
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -242,8 +253,8 @@ function LuxoraDetail({
     <Share2 style={{ width: 16, height: 16, color: L.muted }} />
   )
 
-  const prevImg = () => sel.setSelectedImage(sel.selectedImage === 0 ? sel.images.length - 1 : sel.selectedImage - 1)
-  const nextImg = () => sel.setSelectedImage(sel.selectedImage === sel.images.length - 1 ? 0 : sel.selectedImage + 1)
+  const prevImg = () => sel.setSelectedImage(selectedImage === 0 ? images.length - 1 : selectedImage - 1)
+  const nextImg = () => sel.setSelectedImage(selectedImage === images.length - 1 ? 0 : selectedImage + 1)
 
   return (
     <div className="bl-luxora-root" role="dialog" aria-modal="true" aria-label={product.name} style={S.overlay}>
@@ -275,7 +286,7 @@ function LuxoraDetail({
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ position: "relative", borderRadius: LRX.xl2, overflow: "hidden", background: L.imageBg, aspectRatio: "1 / 1" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={sel.images[sel.selectedImage]} alt={product.name} style={S.mainImg} />
+              <img src={images[selectedImage]} alt={product.name} style={S.mainImg} />
               {saleBadge}
               {soldOutOverlay}
             </div>
@@ -312,10 +323,10 @@ function LuxoraDetail({
         <div style={{ padding: "4px 20px 0" }}>
           <div style={{ position: "relative", borderRadius: LRX.xl2, overflow: "hidden", background: L.imageBg, aspectRatio: "1 / 1" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={sel.images[sel.selectedImage]} alt={product.name} style={S.mainImg} />
+            <img src={images[selectedImage]} alt={product.name} style={S.mainImg} />
             {soldOutOverlay}
             {saleBadge}
-            {sel.images.length > 1 && (
+            {images.length > 1 && (
               <>
                 <button type="button" className="bl-luxora-navarrow" onClick={prevImg} aria-label="Imagen anterior" style={{ ...S.navArrow, left: 8 }}>
                   <ChevronLeft style={{ width: 16, height: 16 }} />
@@ -329,19 +340,19 @@ function LuxoraDetail({
         </div>
 
         {/* Dots pastilla (no thumbnails en angosto — spec §4 Mobile 3) */}
-        {sel.images.length > 1 && (
+        {images.length > 1 && (
           <div style={{ display: "flex", justifyContent: "center", gap: 6, padding: "12px 0" }}>
-            {sel.images.map((_, idx) => (
+            {images.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
                 className="bl-luxora-dot"
-                data-active={idx === sel.selectedImage}
+                data-active={idx === selectedImage}
                 onClick={() => sel.setSelectedImage(idx)}
                 aria-label={`Imagen ${idx + 1}`}
                 style={{
                   border: "none", padding: 0, cursor: "pointer", borderRadius: 999,
-                  ...(idx === sel.selectedImage
+                  ...(idx === selectedImage
                     ? { width: 20, height: 8, background: L.ink }
                     : { width: 8, height: 8, background: L.dot }),
                 }}
