@@ -81,6 +81,33 @@ export function useStoreCatalogPreview(): StoreCatalogPreview {
     }
   }, [store?.id, productRepo, categoryRepo, socialRepo])
 
+  // Refresca las redes en vivo cuando el editor de redes (SocialLinksCard) las
+  // cambia — sin esto, el preview del editor no reflejaba las nuevas redes
+  // hasta recargar (se editan y leen por caminos distintos).
+  useEffect(() => {
+    if (!store?.id) return
+    let cancelled = false
+    const onChanged = () => {
+      socialRepo
+        .list(store.id)
+        .catch(() => [])
+        .then((links) => {
+          if (cancelled) return
+          setSocials(
+            links
+              .filter((l) => l.visible)
+              .sort((a, b) => a.sortOrder - b.sortOrder)
+              .map((l) => ({ platform: l.platform, url: l.url })),
+          )
+        })
+    }
+    window.addEventListener("bl:socials-changed", onChanged)
+    return () => {
+      cancelled = true
+      window.removeEventListener("bl:socials-changed", onChanged)
+    }
+  }, [store?.id, socialRepo])
+
   const templateStore: TemplateStore | null = store
     ? {
         name: store.name,

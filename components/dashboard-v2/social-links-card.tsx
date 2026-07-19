@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { useAuth } from "@/contexts/auth-context"
 import { ApiError } from "@/lib/http/types"
@@ -50,6 +50,17 @@ export function SocialLinksCard({ compact = false }: { compact?: boolean } = {})
   useEffect(() => {
     void load()
   }, [load])
+
+  // Avisa a los previews (editor/tienda) que las redes cambiaron, para que
+  // refresquen store.socials en vivo. Se salta el primer render (carga inicial).
+  const firstLinksRef = useRef(true)
+  useEffect(() => {
+    if (firstLinksRef.current) {
+      firstLinksRef.current = false
+      return
+    }
+    window.dispatchEvent(new Event("bl:socials-changed"))
+  }, [links])
 
   async function handleAdd() {
     if (!storeId || !newUrl.trim()) return
