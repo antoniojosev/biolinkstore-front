@@ -11,6 +11,12 @@ html, body { margin: 0; padding: 0; }
 html { height: 100%; }
 body { min-height: 100%; -webkit-font-smoothing: antialiased; }
 img { max-width: 100%; }
+/* Scrollbar fina y sutil (la default gruesa se ve mal en el teléfono). */
+html { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.22) transparent; }
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.22); border-radius: 7px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.35); }
+::-webkit-scrollbar-track { background: transparent; }
 `
 
 /**

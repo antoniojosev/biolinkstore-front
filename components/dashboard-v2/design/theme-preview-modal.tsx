@@ -134,7 +134,9 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
         key={`${templateKey}-${source}`}
         fontHref={fontHref}
         title={data ? `Vista previa — ${data.name}` : "Vista previa"}
-        style={S.iframe}
+        // Redondeo solo en móvil (28 del bezel − 8 de padding = 20); en desktop
+        // el modal ya recorta con su propio radio.
+        style={{ ...S.iframe, borderRadius: device === "mobile" ? 20 : 0 }}
       >
         <PreviewStorefront store={shown.store} products={shown.products} categories={shown.categories} theme={shown.theme} />
       </IframePreview>
