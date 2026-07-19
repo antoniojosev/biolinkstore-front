@@ -22,7 +22,7 @@ const PLATFORM_LABEL: Record<SocialPlatform, string> = {
 
 const PLATFORMS = Object.keys(PLATFORM_LABEL) as SocialPlatform[]
 
-export function SocialLinksCard() {
+export function SocialLinksCard({ compact = false }: { compact?: boolean } = {}) {
   const { http, store } = useAuth()
   const storeId = store?.id
   const repo = useMemo(() => new StoreSocialLinksHttpRepository(http), [http])
@@ -130,24 +130,29 @@ export function SocialLinksCard() {
 
   if (!storeId) return null
 
+  // compact: embebido en el inspector de Diseño (panel angosto) — sin chrome
+  // de card ni header propio (el inspector ya pone el suyo), y las filas
+  // apilan el input en su propia línea para no desbordar.
   return (
-    <div style={S.card}>
-      <div style={S.header}>
-        <div>
-          <h3 style={S.title}>Redes sociales</h3>
-          <p style={S.subtitle}>
-            Se usan en la sección de redes de cualquier tema que elijas — no hace falta reconfigurarlas si cambiás de
-            tema.
-          </p>
+    <div style={compact ? S.cardBare : S.card}>
+      {!compact && (
+        <div style={S.header}>
+          <div>
+            <h3 style={S.title}>Redes sociales</h3>
+            <p style={S.subtitle}>
+              Se usan en la sección de redes de cualquier tema que elijas — no hace falta reconfigurarlas si cambiás de
+              tema.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {loading ? (
         <div style={S.muted}>Cargando…</div>
       ) : (
         <div style={S.list}>
           {links.map((link, i) => (
-            <div key={link.id} style={{ ...S.row, opacity: busyId === link.id ? 0.6 : 1 }}>
+            <div key={link.id} style={{ ...S.row, ...(compact ? S.rowCompact : null), opacity: busyId === link.id ? 0.6 : 1 }}>
               <div style={S.reorderCol}>
                 <button type="button" onClick={() => handleMove(link, -1)} disabled={i === 0} style={S.miniBtn}>
                   ↑
@@ -162,7 +167,7 @@ export function SocialLinksCard() {
                 onChange={(e) => handleUrlChange(link, e.target.value)}
                 onBlur={() => handleUrlBlur(link)}
                 placeholder="https://…"
-                style={S.input}
+                style={compact ? { ...S.input, ...S.inputCompact } : S.input}
                 disabled={busyId === link.id}
                 spellCheck={false}
               />
@@ -184,8 +189,8 @@ export function SocialLinksCard() {
 
           {links.length === 0 && <div style={S.empty}>Todavía no agregaste ninguna red social.</div>}
 
-          <div style={S.addRow}>
-            <select value={newPlatform} onChange={(e) => setNewPlatform(e.target.value as SocialPlatform)} style={S.select}>
+          <div style={compact ? { ...S.addRow, ...S.rowCompact } : S.addRow}>
+            <select value={newPlatform} onChange={(e) => setNewPlatform(e.target.value as SocialPlatform)} style={compact ? { ...S.select, ...S.inputCompact } : S.select}>
               {PLATFORMS.map((p) => (
                 <option key={p} value={p}>
                   {PLATFORM_LABEL[p]}
@@ -196,7 +201,7 @@ export function SocialLinksCard() {
               value={newUrl}
               onChange={(e) => setNewUrl(e.target.value)}
               placeholder="https://instagram.com/tu.tienda"
-              style={S.input}
+              style={compact ? { ...S.input, ...S.inputCompact } : S.input}
               spellCheck={false}
             />
             <button
@@ -224,6 +229,11 @@ const S: Record<string, React.CSSProperties> = {
     flexDirection: "column",
     gap: 16,
   },
+  // Embebido en el inspector angosto: sin borde/fondo/padding propios.
+  cardBare: { display: "flex", flexDirection: "column", gap: 12 },
+  // Fila que envuelve: el input cae a su propia línea a ancho completo.
+  rowCompact: { flexWrap: "wrap" },
+  inputCompact: { flexBasis: "100%", minWidth: 0, width: "100%" },
   header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 },
   title: { margin: 0, fontSize: 16, fontWeight: 700 },
   subtitle: { margin: "4px 0 0", color: "var(--ink-2)", fontSize: 13, lineHeight: 1.5 },

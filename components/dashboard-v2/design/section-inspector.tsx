@@ -45,7 +45,7 @@ export function SectionInspector({ def, node, onPropsChange, onToggleVisible, on
         <div style={S.group}>
           <span style={S.groupLbl}>Redes de tu tienda</span>
           <p style={S.hint}>Se muestran en toda tu tienda (también editables en Configuración → Redes).</p>
-          <SocialLinksCard />
+          <SocialLinksCard compact />
         </div>
       ) : (
         propEntries.length > 0 && (
