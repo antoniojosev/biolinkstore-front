@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { HexColorPicker } from "react-colorful"
 import type { ProductAttributeDto } from "@/lib/products-api/types"
 
 const TYPE_LABEL: Record<string, string> = {
@@ -47,6 +48,91 @@ const COLOR_PRESETS: { name: string; hex: string }[] = [
 interface AttributesEditorProps {
   attributes: ProductAttributeDto[]
   onChange: (attributes: ProductAttributeDto[]) => void
+}
+
+/**
+ * Selector de color para agregar opciones a un atributo tipo "color":
+ * grilla de swatches con la paleta frecuente (clic = agrega el color con su
+ * nombre) + un color picker real (react-colorful) para un color personalizado
+ * con su nombre. Cada opción guarda nombre + hex en optionsMeta.
+ */
+function ColorAdder({ options, onAdd }: { options: string[]; onAdd: (name: string, hex: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const [hex, setHex] = useState("#C0392B")
+  const [name, setName] = useState("")
+  const available = COLOR_PRESETS.filter((c) => !options.includes(c.name))
+
+  function addCustom() {
+    const n = name.trim()
+    if (!n || options.includes(n)) return
+    onAdd(n, hex)
+    setName("")
+    setOpen(false)
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+        {available.map((c) => (
+          <button
+            key={c.name}
+            type="button"
+            title={c.name}
+            aria-label={`Agregar ${c.name}`}
+            onClick={() => onAdd(c.name, c.hex)}
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              background: c.hex,
+              border: "1px solid rgba(0,0,0,0.15)",
+              boxShadow: "inset 0 0 0 2px #fff",
+              cursor: "pointer",
+            }}
+          />
+        ))}
+        <button
+          type="button"
+          title="Color personalizado"
+          aria-label="Color personalizado"
+          onClick={() => setOpen((o) => !o)}
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            border: "1.5px dashed var(--line-2)",
+            background: "conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
+            color: "#fff",
+            fontSize: 15,
+            lineHeight: 1,
+            cursor: "pointer",
+            display: "grid",
+            placeItems: "center",
+            textShadow: "0 0 2px rgba(0,0,0,0.6)",
+          }}
+        >
+          +
+        </button>
+      </div>
+      {open && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: 12, border: "1px solid var(--line)", borderRadius: 12, background: "var(--bg-2)" }}>
+          <HexColorPicker color={hex} onChange={setHex} style={{ width: "100%", height: 150 }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ width: 28, height: 28, borderRadius: 8, background: hex, border: "1px solid rgba(0,0,0,0.15)", flexShrink: 0 }} />
+            <input
+              className="input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustom() } }}
+              placeholder="Nombre del color (ej. Turquesa)"
+              style={{ flex: 1 }}
+            />
+            <button type="button" className="btn btn-secondary btn-sm" onClick={addCustom} disabled={!name.trim()}>Agregar</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 export function AttributesEditor({ attributes, onChange }: AttributesEditorProps) {
@@ -127,33 +213,21 @@ export function AttributesEditor({ attributes, onChange }: AttributesEditorProps
               </span>
             ))}
           </div>
-          {attr.type === "color" && (
-            <select
-              className="select"
-              value=""
-              onChange={(e) => {
-                const preset = COLOR_PRESETS.find((c) => c.name === e.target.value)
-                if (preset) addColorOption(i, preset.name, preset.hex)
-              }}
-              aria-label="Elegir color"
-            >
-              <option value="">Elegir color…</option>
-              {COLOR_PRESETS.filter((c) => !attr.options.includes(c.name)).map((c) => (
-                <option key={c.name} value={c.name}>{c.name}</option>
-              ))}
-            </select>
+          {attr.type === "color" ? (
+            <ColorAdder options={attr.options} onAdd={(name, hex) => addColorOption(i, name, hex)} />
+          ) : (
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                className="input"
+                value={draftOption[i] ?? ""}
+                onChange={(e) => setDraftOption((d) => ({ ...d, [i]: e.target.value }))}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addOption(i) } }}
+                placeholder="Agregar opción y Enter…"
+                style={{ flex: 1 }}
+              />
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => addOption(i)}>+ Opción</button>
+            </div>
           )}
-          <div style={{ display: "flex", gap: 8 }}>
-            <input
-              className="input"
-              value={draftOption[i] ?? ""}
-              onChange={(e) => setDraftOption((d) => ({ ...d, [i]: e.target.value }))}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addOption(i) } }}
-              placeholder={attr.type === "color" ? "…o un color personalizado y Enter" : "Agregar opción y Enter…"}
-              style={{ flex: 1 }}
-            />
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => addOption(i)}>+ Opción</button>
-          </div>
         </div>
       ))}
       <button type="button" className="btn btn-secondary" onClick={addAttribute}>+ Agregar atributo</button>
