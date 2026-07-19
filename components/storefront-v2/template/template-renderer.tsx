@@ -848,10 +848,10 @@ function ProductGridSection({ section, products, categories, store, resolved, on
           const key = p.category || "Otros"
           byName.set(key, [...(byName.get(key) ?? []), p])
         }
-        const ordered = categories.map((c) => ({ name: c.name, items: byName.get(c.name) ?? [] })).filter((g) => g.items.length > 0)
+        const ordered = categories.map((c) => ({ id: c.id, name: c.name, items: byName.get(c.name) ?? [] })).filter((g) => g.items.length > 0)
         const known = new Set(categories.map((c) => c.name))
         const rest = products.filter((p) => !known.has(p.category || ""))
-        return rest.length > 0 ? [...ordered, { name: "Otros", items: rest }] : ordered
+        return rest.length > 0 ? [...ordered, { id: undefined, name: "Otros", items: rest }] : ordered
       })()
     : null
 
@@ -894,7 +894,10 @@ function ProductGridSection({ section, products, categories, store, resolved, on
       ) : groups ? (
         <div style={{ display: "grid", gap: "calc(var(--bl-spacing) * 1.5)" }}>
           {groups.map((g) => (
-            <div key={g.name}>
+            // id="category-{id}" = destino de los enlaces de categoría (pills
+            // de CategoriesSection y del propio grid); scrollMarginTop deja
+            // aire para navs/toolbars sticky.
+            <div key={g.name} id={g.id ? `category-${g.id}` : undefined} style={{ scrollMarginTop: 80 }}>
               <h3 style={{ fontFamily: "var(--bl-heading-font)", fontSize: 18, fontWeight: 600, margin: "0 0 14px" }}>{g.name}</h3>
               {grid(g.items)}
             </div>

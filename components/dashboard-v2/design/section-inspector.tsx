@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/contexts/auth-context"
 import { UploadButton } from "../upload-button"
+import { SocialLinksCard } from "../social-links-card"
 import type { SectionDef, SectionNode, SectionPropDef } from "@/lib/page-builder-api"
 import { sectionLabel } from "./section-labels"
 
@@ -36,20 +37,32 @@ export function SectionInspector({ def, node, onPropsChange, onToggleVisible, on
     <div style={S.wrap}>
       <div style={S.title}>{sectionLabel(def.type)}</div>
 
-      {propEntries.length > 0 && (
+      {/* Redes: se editan las redes REALES de la tienda (store.socials, que
+          se muestran en toda la tienda y pisan cualquier prop de sección). El
+          editor de items del schema no hacía nada acá — se reemplaza por el
+          administrador real, el mismo de Configuración → Redes. */}
+      {def.type === "socials" ? (
         <div style={S.group}>
-          <span style={S.groupLbl}>Contenido</span>
-          {propEntries.map(([key, propDef]) => (
-            <PropField
-              key={key}
-              label={propDef.label ?? key}
-              propDef={propDef}
-              value={node.props[key]}
-              onChange={(v) => setProp(key, v)}
-              storeId={store?.id}
-            />
-          ))}
+          <span style={S.groupLbl}>Redes de tu tienda</span>
+          <p style={S.hint}>Se muestran en toda tu tienda (también editables en Configuración → Redes).</p>
+          <SocialLinksCard />
         </div>
+      ) : (
+        propEntries.length > 0 && (
+          <div style={S.group}>
+            <span style={S.groupLbl}>Contenido</span>
+            {propEntries.map(([key, propDef]) => (
+              <PropField
+                key={key}
+                label={propDef.label ?? key}
+                propDef={propDef}
+                value={node.props[key]}
+                onChange={(v) => setProp(key, v)}
+                storeId={store?.id}
+              />
+            ))}
+          </div>
+        )
       )}
 
       <div style={S.group}>
@@ -269,6 +282,7 @@ const S: Record<string, React.CSSProperties> = {
     fontSize: 11.5, fontWeight: 700, color: "var(--ink-2)", textTransform: "uppercase",
     letterSpacing: "0.03em", marginBottom: 8, display: "block",
   },
+  hint: { fontSize: 11.5, color: "var(--ink-3)", margin: "0 0 10px", lineHeight: 1.5 },
   field: { marginBottom: 10 },
   fieldLbl: { fontSize: 11.5, color: "var(--ink-3)", marginBottom: 4, display: "block" },
   counter: { color: "var(--ink-3)", fontWeight: 400 },
