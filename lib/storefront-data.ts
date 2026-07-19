@@ -10,8 +10,11 @@ export interface RawAttribute {
   id: string
   name: string
   type?: string
+  role?: string
   options: string[]
-  optionsMeta?: Record<string, { hex?: string }> | null
+  // images: fotos del producto para esa opción (ej. las de un color) — se
+  // muestran al seleccionarla en el detalle.
+  optionsMeta?: Record<string, { hex?: string; images?: string[] }> | null
 }
 
 export interface RawVariant {
@@ -108,6 +111,13 @@ export function mapTemplateProducts(
       image: v.image ?? null,
       isAvailable: v.isAvailable ?? true,
     }))
+    const attributes: TemplateProduct["attributes"] = (raw?.attributes ?? []).map((a) => ({
+      name: a.name,
+      type: a.type === "color" ? "color" : "text",
+      role: a.role,
+      options: a.options,
+      optionsMeta: a.optionsMeta ?? undefined,
+    }))
     return {
       id: p.id,
       name: p.name,
@@ -120,6 +130,7 @@ export function mapTemplateProducts(
       sku: raw?.sku ?? undefined,
       stock: raw?.stock ?? null,
       variants: variants.length > 0 ? variants : undefined,
+      attributes: attributes.length > 0 ? attributes : undefined,
     }
   })
 }

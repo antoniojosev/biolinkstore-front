@@ -24,7 +24,7 @@ export interface DemoAttributeData {
    *  · 'ingredient-included'/'ingredient-extra' = flujo "arma tu…" (poster). */
   role?: string
   options: string[]
-  optionsMeta?: Record<string, { hex?: string; priceDelta?: number }>
+  optionsMeta?: Record<string, { hex?: string; priceDelta?: number; images?: string[] }>
 }
 
 export interface DemoProductData {

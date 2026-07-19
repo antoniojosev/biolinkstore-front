@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { HexColorPicker } from "react-colorful"
 import type { ProductAttributeDto } from "@/lib/products-api/types"
+import { UploadButton } from "./upload-button"
 
 const TYPE_LABEL: Record<string, string> = {
   text: "Texto",
@@ -48,6 +49,63 @@ const COLOR_PRESETS: { name: string; hex: string }[] = [
 interface AttributesEditorProps {
   attributes: ProductAttributeDto[]
   onChange: (attributes: ProductAttributeDto[]) => void
+  /** Para subir imágenes por color (opcional; sin él solo se pega URL). */
+  storeId?: string
+}
+
+/**
+ * Galería por color: las fotos del producto en ese color, que el detalle
+ * muestra al seleccionarlo. Sube archivos (UploadButton) o pega URLs.
+ */
+function ColorImagesRow({
+  name,
+  hex,
+  images,
+  storeId,
+  onChange,
+}: {
+  name: string
+  hex?: string
+  images: string[]
+  storeId?: string
+  onChange: (images: string[]) => void
+}) {
+  const [url, setUrl] = useState("")
+  function addUrl() {
+    const u = url.trim()
+    if (!u || images.includes(u)) return
+    onChange([...images, u])
+    setUrl("")
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "8px 10px", border: "1px solid var(--line)", borderRadius: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ width: 16, height: 16, borderRadius: "50%", background: hex ?? "#ccc", border: "1px solid rgba(0,0,0,0.15)", flexShrink: 0 }} />
+        <span style={{ fontSize: 12, fontWeight: 600 }}>{name}</span>
+        <span style={{ fontSize: 11, color: "var(--ink-3)" }}>{images.length > 0 ? `· ${images.length} foto${images.length > 1 ? "s" : ""}` : "· sin fotos"}</span>
+      </div>
+      {images.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {images.map((img, idx) => (
+            <div key={`${img}-${idx}`} style={{ position: "relative", width: 44, height: 44, borderRadius: 8, background: `#fff url(${img}) center/cover no-repeat`, border: "1px solid var(--line)" }}>
+              <button type="button" onClick={() => onChange(images.filter((_, k) => k !== idx))} aria-label="Quitar" style={{ position: "absolute", top: -6, right: -6, width: 18, height: 18, borderRadius: "50%", background: "rgba(0,0,0,0.65)", color: "#fff", border: "none", cursor: "pointer", fontSize: 11, lineHeight: 1, display: "grid", placeItems: "center" }}>×</button>
+            </div>
+          ))}
+        </div>
+      )}
+      <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+        <UploadButton storeId={storeId} multiple label="Subir fotos" onUploaded={(urls) => onChange([...images, ...urls.filter((u) => !images.includes(u))])} />
+        <input
+          className="input"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addUrl() } }}
+          placeholder="…o pegá una URL"
+          style={{ flex: 1, minWidth: 140 }}
+        />
+      </div>
+    </div>
+  )
 }
 
 /**
@@ -135,7 +193,7 @@ function ColorAdder({ options, onAdd }: { options: string[]; onAdd: (name: strin
   )
 }
 
-export function AttributesEditor({ attributes, onChange }: AttributesEditorProps) {
+export function AttributesEditor({ attributes, onChange, storeId }: AttributesEditorProps) {
   const [draftOption, setDraftOption] = useState<Record<number, string>>({})
 
   function addAttribute() {
@@ -173,6 +231,10 @@ export function AttributesEditor({ attributes, onChange }: AttributesEditorProps
   function setColorHex(i: number, option: string, hex: string) {
     const attr = attributes[i]
     patchAttribute(i, { optionsMeta: { ...(attr.optionsMeta ?? {}), [option]: { ...(attr.optionsMeta?.[option] ?? {}), hex } } })
+  }
+  function setOptionImages(i: number, option: string, images: string[]) {
+    const attr = attributes[i]
+    patchAttribute(i, { optionsMeta: { ...(attr.optionsMeta ?? {}), [option]: { ...(attr.optionsMeta?.[option] ?? {}), images } } })
   }
 
   return (
@@ -213,6 +275,21 @@ export function AttributesEditor({ attributes, onChange }: AttributesEditorProps
               </span>
             ))}
           </div>
+          {attr.type === "color" && attr.options.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <span style={{ fontSize: 11, color: "var(--ink-3)", fontWeight: 600 }}>Fotos por color (se muestran al elegir ese color)</span>
+              {attr.options.map((opt) => (
+                <ColorImagesRow
+                  key={opt}
+                  name={opt}
+                  hex={attr.optionsMeta?.[opt]?.hex}
+                  images={(attr.optionsMeta?.[opt] as { images?: string[] } | undefined)?.images ?? []}
+                  storeId={storeId}
+                  onChange={(images) => setOptionImages(i, opt, images)}
+                />
+              ))}
+            </div>
+          )}
           {attr.type === "color" ? (
             <ColorAdder options={attr.options} onAdd={(name, hex) => addColorOption(i, name, hex)} />
           ) : (

@@ -28,7 +28,25 @@ export interface TemplateAttribute {
   type: "text" | "color"
   role?: string
   options: string[]
-  optionsMeta?: Record<string, { hex?: string; priceDelta?: number }>
+  optionsMeta?: Record<string, { hex?: string; priceDelta?: number; images?: string[] }>
+}
+
+/**
+ * Imágenes asociadas a la opción de color seleccionada (optionsMeta.images) —
+ * para que el detalle muestre las fotos del producto en ese color. Devuelve
+ * null si no hay atributo de color, no hay color elegido, o esa opción no tiene
+ * imágenes propias (→ el sheet usa la galería base del producto).
+ */
+export function colorImagesForSelection(
+  product: Pick<TemplateProduct, "attributes">,
+  selected: Record<string, string>,
+): string[] | null {
+  const colorAttr = product.attributes?.find((a) => a.type === "color")
+  if (!colorAttr) return null
+  const value = selected[colorAttr.name]
+  if (!value) return null
+  const imgs = colorAttr.optionsMeta?.[value]?.images
+  return imgs && imgs.length > 0 ? imgs : null
 }
 
 export interface TemplateProduct {

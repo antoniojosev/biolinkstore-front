@@ -317,7 +317,7 @@ export function ProductFormSheet({ open, storeId, product, categories, onClose, 
 
             <div>
               <label className="label" style={{ marginBottom: 8, display: "block" }}>Atributos (talla, color…)</label>
-              <AttributesEditor attributes={form.attributes} onChange={(attributes) => patch({ attributes })} />
+              <AttributesEditor attributes={form.attributes} onChange={(attributes) => patch({ attributes })} storeId={storeId} />
             </div>
 
             <VariantsEditor
