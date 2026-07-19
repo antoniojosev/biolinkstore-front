@@ -413,7 +413,7 @@ function shellCss(p: string): string {
 /* Padding inferior para que el footer no quede tapado por el cart bar fijo
    (solo existe en móvil); en desktop el carrito vive en el sidebar. */
 .${p}-footer { padding-bottom: 108px; }
-@container ${p}-root (min-width: 1024px) {
+@container ${p}-root (min-width: 900px) {
   .${p}-footer { padding-bottom: 40px; }
   .${p}-frame { display: flex; max-width: 1280px; margin: 0 auto; }
   .${p}-sidebar {
@@ -424,11 +424,13 @@ function shellCss(p: string): string {
   .${p}-desktop-only { display: flex !important; }
   .${p}-mobile-only { display: none !important; }
   .${p}-main { max-width: none; margin: 0; }
-  .${p}-grid[data-cols="3"], .${p}-grid[data-cols="4"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* En layout desktop cada opción da su nº de columnas: grid-3 → 3, grid-4 → 4
+     (antes grid-4 recién llegaba a 4 en ≥1280, así que 3 y 4 se veían igual). */
+  .${p}-grid[data-cols="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .${p}-grid[data-cols="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @container ${p}-root (min-width: 1280px) {
   .${p}-sidebar { width: 320px; }
-  .${p}-grid[data-cols="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 `
 }
