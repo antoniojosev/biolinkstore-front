@@ -20,6 +20,30 @@ const ROLE_LABEL: Record<string, string> = {
 }
 const ROLES = Object.keys(ROLE_LABEL)
 
+// Paleta de colores frecuentes (nombre + hex) para el select de tipo color.
+const COLOR_PRESETS: { name: string; hex: string }[] = [
+  { name: "Negro", hex: "#1A1A1A" },
+  { name: "Blanco", hex: "#FAFAFA" },
+  { name: "Gris", hex: "#8A8A8A" },
+  { name: "Beige", hex: "#D4C5A9" },
+  { name: "Crema", hex: "#F1E4CF" },
+  { name: "Marrón", hex: "#5B3A29" },
+  { name: "Camel", hex: "#C49A6C" },
+  { name: "Rojo", hex: "#C0392B" },
+  { name: "Borgoña", hex: "#6B1F2E" },
+  { name: "Rosa", hex: "#E8A7B8" },
+  { name: "Naranja", hex: "#E67E22" },
+  { name: "Amarillo", hex: "#F1C40F" },
+  { name: "Dorado", hex: "#D4AF37" },
+  { name: "Verde", hex: "#27AE60" },
+  { name: "Verde Oliva", hex: "#556B2F" },
+  { name: "Celeste", hex: "#7FB3D5" },
+  { name: "Azul", hex: "#2E5AAC" },
+  { name: "Azul Marino", hex: "#1E2F4A" },
+  { name: "Morado", hex: "#7D3C98" },
+  { name: "Plateado", hex: "#C0C0C0" },
+]
+
 interface AttributesEditorProps {
   attributes: ProductAttributeDto[]
   onChange: (attributes: ProductAttributeDto[]) => void
@@ -44,6 +68,15 @@ export function AttributesEditor({ attributes, onChange }: AttributesEditorProps
     if (attr.options.includes(value)) return
     patchAttribute(i, { options: [...attr.options, value] })
     setDraftOption((d) => ({ ...d, [i]: "" }))
+  }
+  // Agrega una opción de color (nombre + hex) desde el select de presets.
+  function addColorOption(i: number, name: string, hex: string) {
+    const attr = attributes[i]
+    if (attr.options.includes(name)) return
+    patchAttribute(i, {
+      options: [...attr.options, name],
+      optionsMeta: { ...(attr.optionsMeta ?? {}), [name]: { ...(attr.optionsMeta?.[name] ?? {}), hex } },
+    })
   }
   function removeOption(i: number, option: string) {
     const attr = attributes[i]
@@ -94,13 +127,29 @@ export function AttributesEditor({ attributes, onChange }: AttributesEditorProps
               </span>
             ))}
           </div>
+          {attr.type === "color" && (
+            <select
+              className="select"
+              value=""
+              onChange={(e) => {
+                const preset = COLOR_PRESETS.find((c) => c.name === e.target.value)
+                if (preset) addColorOption(i, preset.name, preset.hex)
+              }}
+              aria-label="Elegir color"
+            >
+              <option value="">Elegir color…</option>
+              {COLOR_PRESETS.filter((c) => !attr.options.includes(c.name)).map((c) => (
+                <option key={c.name} value={c.name}>{c.name}</option>
+              ))}
+            </select>
+          )}
           <div style={{ display: "flex", gap: 8 }}>
             <input
               className="input"
               value={draftOption[i] ?? ""}
               onChange={(e) => setDraftOption((d) => ({ ...d, [i]: e.target.value }))}
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addOption(i) } }}
-              placeholder="Agregar opción y Enter…"
+              placeholder={attr.type === "color" ? "…o un color personalizado y Enter" : "Agregar opción y Enter…"}
               style={{ flex: 1 }}
             />
             <button type="button" className="btn btn-secondary btn-sm" onClick={() => addOption(i)}>+ Opción</button>

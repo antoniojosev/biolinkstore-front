@@ -53,25 +53,40 @@ export function VariantsEditor({ basePrice, attributes, variants, onChange }: Va
   return (
     <div>
       <label className="label" style={{ marginBottom: 8, display: "block" }}>Variantes · {combinations.length} combinaciones</label>
+      <div style={{ display: "flex", gap: 10, padding: "0 12px 6px", fontSize: 11, color: "var(--ink-3)", fontWeight: 600 }}>
+        <span style={{ flex: 1 }}>Combinación</span>
+        <span style={{ width: 100, textAlign: "left" }}>Precio</span>
+        <span style={{ width: 80, textAlign: "left" }}>Stock</span>
+      </div>
       <div style={{ border: "1px solid var(--line)", borderRadius: 10, overflow: "hidden" }}>
         {combinations.map((combo, i) => {
           const key = comboKey(combo)
           const draft = byKey.get(key)
           const adjustment = draft?.priceAdjustment ?? 0
-          const finalPrice = basePrice + adjustment
+          // Precio ABSOLUTO de la variante (más intuitivo que un "+delta"); se
+          // guarda internamente como priceAdjustment = precio − precio base.
+          const price = basePrice + adjustment
           const label = Object.values(combo).join(" / ")
           return (
             <div key={key} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderTop: i > 0 ? "1px solid var(--line)" : "none" }}>
-              <div style={{ flex: 1, fontSize: 13, fontWeight: 600, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</div>
+              <div style={{ flex: 1, fontSize: 13, fontWeight: 600, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {label}
+                {adjustment !== 0 && (
+                  <span className="mono" style={{ marginLeft: 8, fontSize: 11, fontWeight: 500, color: "var(--ink-3)" }}>
+                    {adjustment > 0 ? "+" : "−"}{Math.abs(adjustment).toFixed(2)}
+                  </span>
+                )}
+              </div>
               <input
                 className="input"
                 type="number"
                 step="0.01"
-                value={adjustment || ""}
-                onChange={(e) => patch(combo, { priceAdjustment: e.target.value === "" ? 0 : Number(e.target.value) })}
-                placeholder="+0"
-                style={{ width: 90 }}
-                title="Ajuste de precio"
+                min="0"
+                value={draft ? String(price) : ""}
+                onChange={(e) => patch(combo, { priceAdjustment: e.target.value === "" ? 0 : Number(e.target.value) - basePrice })}
+                placeholder={basePrice ? basePrice.toFixed(2) : "Precio"}
+                style={{ width: 100 }}
+                title="Precio de esta variante"
               />
               <input
                 className="input"
@@ -82,11 +97,13 @@ export function VariantsEditor({ basePrice, attributes, variants, onChange }: Va
                 placeholder="Stock"
                 style={{ width: 80 }}
               />
-              <span className="mono" style={{ fontSize: 12, color: "var(--ink-3)", width: 70, textAlign: "right" }}>{finalPrice.toFixed(2)}</span>
             </div>
           )
         })}
       </div>
+      <p style={{ margin: "6px 2px 0", fontSize: 11, color: "var(--ink-3)" }}>
+        Dejá el precio vacío para usar el precio base (${basePrice ? basePrice.toFixed(2) : "0"}).
+      </p>
     </div>
   )
 }
