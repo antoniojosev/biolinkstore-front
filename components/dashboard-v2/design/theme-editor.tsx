@@ -74,7 +74,16 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
 
   function handleAddSection(def: SectionDef) {
     const newKey = `${def.type}_${Date.now()}`
-    t.replaceSections([...sections, { type: def.type, key: newKey, props: {}, visible: true }])
+    // Nace vestida con los defaults del diseñador (si los trae el schema).
+    const props = def.defaults ? (JSON.parse(JSON.stringify(def.defaults)) as Record<string, unknown>) : {}
+    const newSection = { type: def.type, key: newKey, props, visible: true }
+    // Insertar antes del footer para que no quede debajo de él.
+    const footerIdx = sections.findIndex((s) => s.type === "footer")
+    const next =
+      footerIdx >= 0
+        ? [...sections.slice(0, footerIdx), newSection, ...sections.slice(footerIdx)]
+        : [...sections, newSection]
+    t.replaceSections(next)
     selectSection(newKey)
   }
 

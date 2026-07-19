@@ -92,6 +92,8 @@ export interface SectionDef {
   removable?: boolean
   variants?: string[]
   props?: Record<string, SectionPropDef>
+  /** Valores iniciales del diseñador (nace vestida al agregarla). */
+  defaults?: Record<string, unknown>
 }
 
 export interface TemplateSectionSchema {

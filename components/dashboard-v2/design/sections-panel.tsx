@@ -61,7 +61,10 @@ export function SectionsPanel({ template, sections, selectedKey, onSelectSection
 
   const schemaSections = template?.sectionSchema?.sections ?? []
   const presentTypes = new Set(sections.map((s) => s.type))
-  const availableDefs = schemaSections.filter((def) => def.removable !== false || !presentTypes.has(def.type))
+  // Solo se ofrecen secciones AUSENTES: los renderers usan una sola sección por
+  // tipo (buscan la primera), así que agregar una duplicada (ej. otra
+  // categorías/redes) no se renderizaba → parecía que "no hacía nada".
+  const availableDefs = schemaSections.filter((def) => !presentTypes.has(def.type))
 
   return (
     <aside style={sheet ? S.asideSheet : S.aside}>
