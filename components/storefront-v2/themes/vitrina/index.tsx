@@ -331,6 +331,7 @@ const vitrinaSkin: CatalogSkin = {
     const socials = ctx.store.socials ?? []
     const tagline = sProp(footerNode, "tagline") || ctx.store.bio || ""
     const socialsTitle = sProp(socialsNode, "title")
+    const showBranding = boolProp(footerNode, "showBranding", true)
     return (
       <footer className="bl-vitrina-footer" style={{ paddingTop: 32, paddingLeft: 20, paddingRight: 20, textAlign: "center", background: V.bg }}>
         <div style={{ height: 1, background: V.border, margin: "0 auto 24px", maxWidth: 320 }} />
@@ -357,9 +358,11 @@ const vitrinaSkin: CatalogSkin = {
         {tagline && (
           <p style={{ margin: "0 auto 18px", maxWidth: 360, fontSize: 13, lineHeight: 1.6, color: V.mutedFg }}>{tagline}</p>
         )}
-        <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.04em", color: mix(V.mutedFg, 70) }}>
-          Creado con <span style={{ fontWeight: 800, color: V.primary }}>ByLink</span>
-        </p>
+        {showBranding && (
+          <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.04em", color: mix(V.mutedFg, 70) }}>
+            Creado con <span style={{ fontWeight: 800, color: V.primary }}>ByLink</span>
+          </p>
+        )}
       </footer>
     )
   },

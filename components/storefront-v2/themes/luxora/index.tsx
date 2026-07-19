@@ -4,7 +4,7 @@ import { useState, type CSSProperties } from "react"
 import { Instagram, Search, ShoppingBag, X } from "lucide-react"
 import type { TemplateRendererProps, TemplateProduct } from "@/components/storefront-v2/template/template-renderer"
 import type { SectionNode } from "@/lib/page-builder-api"
-import { CatalogShell, sProp, type CatalogCtx, type CatalogSkin } from "../shared/catalog-shell"
+import { CatalogShell, sProp, boolProp, type CatalogCtx, type CatalogSkin } from "../shared/catalog-shell"
 import { mix } from "../shared/catalog-shell/support"
 import { L, LRX, LUXORA_CSS, L_BTN_SHADOW } from "./shared"
 import { LuxoraProductCard } from "./product-card"
@@ -402,6 +402,7 @@ const luxoraSkin: CatalogSkin = {
     const socials = ctx.store.socials ?? []
     const tagline = sProp(footerNode, "tagline") || ctx.store.bio || ""
     const socialsTitle = sProp(socialsNode, "title")
+    const showBranding = boolProp(footerNode, "showBranding", true)
     return (
       <footer className="bl-luxora-footer" style={{ paddingTop: 32, paddingLeft: 20, paddingRight: 20, textAlign: "center", background: L.bg }}>
         <div style={{ height: 1, background: L.border, margin: "0 auto 24px", maxWidth: 320 }} />
@@ -429,9 +430,11 @@ const luxoraSkin: CatalogSkin = {
         {tagline && (
           <p style={{ margin: "0 auto 18px", maxWidth: 360, fontSize: 13, lineHeight: 1.6, color: L.muted }}>{tagline}</p>
         )}
-        <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.06em", color: L.muted2 }}>
-          Creado con <span style={{ fontWeight: 800, color: L.ink }}>ByLink</span>
-        </p>
+        {showBranding && (
+          <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.06em", color: L.muted2 }}>
+            Creado con <span style={{ fontWeight: 800, color: L.ink }}>ByLink</span>
+          </p>
+        )}
       </footer>
     )
   },
