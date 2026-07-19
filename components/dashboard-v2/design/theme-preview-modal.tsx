@@ -95,7 +95,18 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
   const [device, setDevice] = useState<PreviewDevice>("desktop")
   const [source, setSource] = useState<DataSource>("demo")
   const [fullscreen, setFullscreen] = useState(false)
+  // Browser angosto (móvil real): el chrome se simplifica y el preview llena
+  // el modal — un bezel de teléfono dentro de un teléfono no tiene sentido.
+  const [isNarrow, setIsNarrow] = useState(false)
   const real = useStoreCatalogPreview()
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)")
+    const on = () => setIsNarrow(mq.matches)
+    on()
+    mq.addEventListener("change", on)
+    return () => mq.removeEventListener("change", on)
+  }, [])
 
   useEffect(() => {
     if (!templateKey) return
@@ -136,14 +147,17 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
         title={data ? `Vista previa — ${data.name}` : "Vista previa"}
         // Redondeo solo en móvil (28 del bezel − 8 de padding = 20); en desktop
         // el modal ya recorta con su propio radio.
-        style={{ ...S.iframe, borderRadius: device === "mobile" ? 20 : 0 }}
+        style={{ ...S.iframe, borderRadius: device === "mobile" && !isNarrow ? 20 : 0 }}
       >
         <PreviewStorefront store={shown.store} products={shown.products} categories={shown.categories} theme={shown.theme} />
       </IframePreview>
     ) : null
 
   return (
-    <div style={fullscreen ? S.overlayFull : S.overlay} onClick={fullscreen ? undefined : onClose}>
+    <div
+      style={fullscreen ? S.overlayFull : { ...S.overlay, padding: isNarrow ? 8 : 20 }}
+      onClick={fullscreen ? undefined : onClose}
+    >
       <div style={fullscreen ? S.modalFull : S.modal} onClick={(e) => e.stopPropagation()}>
         {/* Header solo en modo ventana; en fullscreen es una pantalla completa
             de ejemplo de verdad, con controles flotantes mínimos. */}
@@ -174,7 +188,7 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
                   Mi tienda
                 </button>
               </div>
-              <DeviceToggle device={device} onChange={setDevice} />
+              {!isNarrow && <DeviceToggle device={device} onChange={setDevice} />}
               <button
                 type="button"
                 onClick={() => setFullscreen(true)}
@@ -208,13 +222,13 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
           {/* Wrapper estable: cambiar mobile/desktop solo re-estila (no remonta
               el iframe → sin recarga), el key del iframe solo cambia por tema.
               El bezel de teléfono aplica también en fullscreen (móvil centrado). */}
-          {iframe && <div style={device === "mobile" ? S.phoneBezel : S.fillWrap}>{iframe}</div>}
+          {iframe && <div style={device === "mobile" && !isNarrow ? S.phoneBezel : S.fillWrap}>{iframe}</div>}
         </div>
 
         {/* Controles flotantes de fullscreen (edge-to-edge, sin header). */}
         {fullscreen && (
           <div style={S.fsControls}>
-            <DeviceToggle device={device} onChange={setDevice} />
+            {!isNarrow && <DeviceToggle device={device} onChange={setDevice} />}
             <button
               type="button"
               onClick={() => setFullscreen(false)}
@@ -285,12 +299,24 @@ const S: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "14px 18px",
+    gap: 12,
+    padding: "12px 14px",
     borderBottom: "1px solid var(--line)",
     flexShrink: 0,
   },
-  headTitle: { fontSize: 14, fontWeight: 700, color: "var(--ink)" },
-  headRight: { display: "flex", alignItems: "center", gap: 10 },
+  // Trunca en vez de partirse en varias líneas cuando el modal es angosto.
+  headTitle: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: "var(--ink)",
+    flex: 1,
+    minWidth: 0,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  // Los controles nunca se comprimen ni pasan a otra línea.
+  headRight: { display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "nowrap" },
   sourceToggle: {
     display: "flex",
     gap: 2,
