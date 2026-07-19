@@ -3,7 +3,7 @@
 import type { CSSProperties } from "react"
 import { Instagram, Search, ShoppingBag, X } from "lucide-react"
 import type { TemplateRendererProps } from "@/components/storefront-v2/template/template-renderer"
-import { CatalogShell, sProp, type CatalogCtx, type CatalogSkin } from "../shared/catalog-shell"
+import { CatalogShell, sProp, boolProp, type CatalogCtx, type CatalogSkin } from "../shared/catalog-shell"
 import { mix } from "../shared/catalog-shell/support"
 import { V, VITRINA_CSS, VRX, V_CTA_SHADOW } from "./shared"
 import { VitrinaProductCard } from "./product-card"
@@ -44,6 +44,9 @@ function AvatarGlow({ ctx }: { ctx: CatalogCtx }) {
 }
 
 function IgAndCount({ ctx, marginTop }: { ctx: CatalogCtx; marginTop: number }) {
+  // Pill de conteo de productos: se puede ocultar desde el hero (prop
+  // showProductCount, default true).
+  const showCount = boolProp(ctx.heroNode, "showProductCount", true)
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap", gap: 8, marginTop }}>
       {ctx.instagramUrl && (
@@ -58,7 +61,7 @@ function IgAndCount({ ctx, marginTop }: { ctx: CatalogCtx; marginTop: number }) 
           Seguir
         </a>
       )}
-      <span style={S.countPill}>{ctx.products.length} productos</span>
+      {showCount && <span style={S.countPill}>{ctx.products.length} productos</span>}
     </div>
   )
 }
