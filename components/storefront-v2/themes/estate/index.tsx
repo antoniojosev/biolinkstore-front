@@ -169,6 +169,9 @@ export function EstateRenderer({
 
   // ── categories → sticky search + pills (spec §2.2) ───────────────────────
   function renderCategories(node: SectionNode) {
+    const showCount = bool(node, "showCount", false)
+    const countByCategory: Record<string, number> = {}
+    for (const pr of products) if (pr.category) countByCategory[pr.category] = (countByCategory[pr.category] ?? 0) + 1
     return editorWrap(
       node,
       <div className="bl-estate-pad" style={S.stickyBar}>
@@ -222,6 +225,11 @@ export function EstateRenderer({
                   }}
                 >
                   {cat}
+                  {showCount && (
+                    <span style={{ marginLeft: 6, opacity: 0.6, fontVariantNumeric: "tabular-nums" }}>
+                      {cat === ALL ? products.length : countByCategory[cat] ?? 0}
+                    </span>
+                  )}
                 </button>
               )
             })}

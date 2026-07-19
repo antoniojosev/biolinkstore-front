@@ -114,6 +114,11 @@ function CategoryPills({ ctx }: { ctx: CatalogCtx }) {
             }}
           >
             {cat}
+            {ctx.showCategoryCount && (
+              <span style={{ marginLeft: 6, opacity: 0.55, fontVariantNumeric: "tabular-nums" }}>
+                {cat === "Todos" ? ctx.products.length : ctx.countByCategory[cat] ?? 0}
+              </span>
+            )}
           </button>
         )
       })}
@@ -253,9 +258,15 @@ const luxoraSkin: CatalogSkin = {
               style={{
                 ...S.catBtn,
                 ...(active ? { background: L.ink, color: L.bg } : { background: "transparent", color: L.text2 }),
+                ...(ctx.showCategoryCount ? { display: "flex", justifyContent: "space-between", gap: 8 } : null),
               }}
             >
               {cat}
+              {ctx.showCategoryCount && (
+                <span style={{ opacity: 0.55, fontVariantNumeric: "tabular-nums" }}>
+                  {cat === "Todos" ? ctx.products.length : ctx.countByCategory[cat] ?? 0}
+                </span>
+              )}
             </button>
           )
         })}

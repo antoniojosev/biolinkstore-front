@@ -175,9 +175,15 @@ const vitrinaSkin: CatalogSkin = {
                 ...(active
                   ? { background: mix(V.primary, 10), color: V.primary }
                   : { background: "transparent", color: V.mutedFg }),
+                ...(ctx.showCategoryCount ? { display: "flex", justifyContent: "space-between", gap: 8 } : null),
               }}
             >
               {cat}
+              {ctx.showCategoryCount && (
+                <span style={{ opacity: 0.6, fontVariantNumeric: "tabular-nums" }}>
+                  {cat === "Todos" ? ctx.products.length : ctx.countByCategory[cat] ?? 0}
+                </span>
+              )}
             </button>
           )
         })}
@@ -242,6 +248,11 @@ const vitrinaSkin: CatalogSkin = {
                   }}
                 >
                   {cat}
+                  {ctx.showCategoryCount && (
+                    <span style={{ marginLeft: 6, opacity: 0.6, fontVariantNumeric: "tabular-nums" }}>
+                      {cat === "Todos" ? ctx.products.length : ctx.countByCategory[cat] ?? 0}
+                    </span>
+                  )}
                 </button>
               )
             })}

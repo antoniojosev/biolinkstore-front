@@ -68,6 +68,10 @@ export interface CatalogCtx {
   /** true si el filtro por categoría debe mostrarse (sección + prop + data). */
   filterEnabled: boolean
   showPrice: boolean
+  /** Mostrar el conteo de productos junto a cada categoría (prop showCount). */
+  showCategoryCount: boolean
+  /** Nº de productos por nombre de categoría (catálogo completo). */
+  countByCategory: Record<string, number>
   instagramUrl: string | null
   productHref?: (p: TemplateProduct) => string | null
   onOpenProduct?: (p: TemplateProduct) => void
@@ -182,6 +186,13 @@ export function CatalogShell({
   const filterEnabled =
     categoriesVisible && boolProp(gridNode, "filterByCategory", true) && categories.length > 0
   const showPrice = boolProp(gridNode, "showPrice", true)
+  const showCategoryCount = boolProp(categoriesNode, "showCount", false)
+  // Conteo de productos por nombre de categoría (sobre el catálogo completo).
+  const countByCategory = useMemo(() => {
+    const m: Record<string, number> = {}
+    for (const pr of products) if (pr.category) m[pr.category] = (m[pr.category] ?? 0) + 1
+    return m
+  }, [products])
 
   const instagramUrl =
     store.socials?.find((s) => /^ig$|insta/i.test(s.platform))?.url ?? null
@@ -203,6 +214,8 @@ export function CatalogShell({
     openCart: () => onOpenCart?.(),
     heroNode,
     filterEnabled,
+    showCategoryCount,
+    countByCategory,
     showPrice,
     instagramUrl,
     productHref,
