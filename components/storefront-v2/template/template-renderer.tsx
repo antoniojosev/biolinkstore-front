@@ -1632,9 +1632,28 @@ function FooterSection({ section, store }: SectionProps) {
   // Marca de plataforma (requisito del plan free); se oculta con la prop
   // showBranding=false, igual que en los footers custom por tema.
   const showBranding = section?.props?.showBranding !== false
+  // Redes de la tienda: viven fijas en el footer (ya no como sección movible),
+  // con toggle showSocials (default true).
+  const showSocials = section?.props?.showSocials !== false
+  const socials = showSocials ? store.socials ?? [] : []
   return (
     <SectionShell background="var(--bl-surface)" pad={false}>
       <div style={{ padding: "36px 28px", textAlign: "center", display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
+        {socials.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8 }}>
+            {socials.map((sn, i) => (
+              <a
+                key={i}
+                href={sn.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.03em", textTransform: "capitalize", color: "var(--bl-text)", textDecoration: "none", padding: "8px 14px", border: "1px solid var(--bl-border)", borderRadius: 999, background: "var(--bl-background)" }}
+              >
+                {sn.platform} ↗
+              </a>
+            ))}
+          </div>
+        )}
         {tagline && (
           <p style={{ margin: 0, color: "var(--bl-text-muted)", fontSize: 14, maxWidth: 480 }}>
             {tagline}

@@ -126,7 +126,9 @@ export function RosierRenderer({
   const heroNode = sections.find((s) => s.type === "hero")
   const heroImage = (heroNode && s(heroNode, "image")) || products[0]?.image || ""
   const hasSale = sections.some((sec) => sec.type === "featured_products")
-  const showSocials = sections.some((sec) => sec.type === "socials")
+  // Redes fijas en el footer, toggle en el prop del footer (ya no es sección).
+  const footerNode = sections.find((sec) => sec.type === "footer")
+  const showSocials = bool(footerNode, "showSocials", true)
 
   function scrollTo(ref: React.RefObject<HTMLDivElement | null>) {
     ref.current?.scrollIntoView({ behavior: "smooth", block: "start" })

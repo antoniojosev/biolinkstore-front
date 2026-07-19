@@ -37,32 +37,32 @@ export function SectionInspector({ def, node, onPropsChange, onToggleVisible, on
     <div style={S.wrap}>
       <div style={S.title}>{sectionLabel(def.type)}</div>
 
-      {/* Redes: se editan las redes REALES de la tienda (store.socials, que
-          se muestran en toda la tienda y pisan cualquier prop de sección). El
-          editor de items del schema no hacía nada acá — se reemplaza por el
-          administrador real, el mismo de Configuración → Redes. */}
-      {def.type === "socials" ? (
+      {propEntries.length > 0 && (
+        <div style={S.group}>
+          <span style={S.groupLbl}>Contenido</span>
+          {propEntries.map(([key, propDef]) => (
+            <PropField
+              key={key}
+              label={propDef.label ?? key}
+              propDef={propDef}
+              value={node.props[key]}
+              onChange={(v) => setProp(key, v)}
+              storeId={store?.id}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Las redes viven fijas en el footer (ya no son sección movible). Se
+          editan las redes REALES de la tienda (store.socials) desde acá — el
+          mismo administrador de Configuración → Redes. El toggle "Mostrar redes"
+          está arriba, en los props del footer. */}
+      {def.type === "footer" && (
         <div style={S.group}>
           <span style={S.groupLbl}>Redes de tu tienda</span>
-          <p style={S.hint}>Se muestran en toda tu tienda (también editables en Configuración → Redes).</p>
+          <p style={S.hint}>Se muestran en el footer (también editables en Configuración → Redes).</p>
           <SocialLinksCard compact />
         </div>
-      ) : (
-        propEntries.length > 0 && (
-          <div style={S.group}>
-            <span style={S.groupLbl}>Contenido</span>
-            {propEntries.map(([key, propDef]) => (
-              <PropField
-                key={key}
-                label={propDef.label ?? key}
-                propDef={propDef}
-                value={node.props[key]}
-                onChange={(v) => setProp(key, v)}
-                storeId={store?.id}
-              />
-            ))}
-          </div>
-        )
       )}
 
       <div style={S.group}>

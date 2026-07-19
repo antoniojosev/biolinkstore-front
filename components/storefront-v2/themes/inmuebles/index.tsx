@@ -473,6 +473,7 @@ export function InmueblesRenderer({
   function renderFooter(node: SectionNode) {
     const tagline = s(node, "tagline") || shortBio
     const showBranding = bool(node, "showBranding", true)
+    const showSocials = bool(node, "showSocials", true)
     return editorWrap(
       node,
       <>
@@ -590,7 +591,7 @@ export function InmueblesRenderer({
               <span translate="no">{store.name}</span> · Asesor inmobiliario
             </span>
             <div style={{ display: "flex", gap: 10 }}>
-              {instagramUrl && (
+              {showSocials && instagramUrl && (
                 <a
                   href={instagramUrl}
                   target="_blank"

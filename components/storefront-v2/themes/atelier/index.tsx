@@ -304,6 +304,7 @@ export function AtelierRenderer({
 
   // ── FOOTER / CONTACTO (spec §2.6) ─────────────────────────────────────────
   function renderFooter(node: SectionNode) {
+    const showSocials = bool(node, "showSocials", true)
     return editorWrap(
       node,
       <footer id="contacto" style={S.footer}>
@@ -333,7 +334,7 @@ export function AtelierRenderer({
             © {new Date().getFullYear()} {store.name}
           </span>
           <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-            {instagramUrl && (
+            {showSocials && instagramUrl && (
               <a href={instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="bl-at-icon" style={S.footerIcon}>
                 <Instagram style={{ width: 14, height: 14 }} strokeWidth={1.6} aria-hidden="true" />
               </a>

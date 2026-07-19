@@ -398,21 +398,16 @@ const luxoraSkin: CatalogSkin = {
 
   // Footer temático: el legacy no tenía footer (redes en el sidebar), así que
   // socials + footer del árbol se funden en un cierre minimal monocromo.
-  renderFooter(ctx, footerNode, socialsNode) {
-    const socials = ctx.store.socials ?? []
+  renderFooter(ctx, footerNode) {
+    const showSocials = boolProp(footerNode, "showSocials", true)
+    const socials = showSocials ? ctx.store.socials ?? [] : []
     const tagline = sProp(footerNode, "tagline") || ctx.store.bio || ""
-    const socialsTitle = sProp(socialsNode, "title")
     const showBranding = boolProp(footerNode, "showBranding", true)
     return (
       <footer className="bl-luxora-footer" style={{ paddingTop: 32, paddingLeft: 20, paddingRight: 20, textAlign: "center", background: L.bg }}>
         <div style={{ height: 1, background: L.border, margin: "0 auto 24px", maxWidth: 320 }} />
         {socials.length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginBottom: tagline ? 18 : 8 }}>
-            {socialsTitle && (
-              <p style={{ width: "100%", margin: "0 0 6px", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: L.muted }}>
-                {socialsTitle}
-              </p>
-            )}
             {socials.map((sn, i) => (
               <a
                 key={i}

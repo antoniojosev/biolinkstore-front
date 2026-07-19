@@ -252,10 +252,11 @@ export function PosterRenderer({
 
   function renderFooter(node: SectionNode) {
     const tagline = s(node, "tagline") || store.bio || ""
+    const showSocials = bool(node, "showSocials", true)
     return editorWrap(
       node,
       <footer style={S.socialFooter}>
-        {instagramUrl && (
+        {showSocials && instagramUrl && (
           <>
             <h3 style={S.followTitle}>Síguenos</h3>
             <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
