@@ -204,8 +204,9 @@ export function ThemePreviewModal({ templateKey, onClose }: Props) {
           {loading && <div style={S.state}>Cargando preview…</div>}
           {error && <div style={S.state}>No se pudo cargar la vista previa.</div>}
           {/* Wrapper estable: cambiar mobile/desktop solo re-estila (no remonta
-              el iframe → sin recarga), el key del iframe solo cambia por tema. */}
-          {iframe && <div style={device === "mobile" && !fullscreen ? S.phoneBezel : S.fillWrap}>{iframe}</div>}
+              el iframe → sin recarga), el key del iframe solo cambia por tema.
+              El bezel de teléfono aplica también en fullscreen (móvil centrado). */}
+          {iframe && <div style={device === "mobile" ? S.phoneBezel : S.fillWrap}>{iframe}</div>}
         </div>
 
         {/* Controles flotantes de fullscreen (edge-to-edge, sin header). */}
@@ -247,7 +248,9 @@ const S: Record<string, React.CSSProperties> = {
     borderRadius: 18,
     width: "100%",
     maxWidth: 1100,
-    maxHeight: "90vh",
+    // Altura FIJA (no solo max): el iframe usa height:100% y sin una altura
+    // definida en la cadena el viewport colapsaba (preview diminuto).
+    height: "90vh",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
@@ -322,9 +325,10 @@ const S: Record<string, React.CSSProperties> = {
   // Marco de teléfono para móvil-ventana; el iframe (390 virtual) dispara el
   // container query móvil de los temas.
   phoneBezel: {
+    alignSelf: "center", // centra vertical sin estirar (body sigue en stretch)
     width: 390,
     maxWidth: "100%",
-    margin: "16px auto",
+    height: "min(860px, calc(100% - 24px))",
     background: "#111",
     borderRadius: 28,
     padding: 8,
