@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from "react"
 import { Instagram, Search, ShoppingBag, X } from "lucide-react"
-import type { TemplateRendererProps } from "@/components/storefront-v2/template/template-renderer"
+import { filterVisibleSocials, type TemplateRendererProps } from "@/components/storefront-v2/template/template-renderer"
 import { CatalogShell, sProp, boolProp, type CatalogCtx, type CatalogSkin } from "../shared/catalog-shell"
 import { mix } from "../shared/catalog-shell/support"
 import { V, VITRINA_CSS, VRX, V_CTA_SHADOW } from "./shared"
@@ -44,23 +44,26 @@ function AvatarGlow({ ctx }: { ctx: CatalogCtx }) {
 }
 
 function IgAndCount({ ctx, marginTop }: { ctx: CatalogCtx; marginTop: number }) {
-  // Pill de conteo de productos: se puede ocultar desde el hero (prop
-  // showProductCount, default true).
+  // Pill de conteo (showProductCount) + redes elegidas para el hero
+  // (socialsHidden del hero). El botón "Seguir" queda para Instagram; el resto
+  // de redes seleccionadas se muestran como pills.
   const showCount = boolProp(ctx.heroNode, "showProductCount", true)
+  const socials = filterVisibleSocials(ctx.store.socials, ctx.heroNode?.props?.socialsHidden)
+  const ig = socials.find((s) => /^ig$|insta/i.test(s.platform))
+  const rest = socials.filter((s) => s !== ig)
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap", gap: 8, marginTop }}>
-      {ctx.instagramUrl && (
-        <a
-          href={ctx.instagramUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bl-vitrina-outlinebtn"
-          style={S.igBtn}
-        >
+      {ig && (
+        <a href={ig.url} target="_blank" rel="noopener noreferrer" className="bl-vitrina-outlinebtn" style={S.igBtn}>
           <Instagram style={{ width: 14, height: 14 }} />
           Seguir
         </a>
       )}
+      {rest.map((s, i) => (
+        <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="bl-vitrina-outlinebtn" style={S.igBtn}>
+          {s.platform}
+        </a>
+      ))}
       {showCount && <span style={S.countPill}>{ctx.products.length} productos</span>}
     </div>
   )
@@ -329,7 +332,7 @@ const vitrinaSkin: CatalogSkin = {
   // (el legacy tenía las redes en el sidebar; en móvil no había footer).
   renderFooter(ctx, footerNode) {
     const showSocials = boolProp(footerNode, "showSocials", true)
-    const socials = showSocials ? ctx.store.socials ?? [] : []
+    const socials = showSocials ? filterVisibleSocials(ctx.store.socials, footerNode?.props?.socialsHidden) : []
     const tagline = sProp(footerNode, "tagline") || ctx.store.bio || ""
     const showBranding = boolProp(footerNode, "showBranding", true)
     return (

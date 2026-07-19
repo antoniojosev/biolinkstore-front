@@ -3,27 +3,84 @@
 import { useAuth } from "@/contexts/auth-context"
 import { UploadButton } from "../upload-button"
 import { SocialLinksCard } from "../social-links-card"
+import { useStoreSocials } from "@/lib/hooks/use-store-socials"
 import type { SectionDef, SectionNode, SectionPropDef } from "@/lib/page-builder-api"
 import { sectionLabel } from "./section-labels"
+
+// Temas cuyo HERO tiene un lugar para redes (perfil linktree). En otros temas
+// el hero no las dibuja, así que no se ofrece el control ahí.
+const HERO_SOCIALS_TEMPLATES = new Set(["vitrina", "luxora"])
 
 interface Props {
   def: SectionDef | null
   node: SectionNode | null
+  templateKey?: string
   onPropsChange: (props: Record<string, unknown>) => void
   onToggleVisible: () => void
   onDelete: () => void
+}
+
+/**
+ * Control de redes por sección: el editor maestro (SocialLinksCard, que edita
+ * las URLs reales de la tienda) + checkboxes de "mostrar en esta sección". La
+ * selección por sección se guarda como `socialsHidden` (plataformas ocultas
+ * acá); vacío = se muestran todas.
+ */
+function SectionSocialsControl({
+  hidden,
+  onChange,
+}: {
+  hidden: string[]
+  onChange: (hidden: string[]) => void
+}) {
+  const { socials } = useStoreSocials()
+  const hiddenSet = new Set(hidden)
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {socials.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {socials.map((sn) => {
+            const shown = !hiddenSet.has(sn.platform)
+            return (
+              <label
+                key={sn.id}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, cursor: "pointer", padding: "4px 8px", border: "1px solid var(--line)", borderRadius: 8, opacity: shown ? 1 : 0.5 }}
+              >
+                <input
+                  type="checkbox"
+                  checked={shown}
+                  onChange={() => {
+                    const next = new Set(hiddenSet)
+                    if (shown) next.add(sn.platform)
+                    else next.delete(sn.platform)
+                    onChange(Array.from(next))
+                  }}
+                  style={{ accentColor: "var(--brand)" }}
+                />
+                {sn.platform}
+              </label>
+            )
+          })}
+        </div>
+      )}
+      <SocialLinksCard compact />
+    </div>
+  )
 }
 
 // Nota: el layout/variante visual de una sección (ej. hero split/compact/banner)
 // se controla con una prop `layout` normal declarada en el schema del template,
 // no con section.variant — ese campo existe en el backend pero el renderer no
 // lo lee, así que un selector separado acá sería otro control que no hace nada.
-export function SectionInspector({ def, node, onPropsChange, onToggleVisible, onDelete }: Props) {
+export function SectionInspector({ def, node, templateKey, onPropsChange, onToggleVisible, onDelete }: Props) {
   const { store } = useAuth()
 
   if (!def || !node) {
     return <div style={S.empty}>Seleccioná una sección del panel izquierdo para editarla.</div>
   }
+
+  const showSocialsControl =
+    def.type === "footer" || (def.type === "hero" && !!templateKey && HERO_SOCIALS_TEMPLATES.has(templateKey))
 
   function setProp(key: string, value: unknown) {
     onPropsChange({ ...node!.props, [key]: value })
@@ -31,7 +88,8 @@ export function SectionInspector({ def, node, onPropsChange, onToggleVisible, on
 
   const isHidden = node.visible === false
   const canDelete = def.removable !== false
-  const propEntries = Object.entries(def.props ?? {})
+  // socialsHidden lo maneja el control de redes por sección, no un PropField.
+  const propEntries = Object.entries(def.props ?? {}).filter(([k]) => k !== "socialsHidden")
 
   return (
     <div style={S.wrap}>
@@ -53,15 +111,17 @@ export function SectionInspector({ def, node, onPropsChange, onToggleVisible, on
         </div>
       )}
 
-      {/* Las redes viven fijas en el footer (ya no son sección movible). Se
-          editan las redes REALES de la tienda (store.socials) desde acá — el
-          mismo administrador de Configuración → Redes. El toggle "Mostrar redes"
-          está arriba, en los props del footer. */}
-      {def.type === "footer" && (
+      {/* Redes por sección: elegís cuáles mostrar acá (checkboxes) y editás las
+          URLs reales de la tienda con el administrador (mismo de Config → Redes,
+          compartido entre secciones). */}
+      {showSocialsControl && (
         <div style={S.group}>
-          <span style={S.groupLbl}>Redes de tu tienda</span>
-          <p style={S.hint}>Se muestran en el footer (también editables en Configuración → Redes).</p>
-          <SocialLinksCard compact />
+          <span style={S.groupLbl}>Redes en esta sección</span>
+          <p style={S.hint}>Tildá cuáles mostrar acá. Las URLs se editan abajo (valen para toda la tienda).</p>
+          <SectionSocialsControl
+            hidden={Array.isArray(node.props.socialsHidden) ? (node.props.socialsHidden as string[]) : []}
+            onChange={(hidden) => setProp("socialsHidden", hidden)}
+          />
         </div>
       )}
 

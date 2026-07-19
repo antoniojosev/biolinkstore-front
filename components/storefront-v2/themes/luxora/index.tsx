@@ -2,7 +2,7 @@
 
 import { useState, type CSSProperties } from "react"
 import { Instagram, Search, ShoppingBag, X } from "lucide-react"
-import type { TemplateRendererProps, TemplateProduct } from "@/components/storefront-v2/template/template-renderer"
+import { filterVisibleSocials, type TemplateRendererProps, type TemplateProduct } from "@/components/storefront-v2/template/template-renderer"
 import type { SectionNode } from "@/lib/page-builder-api"
 import { CatalogShell, sProp, boolProp, type CatalogCtx, type CatalogSkin } from "../shared/catalog-shell"
 import { mix } from "../shared/catalog-shell/support"
@@ -30,6 +30,12 @@ export function LuxoraRenderer(props: TemplateRendererProps) {
 }
 
 // ── piezas del skin ───────────────────────────────────────────────────────────
+
+/** IG del hero respetando la selección por sección (socialsHidden del hero). */
+function heroIg(ctx: CatalogCtx): string | undefined {
+  const socials = filterVisibleSocials(ctx.store.socials, ctx.heroNode?.props?.socialsHidden)
+  return socials.find((s) => /^ig$|insta/i.test(s.platform))?.url
+}
 
 /** Identidad del sidebar (spec §2.1): cover aspect-video con scrim o fila avatar. */
 function SidebarIdentity({ ctx }: { ctx: CatalogCtx }) {
@@ -226,9 +232,9 @@ const luxoraSkin: CatalogSkin = {
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <SidebarIdentity ctx={ctx} />
         {bio && <p style={{ margin: 0, fontSize: 14, color: L.text2, lineHeight: 1.6 }}>{bio}</p>}
-        {ctx.instagramUrl && (
+        {heroIg(ctx) && (
           <a
-            href={ctx.instagramUrl}
+            href={heroIg(ctx)}
             target="_blank"
             rel="noopener noreferrer"
             className="bl-luxora-textlink"
@@ -298,9 +304,9 @@ const luxoraSkin: CatalogSkin = {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={cover} alt={name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,.6), rgba(0,0,0,.1) 50%, transparent)" }} />
-          {ctx.instagramUrl && (
+          {heroIg(ctx) && (
             <a
-              href={ctx.instagramUrl}
+              href={heroIg(ctx)}
               target="_blank"
               rel="noopener noreferrer"
               className="bl-luxora-igfloat"
@@ -329,8 +335,8 @@ const luxoraSkin: CatalogSkin = {
           <div style={{ flex: 1, minWidth: 0 }}>
             <AvatarRow ctx={ctx} nameSize={24} />
           </div>
-          {ctx.instagramUrl && (
-            <a href={ctx.instagramUrl} target="_blank" rel="noopener noreferrer" className="bl-luxora-textlink" aria-label="Instagram" style={{ marginLeft: "auto", color: L.muted, display: "flex" }}>
+          {heroIg(ctx) && (
+            <a href={heroIg(ctx)} target="_blank" rel="noopener noreferrer" className="bl-luxora-textlink" aria-label="Instagram" style={{ marginLeft: "auto", color: L.muted, display: "flex" }}>
               <Instagram style={{ width: 20, height: 20 }} />
             </a>
           )}
@@ -400,7 +406,7 @@ const luxoraSkin: CatalogSkin = {
   // socials + footer del árbol se funden en un cierre minimal monocromo.
   renderFooter(ctx, footerNode) {
     const showSocials = boolProp(footerNode, "showSocials", true)
-    const socials = showSocials ? ctx.store.socials ?? [] : []
+    const socials = showSocials ? filterVisibleSocials(ctx.store.socials, footerNode?.props?.socialsHidden) : []
     const tagline = sProp(footerNode, "tagline") || ctx.store.bio || ""
     const showBranding = boolProp(footerNode, "showBranding", true)
     return (

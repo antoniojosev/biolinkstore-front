@@ -74,7 +74,7 @@ export interface SectionTree {
 
 // ─── Section schema (declarative per-template prop definitions) ──────────────
 
-export type SectionPropType = 'text' | 'string' | 'enum' | 'boolean' | 'number' | 'color' | 'image' | 'list'
+export type SectionPropType = 'text' | 'string' | 'enum' | 'boolean' | 'number' | 'color' | 'image' | 'list' | 'stringlist'
 
 export interface SectionPropDef {
   type: SectionPropType

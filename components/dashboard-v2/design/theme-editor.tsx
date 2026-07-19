@@ -247,6 +247,7 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
           <SectionInspector
             def={selectedDef}
             node={selectedNode}
+            templateKey={activeTemplate?.key}
             onPropsChange={(props) => selectedNode && handlePropsChange(selectedNode.key, props)}
             onToggleVisible={() => selectedNode && handleToggleVisible(selectedNode.key)}
             onDelete={() => {
@@ -382,6 +383,7 @@ export function ThemeEditor({ onClose, onGoToThemes }: Props) {
               <SectionInspector
                 def={selectedDef}
                 node={selectedNode}
+                templateKey={activeTemplate?.key}
                 onPropsChange={(props) => selectedNode && handlePropsChange(selectedNode.key, props)}
                 onToggleVisible={() => selectedNode && handleToggleVisible(selectedNode.key)}
                 onDelete={() => selectedNode && handleDeleteSection(selectedNode.key)}

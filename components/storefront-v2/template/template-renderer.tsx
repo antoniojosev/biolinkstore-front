@@ -23,6 +23,16 @@ export interface TemplateVariant {
  * inmueble · 'ingredient-included'/'ingredient-extra' = flujo "arma tu…".
  * Los renderers por tema los consumen (specs de propiedades, ingredientes).
  */
+/** Redes visibles en una sección: store.socials menos las ocultas (socialsHidden). */
+export function filterVisibleSocials(
+  socials: TemplateSocialLink[] | undefined,
+  hidden: unknown,
+): TemplateSocialLink[] {
+  const list = socials ?? []
+  const hiddenSet = new Set(Array.isArray(hidden) ? (hidden as string[]) : [])
+  return list.filter((s) => !hiddenSet.has(s.platform))
+}
+
 export interface TemplateAttribute {
   name: string
   type: "text" | "color"
@@ -1633,9 +1643,9 @@ function FooterSection({ section, store }: SectionProps) {
   // showBranding=false, igual que en los footers custom por tema.
   const showBranding = section?.props?.showBranding !== false
   // Redes de la tienda: viven fijas en el footer (ya no como sección movible),
-  // con toggle showSocials (default true).
+  // con toggle showSocials (default true) + selección por sección (socialsHidden).
   const showSocials = section?.props?.showSocials !== false
-  const socials = showSocials ? store.socials ?? [] : []
+  const socials = showSocials ? filterVisibleSocials(store.socials, section?.props?.socialsHidden) : []
   return (
     <SectionShell background="var(--bl-surface)" pad={false}>
       <div style={{ padding: "36px 28px", textAlign: "center", display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
