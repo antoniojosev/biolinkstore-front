@@ -143,10 +143,12 @@ const vitrinaSkin: CatalogSkin = {
   renderSidebarProfile(ctx) {
     const name = sProp(ctx.heroNode, "headline") || ctx.store.name
     const bio = sProp(ctx.heroNode, "subheadline") || ctx.store.bio || ""
+    const kicker = sProp(ctx.heroNode, "kicker")
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 12 }}>
         <AvatarGlow ctx={ctx} />
         <div>
+          {kicker && <p style={S.kicker}>{kicker}</p>}
           <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: V.text }}>{name}</h1>
           {ctx.store.username && <p style={{ margin: "2px 0 0", fontSize: 12, color: V.mutedFg }}>{ctx.store.username}</p>}
           {bio && <p style={{ margin: "8px 0 0", fontSize: 12, color: mix(V.text, 60), lineHeight: 1.6 }}>{bio}</p>}
@@ -202,6 +204,7 @@ const vitrinaSkin: CatalogSkin = {
     const cover = sProp(ctx.heroNode, "image")
     const name = sProp(ctx.heroNode, "headline") || ctx.store.name
     const bio = sProp(ctx.heroNode, "subheadline") || ctx.store.bio || ""
+    const kicker = sProp(ctx.heroNode, "kicker")
     return (
       <header style={{ position: "relative" }}>
         <div style={{ position: "relative", height: 128, width: "100%", overflow: "hidden" }}>
@@ -217,6 +220,7 @@ const vitrinaSkin: CatalogSkin = {
           <div style={{ marginBottom: 12 }}>
             <AvatarGlow ctx={ctx} />
           </div>
+          {kicker && <p style={S.kicker}>{kicker}</p>}
           <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: V.text }}>{name}</h1>
           {ctx.store.username && <p style={{ margin: "2px 0 0", fontSize: 14, color: V.mutedFg }}>{ctx.store.username}</p>}
           {bio && <p style={{ margin: "8px 0 0", fontSize: 14, color: mix(V.text, 70), maxWidth: 320, lineHeight: 1.6 }}>{bio}</p>}
@@ -372,6 +376,10 @@ const S: Record<string, CSSProperties> = {
   countPill: {
     fontSize: 12, color: V.mutedFg, background: V.muted,
     padding: "6px 12px", borderRadius: 999,
+  },
+  kicker: {
+    margin: "0 0 4px", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
+    textTransform: "uppercase", color: V.primary,
   },
   searchInput: {
     width: "100%", height: 36, padding: "0 36px",

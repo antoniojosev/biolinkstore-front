@@ -42,6 +42,9 @@ function SidebarIdentity({ ctx }: { ctx: CatalogCtx }) {
         <img src={cover} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,.5), transparent)" }} />
         <div style={{ position: "absolute", bottom: 12, left: 12, right: 12 }}>
+          {sProp(ctx.heroNode, "kicker") && (
+            <p style={{ ...S.kicker, color: "rgba(255,255,255,0.85)" }}>{sProp(ctx.heroNode, "kicker")}</p>
+          )}
           <h1 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: "#fff", lineHeight: 1.25 }}>{name}</h1>
         </div>
       </div>
@@ -62,6 +65,7 @@ function AvatarRow({ ctx, nameSize }: { ctx: CatalogCtx; nameSize: number }) {
         style={{ width: 48, height: 48, borderRadius: "50%", border: `1px solid ${L.borderStrong}`, objectFit: "cover", flexShrink: 0 }}
       />
       <div style={{ minWidth: 0 }}>
+        {sProp(ctx.heroNode, "kicker") && <p style={S.kicker}>{sProp(ctx.heroNode, "kicker")}</p>}
         <h1 style={{ margin: 0, fontSize: nameSize, fontWeight: 900, color: L.ink, lineHeight: 1.25 }}>{name}</h1>
         {ctx.store.username && <p style={{ margin: 0, fontSize: 12, color: L.muted }}>{ctx.store.username}</p>}
       </div>
@@ -457,6 +461,10 @@ const S: Record<string, CSSProperties> = {
   catLabel: {
     margin: "0 0 4px", fontSize: 10, fontWeight: 600,
     color: L.muted2, textTransform: "uppercase", letterSpacing: "0.05em",
+  },
+  kicker: {
+    margin: "0 0 3px", fontSize: 10, fontWeight: 700,
+    color: L.muted, textTransform: "uppercase", letterSpacing: "0.12em",
   },
   catBtn: {
     textAlign: "left", padding: "8px 12px", borderRadius: LRX.xl,
